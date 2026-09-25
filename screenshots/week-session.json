@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/session",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 473,
+      "bodyTextHash": "3cd77030b90cbb289d5738788ee2e6089df1c4cb647c8e58f034afa8405d0c35",
+      "bodyTextPrefix": "SESSION Start Pick a workout, add or swap lifts, then tap Start ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/week-session.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 473,
+      "bodyTextHash": "3cd77030b90cbb289d5738788ee2e6089df1c4cb647c8e58f034afa8405d0c35",
+      "bodyTextPrefix": "SESSION Start Pick a workout, add or swap lifts, then tap Start ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/week-session-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/week-session.json"
+}

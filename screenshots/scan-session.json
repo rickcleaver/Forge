@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/session",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 420,
+      "bodyTextHash": "973b784c7d894ed52dedfb486ad8e621157af34407a17ae3a18790454706f713",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, or blank. Repeat last to run it ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/scan-session.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 420,
+      "bodyTextHash": "973b784c7d894ed52dedfb486ad8e621157af34407a17ae3a18790454706f713",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, or blank. Repeat last to run it ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/scan-session-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/scan-session.json"
+}

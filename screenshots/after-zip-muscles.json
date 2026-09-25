@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/muscles",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 469,
+      "bodyTextHash": "0acc2931bc8a077b451bb428b3f224c87c579872faba3b2f0791e5f2621fbb2e",
+      "bodyTextPrefix": "COVERAGE Muscles Heat is completed sets this week. Tap a region ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/after-zip-muscles.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 469,
+      "bodyTextHash": "0acc2931bc8a077b451bb428b3f224c87c579872faba3b2f0791e5f2621fbb2e",
+      "bodyTextPrefix": "COVERAGE Muscles Heat is completed sets this week. Tap a region ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/after-zip-muscles-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/after-zip-muscles.json"
+}

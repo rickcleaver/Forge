@@ -1,0 +1,31 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+const BODY = [
+  {
+    relation: ["delegate_permission/common.handle_all_urls"],
+    target: {
+      namespace: "android_app",
+      package_name: "ca.forge.log",
+      sha256_cert_fingerprints: [
+        "0B:1A:74:18:DA:59:0D:42:5C:B6:4F:1D:8A:56:FD:5C:FE:70:C1:BE:29:D4:0C:85:58:05:F8:76:F8:4A:0C:47",
+        "90:5B:2A:11:A3:82:B9:08:7F:74:3C:FF:22:81:2C:69:0B:2B:25:E9:63:0B:D5:2A:DC:BE:CC:9E:EB:24:FE:52",
+        "44:C4:DF:A2:7C:A1:C1:25:BD:5B:52:24:A6:DB:3C:21:90:79:06:D0:69:E5:7B:29:CB:A8:37:9B:86:34:23:4C",
+        "92:E4:B8:F9:F4:71:53:7B:D1:86:8F:42:92:C3:9C:0A:C5:1C:DF:1F:62:4E:2F:A2:35:89:1B:66:2A:CF:4A:D4",
+      ],
+    },
+  },
+];
+
+export const Route = createFileRoute("/.well-known/assetlinks.json")({
+  server: {
+    handlers: {
+      GET: () =>
+        new Response(JSON.stringify(BODY, null, 2), {
+          headers: {
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "no-store",
+          },
+        }),
+    },
+  },
+});

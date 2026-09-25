@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 1008,
+      "bodyTextHash": "b6a067c810fc75f017c3963dad85f732ff85e85cc875ffe9ff76cb0306843f5d",
+      "bodyTextPrefix": "FORGE Sunday August 30 Your log only lives on this phone. Open S",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/week-today.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 1008,
+      "bodyTextHash": "b6a067c810fc75f017c3963dad85f732ff85e85cc875ffe9ff76cb0306843f5d",
+      "bodyTextPrefix": "FORGE Sunday August 30 Your log only lives on this phone. Open S",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/week-today-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/week-today.json"
+}

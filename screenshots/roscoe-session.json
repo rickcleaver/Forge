@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/session",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 360,
+      "bodyTextHash": "70826c6e82e182a033030b62fb14fa619bad9b148ed7aef66776ee5d19362b7e",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, Roscoe, or blank. Blank session ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/roscoe-session.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 360,
+      "bodyTextHash": "70826c6e82e182a033030b62fb14fa619bad9b148ed7aef66776ee5d19362b7e",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, Roscoe, or blank. Blank session ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/roscoe-session-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/roscoe-session.json"
+}

@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 366,
+      "bodyTextHash": "0380512ccd11c45b8020de2fc2a786192a115ab6ddd8ea8b05be4ca98782e1d5",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Log sets, tag muscles, ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/pro-today.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 366,
+      "bodyTextHash": "0380512ccd11c45b8020de2fc2a786192a115ab6ddd8ea8b05be4ca98782e1d5",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Log sets, tag muscles, ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/pro-today-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/pro-today.json"
+}

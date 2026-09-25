@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/history",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 201,
+      "bodyTextHash": "6f6293c84b30a7d831c51b0bfb116ba2771c8973ce8a8c793b38ed7893f7c1a8",
+      "bodyTextPrefix": "LOG History 2 finished sessions Legs Fri 28 Aug · 1:10:00 · 16 s",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/best-history.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 201,
+      "bodyTextHash": "6f6293c84b30a7d831c51b0bfb116ba2771c8973ce8a8c793b38ed7893f7c1a8",
+      "bodyTextPrefix": "LOG History 2 finished sessions Legs Fri 28 Aug · 1:10:00 · 16 s",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/best-history-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/best-history.json"
+}

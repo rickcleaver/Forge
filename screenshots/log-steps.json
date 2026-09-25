@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/history",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 236,
+      "bodyTextHash": "ece7a8a1ddf41fe6e171b39943f50c3811e0815ed99bbb1ec6b03f1fc65294ba",
+      "bodyTextPrefix": "LOG History 2 sessions · 0 step days Friday 28 Aug Legs Fri 28 A",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/log-steps.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 236,
+      "bodyTextHash": "ece7a8a1ddf41fe6e171b39943f50c3811e0815ed99bbb1ec6b03f1fc65294ba",
+      "bodyTextPrefix": "LOG History 2 sessions · 0 step days Friday 28 Aug Legs Fri 28 A",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/log-steps-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/log-steps.json"
+}

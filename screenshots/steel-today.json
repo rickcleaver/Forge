@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 667,
+      "bodyTextHash": "8186be2413acd85c7b3cab2db2b25aea9d6cc6929dab9692f784d82e0e24c602",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Log sets, tag muscles, ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/steel-today.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 667,
+      "bodyTextHash": "8186be2413acd85c7b3cab2db2b25aea9d6cc6929dab9692f784d82e0e24c602",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Log sets, tag muscles, ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/steel-today-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/steel-today.json"
+}

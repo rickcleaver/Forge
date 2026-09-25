@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 917,
+      "bodyTextHash": "6498818965b41226529d4188af214014dbafe3daa495219b5366fb03871d90c0",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Pick a workout, scan a ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/steps-today.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 917,
+      "bodyTextHash": "6498818965b41226529d4188af214014dbafe3daa495219b5366fb03871d90c0",
+      "bodyTextPrefix": "FORGE Saturday August 29 Start a session Pick a workout, scan a ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/steps-today-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/steps-today.json"
+}

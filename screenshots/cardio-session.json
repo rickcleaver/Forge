@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/session",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 453,
+      "bodyTextHash": "d98a614710cc9ea221be1df966518755b2e067400403bbd7c6cbb939f0c39afe",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, or blank. Repeat last to run it ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/cardio-session.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Forge",
+      "hasCanvas": false,
+      "bodyTextLen": 453,
+      "bodyTextHash": "d98a614710cc9ea221be1df966518755b2e067400403bbd7c6cbb939f0c39afe",
+      "bodyTextPrefix": "SESSION Start Gym, home, bands, or blank. Repeat last to run it ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/cardio-session-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/cardio-session.json"
+}
