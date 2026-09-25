@@ -2,29 +2,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Pop — candy teal + hot pink (default) */
-  --color-bg: #0b1220;
-  --color-surface: #152238;
-  --color-surface-2: #1e3150;
-  --color-well: #274066;
-  --color-fg: #f7fbff;
-  --color-muted: #9eb4d4;
-  --color-subtle: #6f87ab;
+  /* Neon — deep ink navy + electric cyan/violet (hero default) */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
   --color-accent: #3b82ff;
   --color-accent-fg: #061022;
-  --color-border: #2c4568;
-  --color-ring: #7c5cff;
-  --color-danger: #ff5c7a;
-  --color-success: #b8ff3c;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
   --color-skin: #e8b896;
   --color-skin-deep: #b56a45;
   --color-fiber: rgb(40 18 10 / 0.42);
-  --color-overlay: rgb(6 10 22 / 72%);
-  --color-muscle: #2f4566;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-muscle: #1c2744;
   --color-muscle-ink: #c5d6ef;
-  --color-muscle-hit: #2ee6c5;
-  --color-candy-2: #2ee6c5;
-  --color-candy-3: #ffd84d;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
 
   --font-sans: "Nunito", ui-sans-serif, system-ui, "Roboto", sans-serif;
   --font-display: "Fredoka", "Nunito", ui-sans-serif, system-ui, sans-serif;
@@ -45,7 +45,7 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Neon — electric purple + lime */
+/* Neon hero tokens live in @theme + html[data-theme="neon"] */
 
 /* Pop — candy pink alternate */
 html[data-theme="pop"] {
@@ -71,28 +71,29 @@ html[data-theme="pop"] {
 }
 
 html[data-theme="neon"] {
-  --color-bg: #12081c;
-  --color-surface: #1d1230;
-  --color-surface-2: #2a1a44;
-  --color-well: #3a2560;
-  --color-fg: #f8f2ff;
-  --color-muted: #b7a4d8;
-  --color-subtle: #7d6a9e;
-  --color-accent: #b8ff3c;
-  --color-accent-fg: #142006;
-  --color-border: #3d2a5c;
-  --color-ring: #c084ff;
-  --color-danger: #ff6bb5;
-  --color-success: #6ef0ff;
-  --color-overlay: rgb(12 6 24 / 74%);
-  --color-skin: #d4b8e8;
-  --color-skin-deep: #7a4aa0;
-  --color-fiber: rgb(24 8 40 / 0.45);
-  --color-muscle: #3a2a55;
-  --color-muscle-ink: #d8c8f0;
-  --color-muscle-hit: #c084ff;
-  --color-candy-2: #c084ff;
-  --color-candy-3: #ff4d8d;
+  /* Deep ink navy · electric blue/cyan · violet glow — premium Liftoff energy */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-skin: #e8b896;
+  --color-skin-deep: #b56a45;
+  --color-fiber: rgb(12 18 40 / 0.45);
+  --color-muscle: #1c2744;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
 }
 
 /* Sunny — citrus coral glow */
@@ -167,25 +168,26 @@ html[data-theme="ember"] {
 }
 
 html[data-theme="ion"] {
-  --color-bg: #12081c;
-  --color-surface: #1d1230;
-  --color-surface-2: #2a1a44;
-  --color-well: #3a2560;
-  --color-fg: #f8f2ff;
-  --color-muted: #b7a4d8;
-  --color-subtle: #7d6a9e;
-  --color-accent: #b8ff3c;
-  --color-accent-fg: #142006;
-  --color-border: #3d2a5c;
-  --color-ring: #c084ff;
-  --color-danger: #ff6bb5;
-  --color-success: #6ef0ff;
-  --color-overlay: rgb(12 6 24 / 74%);
-  --color-muscle: #3a2a55;
-  --color-muscle-ink: #d8c8f0;
-  --color-muscle-hit: #c084ff;
-  --color-candy-2: #c084ff;
-  --color-candy-3: #ff4d8d;
+  /* Legacy alias → neon hero palette */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-muscle: #1c2744;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
 }
 
 html[data-mode="light"] {
@@ -218,14 +220,14 @@ html[data-mode="light"][data-theme="ember"] {
 
 html[data-mode="light"][data-theme="neon"],
 html[data-mode="light"][data-theme="ion"] {
-  --color-bg: #f6f0ff;
-  --color-surface: #fcfbff;
-  --color-surface-2: #ebe0ff;
-  --color-well: #ddd0f5;
-  --color-fg: #160e24;
-  --color-muted: #6a5888;
-  --color-subtle: #9480b8;
-  --color-border: #ddd0f0;
+  --color-bg: #eef2ff;
+  --color-surface: #ffffff;
+  --color-surface-2: #e0e7ff;
+  --color-well: #c7d2fe;
+  --color-fg: #0b1220;
+  --color-muted: #4c5d82;
+  --color-subtle: #7a8bb0;
+  --color-border: #c5d0f0;
 }
 
 html[data-mode="light"][data-theme="pop"],

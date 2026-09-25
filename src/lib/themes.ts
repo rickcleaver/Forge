@@ -16,7 +16,7 @@ export const THEMES: Array<{
   swatch: string;
   bar: string;
 }> = [
-  { id: "neon", name: "Neon", blurb: "Dark navy · electric blue", swatch: "#3B82FF", bar: "#070B16" },
+  { id: "neon", name: "Neon", blurb: "Ink navy · cyan/violet glow", swatch: "#3B82FF", bar: "#070B16" },
   { id: "pop", name: "Pop", blurb: "Candy pink bright mode", swatch: "#FF4D8D", bar: "#0B1220" },
   { id: "sunny", name: "Sunny", blurb: "Citrus glow alternate", swatch: "#FFB020", bar: "#1A0F08" },
 ];

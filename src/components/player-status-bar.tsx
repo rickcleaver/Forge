@@ -37,14 +37,14 @@ export function PlayerStatusBar() {
           {streak}
         </span>
         <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold shadow-[var(--shadow-border)]">
-          <Gem className="size-3.5 text-sky-400" />
+          <Gem className="size-3.5 text-[var(--color-candy-2)]" />
           {player.gems}
         </span>
         <span
           className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold text-muted shadow-[var(--shadow-border)]"
           title="Total XP"
         >
-          <Sparkles className="size-3.5 text-accent" />
+          <Sparkles className="size-3.5 text-[var(--color-ring)]" />
           {player.xp}
         </span>
         <button

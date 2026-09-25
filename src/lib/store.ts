@@ -414,17 +414,24 @@ export const useGym = create<GymState>()(
         });
         const q = views.find((x) => x.id === id);
         if (!q || !q.claimable) return { ok: false };
-        set({
-          player: {
-            ...s.player,
-            xp: s.player.xp + q.rewardXp,
-            gems: s.player.gems + q.rewardGems,
-            claimedQuestIds: s.player.claimedQuestIds.includes(id)
-              ? s.player.claimedQuestIds
-              : [...s.player.claimedQuestIds, id],
-          },
+        const rewardXp = q.rewardXp;
+        const rewardGems = q.rewardGems;
+        // Functional set so rapid double-taps cannot double-grant.
+        let granted = false;
+        set((prev) => {
+          if (prev.player.claimedQuestIds.includes(id)) return prev;
+          granted = true;
+          return {
+            player: {
+              ...prev.player,
+              xp: prev.player.xp + rewardXp,
+              gems: prev.player.gems + rewardGems,
+              claimedQuestIds: [...prev.player.claimedQuestIds, id],
+            },
+          };
         });
-        return { ok: true, xp: q.rewardXp, gems: q.rewardGems };
+        if (!granted) return { ok: false };
+        return { ok: true, xp: rewardXp, gems: rewardGems };
       },
       startSession: ({ name, templateId, programId }) => {
         const program = get().programs.find((p) => p.id === programId);

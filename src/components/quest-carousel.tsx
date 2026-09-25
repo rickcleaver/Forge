@@ -1,6 +1,7 @@
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useGym } from "@/lib/store";
-import type { QuestTone, QuestView } from "@/lib/quests";
+import { evaluateQuests, type QuestId, type QuestTone, type QuestView } from "@/lib/quests";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
@@ -26,10 +27,51 @@ function pct(q: QuestView): number {
   return Math.round(Math.min(1, q.progress / Math.max(1, q.target)) * 100);
 }
 
-export function QuestCarousel({ className }: { className?: string }) {
-  const listQuests = useGym((s) => s.listQuests);
+function useQuestViews(): QuestView[] {
+  // Subscribe to the state that evaluateQuests reads — selecting listQuests alone
+  // is a stable fn ref, so claims never re-rendered the carousel/panel.
+  const player = useGym((s) => s.player);
+  const sessions = useGym((s) => s.sessions);
+  const setupDone = useGym((s) => s.settings.setupDone);
+  return useMemo(
+    () =>
+      evaluateQuests({
+        setupDone: Boolean(setupDone),
+        sessions,
+        player,
+      }),
+    [player, sessions, setupDone],
+  );
+}
+
+function buzzClaim() {
+  try {
+    navigator.vibrate?.([40, 30, 60]);
+  } catch {
+    /* ignore */
+  }
+}
+
+function useClaimHandler() {
   const claimQuest = useGym((s) => s.claimQuest);
-  const all = listQuests();
+  const [flash, setFlash] = useState<{ id: QuestId; xp: number; gems: number } | null>(null);
+
+  const onClaim = (id: QuestId) => {
+    const result = claimQuest(id);
+    if (!result.ok || result.xp == null || result.gems == null) return;
+    buzzClaim();
+    setFlash({ id, xp: result.xp, gems: result.gems });
+    window.setTimeout(() => {
+      setFlash((cur) => (cur?.id === id ? null : cur));
+    }, 2600);
+  };
+
+  return { onClaim, flash };
+}
+
+export function QuestCarousel({ className }: { className?: string }) {
+  const all = useQuestViews();
+  const { onClaim, flash } = useClaimHandler();
   const open = all.filter((q) => !q.claimed);
   const visible = (open.length ? open : all).slice(0, 6);
 
@@ -41,6 +83,15 @@ export function QuestCarousel({ className }: { className?: string }) {
           All quests
         </Link>
       </div>
+      {flash ? (
+        <p
+          className="mt-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2 text-center text-sm font-bold text-fg forge-bounce-in"
+          role="status"
+          aria-live="polite"
+        >
+          Claimed! +{flash.xp} XP · +{flash.gems} gems
+        </p>
+      ) : null}
       <div className="-mx-4 mt-3 flex gap-3 overflow-x-auto px-4 pb-1">
         {visible.map((q) => (
           <article
@@ -69,12 +120,14 @@ export function QuestCarousel({ className }: { className?: string }) {
               <Button
                 type="button"
                 className={cn("mt-3 min-h-11 w-full rounded-full font-bold", CTA[q.tone])}
-                onClick={() => claimQuest(q.id)}
+                onClick={() => onClaim(q.id)}
               >
                 Claim reward
               </Button>
             ) : q.claimed ? (
-              <p className="mt-3 text-center text-xs font-bold text-success">Claimed</p>
+              <p className="mt-3 text-center text-xs font-bold text-success">
+                {flash?.id === q.id ? `Claimed · +${flash.xp} XP · +${flash.gems} gems` : "Claimed"}
+              </p>
             ) : (
               <p className="mt-3 text-center text-xs text-muted">
                 {q.progress}/{q.target} — keep going
@@ -88,14 +141,22 @@ export function QuestCarousel({ className }: { className?: string }) {
 }
 
 export function QuestsPanel({ className }: { className?: string }) {
-  const listQuests = useGym((s) => s.listQuests);
-  const claimQuest = useGym((s) => s.claimQuest);
-  const quests = listQuests();
+  const quests = useQuestViews();
+  const { onClaim, flash } = useClaimHandler();
 
   return (
     <section className={cn("mt-8", className)} id="forge-quests">
       <h2 className="font-display text-lg font-semibold">Quests</h2>
       <p className="mt-1 text-sm text-muted">Real goals. Claim XP and gems when you crush them.</p>
+      {flash ? (
+        <p
+          className="mt-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2 text-center text-sm font-bold text-fg forge-bounce-in"
+          role="status"
+          aria-live="polite"
+        >
+          Claimed! +{flash.xp} XP · +{flash.gems} gems
+        </p>
+      ) : null}
       <ul className="mt-3 flex flex-col gap-2">
         {quests.map((q) => (
           <li
@@ -103,6 +164,7 @@ export function QuestsPanel({ className }: { className?: string }) {
             className={cn(
               "rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-border)]",
               q.claimable && "border-accent/50",
+              q.claimed && flash?.id === q.id && "border-success/50",
             )}
           >
             <div className="flex items-start justify-between gap-3">
@@ -114,11 +176,13 @@ export function QuestsPanel({ className }: { className?: string }) {
                 </p>
               </div>
               {q.claimable ? (
-                <Button type="button" size="sm" className="shrink-0 rounded-full" onClick={() => claimQuest(q.id)}>
+                <Button type="button" size="sm" className="shrink-0 rounded-full" onClick={() => onClaim(q.id)}>
                   Claim
                 </Button>
               ) : q.claimed ? (
-                <span className="shrink-0 text-xs font-bold text-success">Done</span>
+                <span className="shrink-0 text-xs font-bold text-success">
+                  {flash?.id === q.id ? `+${flash.xp} XP` : "Done"}
+                </span>
               ) : (
                 <span className="shrink-0 text-xs text-muted">{pct(q)}%</span>
               )}
