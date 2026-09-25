@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  describeHealthCapability,
   healthFromBridge,
   normalizeSnapshot,
   parseHealthImport,
+  snapshotFromPluginResult,
   stepsFromQuery,
 } from "./health-connect.ts";
 
@@ -48,4 +50,41 @@ test("normalize rejects junk weight", () => {
   assert.ok(snap);
   assert.equal(snap.weightLb, undefined);
   assert.equal(snap.steps, 10);
+});
+
+test("snapshotFromPluginResult maps HC read fields", () => {
+  const snap = snapshotFromPluginResult({
+    type: "forge-health",
+    source: "health-connect",
+    steps: 4321,
+    weightLb: 172.4,
+    sleepHrs: 7.2,
+    restingHr: 54,
+  });
+  assert.ok(snap);
+  assert.equal(snap.steps, 4321);
+  assert.equal(snap.weightLb, 172.4);
+  assert.equal(snap.sleepHrs, 7.2);
+  assert.equal(snap.restingHr, 54);
+  assert.equal(snap.source, "bridge");
+});
+
+test("snapshotFromPluginResult rejects empty payload", () => {
+  assert.equal(snapshotFromPluginResult({ type: "forge-health", source: "health-connect" }), null);
+});
+
+test("describeHealthCapability stays honest for web", () => {
+  const text = describeHealthCapability(null);
+  assert.match(text, /cannot read Health Connect|Import|native/i);
+});
+
+test("describeHealthCapability reflects permitted native shell", () => {
+  const text = describeHealthCapability({
+    native: true,
+    healthConnectReady: true,
+    available: true,
+    permissionsGranted: true,
+    sdkStatus: "available",
+  });
+  assert.match(text, /permissions granted|Sync from HC/i);
 });

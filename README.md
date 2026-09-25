@@ -26,7 +26,7 @@ Live: https://forgelog.ca · Package: `ca.forge.log`
 
 ## Capacitor Android (Health Connect)
 
-Forge is a PWA at https://forgelog.ca (Play package `ca.forge.log`). The `android/` tree is a Capacitor shell that wraps the same web app and bridges Health Connect into the existing ingest path.
+Forge is a PWA at https://forgelog.ca (Play package `ca.forge.log`). The `android/` tree is a Capacitor 6 shell that wraps the same web app and bridges **real Health Connect SDK reads** into the existing ingest path.
 
 ### Open in Android Studio
 
@@ -35,27 +35,42 @@ Forge is a PWA at https://forgelog.ca (Play package `ca.forge.log`). The `androi
    ```bash
    npm install
    npm run build
-   # capacitor.config.ts webDir must match your client build output (default: dist/client).
+   # capacitor.config.ts webDir must match your client build output (default: dist).
    npx cap sync android
    npx cap open android
    ```
 3. Run on a device/emulator with **Health Connect** (built into Android 14+; older devices need the Play Store app).
 
+### What the native bridge does
+
+| Step | API |
+| --- | --- |
+| Availability | `ForgeHealth.getStatus()` → `available` / `sdkStatus` / `permissionsGranted` |
+| Permissions | `ForgeHealth.requestReadPermissions()` → Health Connect system sheet |
+| Query + ingest | `ForgeHealth.readAndPublish()` aggregates today’s steps, latest weight (30d), sleep (36h), resting HR (7d), then posts `forge-health` into the WebView |
+| Settings | `ForgeHealth.openHealthConnectSettings()` |
+
+- Native plugin: `android/app/src/main/java/ca/forge/log/ForgeHealthPlugin.kt` (`androidx.health.connect:connect-client`)
+- JS: `src/lib/forge-health-plugin.ts` + `src/lib/health-connect.ts` (`syncHealthConnectNative`)
+- UI: Health sync card shows **Synced** only after `applyHealthSnapshot` succeeds — never from a permission grant alone
+- Web ingest still listens for `window.forgeApplyHealth` / `postMessage({ type: "forge-health", source: "health-connect", ... })`
+
+PWA/web builds are unchanged and do not require Capacitor. Capgo’s HC plugin has no maintained Cap 6 line, so Forge ships its own Kotlin plugin.
+
 ### Permissions + privacy
 
-- Manifest declares Health Connect **read** for steps, weight, sleep, and heart rate.
+- Manifest declares Health Connect **read** for steps, weight, sleep, heart rate, and resting heart rate.
 - `HealthConnectPrivacyActivity` opens https://forgelog.ca/privacy — required for Play’s Health Connect declaration. Keep that page accurate: health data stays on-device (no Forge server upload).
 - `minSdkVersion` is **26** (Health Connect floor).
 
-### Bridge
+### Play Console / DAL / release checklist
 
-- Native plugin: `ForgeHealth` (`android/app/src/main/java/ca/forge/log/ForgeHealthPlugin.java`)
-- JS: `src/lib/forge-health-plugin.ts`
-- Web ingest still listens for `window.forgeApplyHealth` / `postMessage({ type: "forge-health", source: "health-connect", ... })` via `src/lib/health-connect.ts`.
-
-**Honest status:** the plugin stub can publish snapshots into the web app; automatic Health Connect SDK queries are not fully wired yet. PWA/web builds are unchanged and do not require Capacitor.
+1. **Health Connect declaration** in Play Console → App content → Health apps: declare read types (Steps, Weight, Sleep, Heart rate / Resting heart rate) and point the privacy policy at https://forgelog.ca/privacy.
+2. **Data safety form**: mark health data as collected on-device only; not shared off-device / not uploaded to Forge servers.
+3. **Digital Asset Links (DAL)** if you also ship a TWA / Play App Signing web link: host `/.well-known/assetlinks.json` for `ca.forge.log` with your release signing cert SHA-256.
+4. **Build**: `npm run build && npx cap sync android`, then Android Studio → Generate Signed Bundle (AAB). JDK 17+, `compileSdk`/`targetSdk` 34.
+5. **Device test**: Android 14+ emulator or phone with Health Connect + a steps/weight source (Fitbit, Garmin, Pixel steps). Tap **Connect & sync**, grant reads, confirm Today steps / Weight update and badge flips to **Synced**.
 
 ### Don’t break the web build
 
 Capacitor deps are optional at runtime. `npm run build` / `npm run dev` stay web-first. Only `npx cap sync` needs a client `dist` output.
-

@@ -2,18 +2,26 @@
  * Health Connect / health data bridge for Forge.
  *
  * Platform capabilities required for automatic Health Connect reads:
- * - Android native wrapper (TWA WebView / Capacitor): must postMessage JSON
- *   `{ type: "forge-health", source: "health-connect", steps?, weightLb?, sleepHrs?, readiness?, workouts? }`
- *   after the user grants Health Connect permissions in the system sheet.
- * - This PWA alone cannot call the Android Health Connect SDK. "Connected" in
- *   Forge means we successfully ingested real metrics into the gym store — never
- *   a marketing toggle without data flow.
+ * - Android Capacitor shell (`ForgeHealth` plugin): checks HC availability,
+ *   requests read permissions, queries recent metrics, then posts
+ *   `{ type: "forge-health", source: "health-connect", steps?, weightLb?, sleepHrs?, readiness?, restingHr? }`
+ *   into window.forgeApplyHealth / postMessage (see forge-health-plugin.ts).
+ * - This PWA alone cannot call the Android Health Connect SDK. "Synced" /
+ *   linked in Forge means we successfully ingested real metrics into the gym
+ *   store — never a marketing toggle without data flow.
  *
  * Working web paths (all write into stepLogs / weighIns / readiness via store):
  * 1) Native bridge postMessage / window.forgeApplyHealth / ?healthSteps=
  * 2) JSON or CSV file import (steps, weight, sleep)
  * 3) Manual entry + on-device DeviceMotion pedometer (Steps card)
  */
+
+import {
+  ForgeHealth,
+  isCapacitorNative,
+  type ForgeHealthNativeInfo,
+  type ForgeHealthReadResult,
+} from "./forge-health-plugin";
 
 export function isAndroid(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -29,6 +37,15 @@ function openIntent(primary: string, fallback: string) {
 }
 
 export function openHealthConnect(): void {
+  if (isCapacitorNative()) {
+    void ForgeHealth.openHealthConnectSettings().catch(() => {
+      openIntent(
+        "intent://#Intent;action=androidx.health.ACTION_HEALTH_CONNECT_SETTINGS;end",
+        "https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata",
+      );
+    });
+    return;
+  }
   openIntent(
     "intent://#Intent;action=androidx.health.ACTION_HEALTH_CONNECT_SETTINGS;end",
     "https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata",
@@ -131,6 +148,11 @@ export function normalizeSnapshot(
   return Object.keys(out).length > 1 || out.steps != null || out.weightLb != null ? out : null;
 }
 
+/** Map a ForgeHealth plugin read result into a store snapshot. */
+export function snapshotFromPluginResult(result: ForgeHealthReadResult): HealthSnapshot | null {
+  return normalizeSnapshot({ ...result, type: "forge-health", source: "health-connect" }, "bridge");
+}
+
 /** Parse a JSON object or CSV text into a health snapshot. */
 export function parseHealthImport(text: string): { ok: true; snap: HealthSnapshot } | { ok: false; error: string } {
   const raw = text.trim();
@@ -174,12 +196,68 @@ export function parseHealthImport(text: string): { ok: true; snap: HealthSnapsho
   return { ok: true, snap };
 }
 
-export function describeHealthCapability(): string {
-  if (typeof window !== "undefined") {
-    const cap = (window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
-    if (cap?.isNativePlatform?.()) {
-      return "Native Forge shell detected. Grant Health Connect permissions, then Sync — the bridge posts forge-health into your log. Full HC auto-read ships with the Play build.";
+export async function getNativeHealthStatus(): Promise<ForgeHealthNativeInfo | null> {
+  if (!isCapacitorNative()) return null;
+  try {
+    return await ForgeHealth.getStatus();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Request HC read permissions (native only), then query + publish into the web ingest path.
+ * Does not mark the UI "synced" by itself — callers must applyHealthSnapshot on success.
+ */
+export async function syncHealthConnectNative(): Promise<
+  { ok: true; snap: HealthSnapshot; status: ForgeHealthNativeInfo } | { ok: false; error: string }
+> {
+  if (!isCapacitorNative()) {
+    return { ok: false, error: "Health Connect auto-read needs the Android Forge shell." };
+  }
+  try {
+    let status = await ForgeHealth.getStatus();
+    if (!status.available) {
+      return { ok: false, error: status.note ?? "Health Connect is not available." };
     }
+    if (!status.permissionsGranted) {
+      status = await ForgeHealth.requestReadPermissions();
+      if (!status.permissionsGranted) {
+        return {
+          ok: false,
+          error: "Health Connect permissions were not granted. Open Health Connect to allow Forge.",
+        };
+      }
+    }
+    const raw = await ForgeHealth.readAndPublish();
+    const snap = snapshotFromPluginResult(raw);
+    if (!snap || (snap.steps == null && snap.weightLb == null && snap.sleepHrs == null)) {
+      return {
+        ok: false,
+        error: "Health Connect had no recent steps, weight, or sleep to import.",
+      };
+    }
+    return { ok: true, snap, status };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Health Connect sync failed.";
+    return { ok: false, error: msg };
+  }
+}
+
+export function describeHealthCapability(native?: ForgeHealthNativeInfo | null): string {
+  // Prefer an explicit native status (from ForgeHealth.getStatus) so UI copy stays
+  // accurate even before Capacitor injects, and so unit tests can assert honestly.
+  if (native?.native || isCapacitorNative()) {
+    if (native?.available && native.permissionsGranted) {
+      return "Native Forge shell · Health Connect permissions granted. Tap Sync from HC to pull today’s steps, latest weight, and recent sleep into your log.";
+    }
+    if (native?.available) {
+      return "Native Forge shell · Health Connect is installed. Tap Connect & sync to grant read access (steps, weight, sleep), then we pull real metrics — no fake connected badge.";
+    }
+    if (native?.sdkStatus === "update_required") {
+      return "Native Forge shell · install or update Health Connect from Play Store, then Connect & sync.";
+    }
+    return "Native Forge shell detected. Grant Health Connect permissions, then Sync — ForgeHealth queries HC and posts forge-health into your log.";
   }
   if (isAndroid()) {
     return "On Android Chrome/PWA, Forge cannot call Health Connect yet — use Import, type steps, or install the native Play/Capacitor build. The bridge expects window.forgeApplyHealth.";
