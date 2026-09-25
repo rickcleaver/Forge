@@ -175,8 +175,14 @@ export function parseHealthImport(text: string): { ok: true; snap: HealthSnapsho
 }
 
 export function describeHealthCapability(): string {
-  if (isAndroid()) {
-    return "On Android, open Health Connect permissions, then Sync — or use a native Forge wrapper that posts forge-health. Import a file anytime.";
+  if (typeof window !== "undefined") {
+    const cap = (window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    if (cap?.isNativePlatform?.()) {
+      return "Native Forge shell detected. Grant Health Connect permissions, then Sync — the bridge posts forge-health into your log. Full HC auto-read ships with the Play build.";
+    }
   }
-  return "Web cannot read Health Connect directly. Import a JSON/CSV export, paste steps, or use a native bridge that posts forge-health.";
+  if (isAndroid()) {
+    return "On Android Chrome/PWA, Forge cannot call Health Connect yet — use Import, type steps, or install the native Play/Capacitor build. The bridge expects window.forgeApplyHealth.";
+  }
+  return "Web cannot read Health Connect directly. Import a JSON/CSV export, paste steps, or use the native Android shell that posts forge-health.";
 }
