@@ -1,6 +1,13 @@
 /** Spendable cosmetic unlocks — persist on player, equippable as avatar flair. */
 
-export type CosmeticId = "flair-spark" | "flair-halo" | "glow-gold";
+export type CosmeticId =
+  | "flair-spark"
+  | "flair-halo"
+  | "glow-gold"
+  | "flair-lime"
+  | "flair-magenta"
+  | "ring-pulse"
+  | "badge-bolt";
 
 export type CosmeticDef = {
   id: CosmeticId;
@@ -36,6 +43,38 @@ export const COSMETIC_DEFS: CosmeticDef[] = [
     cost: 60,
     ring: "#fbbf24",
     emoji: "🥇",
+  },
+  {
+    id: "flair-lime",
+    name: "Lime voltage",
+    blurb: "Electric lime ring — teen neon starter pack energy.",
+    cost: 35,
+    ring: "#a3e635",
+    emoji: "⚡",
+  },
+  {
+    id: "flair-magenta",
+    name: "Magenta rush",
+    blurb: "Hot magenta outline. Looks like a night-game highlight.",
+    cost: 45,
+    ring: "#f472b6",
+    emoji: "🎆",
+  },
+  {
+    id: "ring-pulse",
+    name: "Pulse ring",
+    blurb: "Aqua dual-tone ring that reads like a HUD lock-on.",
+    cost: 55,
+    ring: "#2dd4bf",
+    emoji: "💠",
+  },
+  {
+    id: "badge-bolt",
+    name: "Bolt badge",
+    blurb: "Charged bolt badge on the avatar — flex for streak grinders.",
+    cost: 70,
+    ring: "#818cf8",
+    emoji: "🚀",
   },
 ];
 
