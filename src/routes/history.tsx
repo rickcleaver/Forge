@@ -23,6 +23,7 @@ import { MUSCLE_MAP, type Session, type StepLog } from "@/lib/types";
 import { formatDuration, formatVolume, cn } from "@/lib/utils";
 import { WeekRecapButton } from "@/components/week-recap";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/history")({ component: HistoryPage });
 
@@ -41,8 +42,9 @@ function HistoryPage() {
   const weightLb = useGym((s) => s.settings.bodyWeightLb);
   const heightCm = useGym((s) => s.settings.heightCm);
   const navigate = useNavigate();
-  const finished = sessions.filter((s) => s.finishedAt);
-  const records = allTimeBests(sessions);
+  const visible = realSessions(sessions);
+  const finished = visible.filter((s) => s.finishedAt);
+  const records = allTimeBests(visible);
   const [openId, setOpenId] = useState<string | null>(null);
   const [tab, setTab] = useState<"sessions" | "records">("sessions");
   const [kill, setKill] = useState<{ kind: "session" | "steps"; id: string; name: string } | null>(null);

@@ -4,9 +4,10 @@ import { weekTraining } from "@/lib/stats";
 import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "./ui/dialog";
+import { realSessions } from "@/lib/demo-sessions";
 
 export function WeekRecapButton() {
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const unit = useGym((s) => s.settings.unit);
   const week = weekTraining(sessions);
   const [open, setOpen] = useState(false);

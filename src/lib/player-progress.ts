@@ -1,5 +1,6 @@
 import { startOfDay } from "date-fns";
 import type { Session } from "./types";
+import { realSessions } from "./demo-sessions";
 import { sessionSetCount } from "./stats";
 
 /** XP needed to clear a level (level 1 to 2 costs 100, then +35 each). */
@@ -35,6 +36,7 @@ export function levelFromXp(xp: number): LevelInfo {
 
 /** Consecutive training days ending today or yesterday. */
 export function trainingStreak(sessions: Session[], now = Date.now()): number {
+  sessions = realSessions(sessions);
   const days = new Set<number>();
   for (const s of sessions) {
     if (!s.finishedAt) continue;
@@ -54,11 +56,13 @@ export function trainingStreak(sessions: Session[], now = Date.now()): number {
 }
 
 export function totalWorkingSets(sessions: Session[]): number {
+  sessions = realSessions(sessions);
   return sessions.reduce((n, s) => n + sessionSetCount(s), 0);
 }
 
 /** All finished-session calendar days as start-of-day timestamps. */
 export function workoutDaySet(sessions: Session[]): Set<number> {
+  sessions = realSessions(sessions);
   const days = new Set<number>();
   for (const s of sessions) {
     if (!s.finishedAt) continue;

@@ -25,14 +25,8 @@ export type QuestDef = {
   tone: QuestTone;
 };
 
-/** Demo seed sessions (id starts with seed-) never count toward quest proof. */
-export function isDemoSession(session: { id: string }): boolean {
-  return session.id.startsWith("seed-");
-}
-
-export function realSessions(sessions: Session[]): Session[] {
-  return sessions.filter((s) => !isDemoSession(s));
-}
+import { isDemoSession, realSessions } from "./demo-sessions";
+export { isDemoSession, realSessions };
 
 /** Canonical starter quests — progress is derived from real app state only. */
 export const QUEST_DEFS: QuestDef[] = [

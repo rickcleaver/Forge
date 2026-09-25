@@ -6,6 +6,7 @@ import { lastTrained, muscleHitsThisWeek } from "@/lib/stats";
 import { useGym } from "@/lib/store";
 import { useEffect } from "react";
 import { MUSCLES, type MuscleId, type Session } from "@/lib/types";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/muscles")({ component: MusclesPage });
 
@@ -14,7 +15,7 @@ function MusclesPage() {
   useEffect(() => {
     setPlayerFlag("visitedMuscles");
   }, [setPlayerFlag]);
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const hits = muscleHitsThisWeek(sessions);
   const [selected, setSelected] = useState<MuscleId | null>(null);
   const trained = MUSCLES.filter((m) => (hits[m.id] ?? 0) > 0);

@@ -1,6 +1,7 @@
 import { addDays, isSameDay, startOfWeek } from "date-fns";
 import { isDurationLog } from "./exercises";
 import type { MuscleId, Session, SetEntry, WeightUnit } from "./types";
+import { realSessions } from "./demo-sessions";
 
 /**
  * Identity used to match "the same lift" across sessions, for PRs, "last
@@ -92,6 +93,7 @@ export function lastWorkingSets(
   distance: number | null;
   when: number;
 }> | null {
+  sessions = realSessions(sessions);
   const key = exerciseKey(exercise);
   const sorted = [...sessions]
     .filter((s) => s.id !== exceptSessionId && s.finishedAt)
@@ -146,6 +148,7 @@ export function muscleHitsThisWeek(
   sessions: Session[],
   now = Date.now(),
 ): Record<MuscleId, number> {
+  sessions = realSessions(sessions);
   const weekStart = startOfWeek(now, { weekStartsOn: 1 }).getTime();
   const hits = {} as Record<MuscleId, number>;
   for (const s of sessions) {
@@ -166,6 +169,7 @@ export function lastTrained(
   sessions: Session[],
   muscle: MuscleId,
 ): number | null {
+  sessions = realSessions(sessions);
   let latest: number | null = null;
   for (const s of sessions) {
     const t = s.finishedAt ?? s.startedAt;
@@ -225,6 +229,7 @@ export type LiftBest = {
 };
 
 export function allTimeBests(sessions: Session[]): LiftBest[] {
+  sessions = realSessions(sessions);
   const map = new Map<string, LiftBest>();
   for (const s of sessions) {
     if (!s.finishedAt) continue;
@@ -260,6 +265,7 @@ export function exerciseHistory(
   sessionName: string;
   sets: Array<{ weight: number | null; reps: number | null; warmup: boolean }>;
 }> {
+  sessions = realSessions(sessions);
   const key = exerciseKey(exercise);
   return sessions
     .filter((s) => s.finishedAt && s.id !== exceptSessionId)
@@ -286,6 +292,7 @@ export function exerciseHistory(
 }
 
 export function sessionPrNames(session: Session, all: Session[]): string[] {
+  all = realSessions(all);
   const names: string[] = [];
   for (const ex of session.exercises) {
     if (ex.sets.some((set) => isPersonalRecord(all, ex, set))) names.push(ex.name);
@@ -302,6 +309,7 @@ export function e1rmHistory(
   exercise: ExerciseIdentity,
   exceptSessionId?: string,
 ): Array<{ when: number; e1rm: number }> {
+  sessions = realSessions(sessions);
   const key = exerciseKey(exercise);
   return sessions
     .filter((s) => s.finishedAt && s.id !== exceptSessionId)
@@ -341,6 +349,7 @@ export function weekTraining(
   sessions: Session[],
   now = Date.now(),
 ): { days: Array<{ at: number; trained: boolean }>; volume: number; sessions: number } {
+  sessions = realSessions(sessions);
   const start = startOfWeek(now, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }, (_, i) => {
     const at = addDays(start, i).getTime();
@@ -360,6 +369,7 @@ export function weekTraining(
 }
 
 export function weekPrNames(sessions: Session[], now = Date.now()): string[] {
+  sessions = realSessions(sessions);
   const start = startOfWeek(now, { weekStartsOn: 1 }).getTime();
   const names: string[] = [];
   for (const s of sessions) {

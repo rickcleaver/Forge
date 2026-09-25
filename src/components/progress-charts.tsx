@@ -14,9 +14,10 @@ import { addDays, format, startOfWeek } from "date-fns";
 import { muscleHitsThisWeek, sessionVolume, weekTraining } from "@/lib/stats";
 import { useGym } from "@/lib/store";
 import { MUSCLES } from "@/lib/types";
+import { realSessions } from "@/lib/demo-sessions";
 
 export function ProgressCharts() {
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const weighIns = useGym((s) => s.weighIns);
   const unit = useGym((s) => s.settings.unit);
 

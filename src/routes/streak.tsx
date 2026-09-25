@@ -8,6 +8,7 @@ import {
 } from "@/lib/player-progress";
 import { useGym } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/streak")({ component: StreakPage });
 
@@ -17,7 +18,7 @@ function StreakPage() {
   const best = Math.max(bestTrainingStreak(sessions), streak);
   const chips = recentDayChips(sessions, 14);
   const didToday = trainedToday(sessions);
-  const finished = sessions.filter((s) => s.finishedAt).length;
+  const finished = realSessions(sessions).filter((s) => s.finishedAt).length;
 
   return (
     <main className="forge-page-enter px-4 pt-4 pb-10">

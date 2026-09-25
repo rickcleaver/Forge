@@ -34,6 +34,7 @@ import { QuestCarousel, QuestsPanel } from "@/components/quest-carousel";
 import { CirclesCard } from "@/components/circles-card";
 import { forgeScore } from "@/lib/coach-engine";
 import { cn } from "@/lib/utils";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/")({ component: Today });
 
@@ -122,7 +123,7 @@ function Today() {
   const settings = useGym((s) => s.settings);
   const readinessLogs = useGym((s) => s.readinessLogs);
   const active = sessions.find((s) => s.id === activeId && !s.finishedAt);
-  const finished = sessions
+  const finished = realSessions(sessions)
     .filter((s) => s.finishedAt)
     .sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0));
   const recent = finished.slice(0, 4);
@@ -401,7 +402,7 @@ function Today() {
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Today from Forge</p>
             <p className="mt-1 font-display text-3xl font-semibold tabular-nums">
               {sessions
-                .filter((s) => s.finishedAt && isSameDay(s.finishedAt, now ?? new Date()))
+                .filter((s) => !s.id.startsWith("seed-") && s.finishedAt && isSameDay(s.finishedAt, now ?? new Date()))
                 .reduce((n, s) => n + (s.estimatedKcal ?? 0), 0)}
               <span className="text-lg text-muted"> kcal trained</span>
             </p>

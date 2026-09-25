@@ -6,10 +6,11 @@ import { planLabel } from "@/lib/week-plan";
 import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
 import { ForgeCharacter } from "./forge-character";
+import { realSessions } from "@/lib/demo-sessions";
 
 export function NextMove() {
   const navigate = useNavigate();
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const programs = useGym((s) => s.programs);
   const settings = useGym((s) => s.settings);
   const readiness = useGym((s) => s.readinessLogs);

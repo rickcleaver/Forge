@@ -50,4 +50,18 @@ describe("training streaks", () => {
     assert.equal(chips[chips.length - 1]!.trained, true);
     assert.equal(chips[chips.length - 3]!.trained, true);
   });
+
+  it("ignores seed demo sessions in streak and chips", () => {
+    const seeds = [sessionOn(0, "seed-push"), sessionOn(1, "seed-legs")];
+    assert.equal(trainingStreak(seeds), 0);
+    assert.equal(bestTrainingStreak(seeds), 0);
+    assert.equal(trainedToday(seeds), false);
+    const chips = recentDayChips(seeds, 7);
+    assert.equal(chips.every((c) => !c.trained), true);
+
+    const mixed = [...seeds, sessionOn(0, "real-1")];
+    assert.equal(trainingStreak(mixed), 1);
+    assert.equal(trainedToday(mixed), true);
+  });
+
 });

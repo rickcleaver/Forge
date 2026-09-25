@@ -15,11 +15,12 @@ import { CirclesCard } from "@/components/circles-card";
 import { ForgeCharacter } from "@/components/forge-character";
 import { QuestsPanel } from "@/components/quest-carousel";
 import { PlayerStatusBar } from "@/components/player-status-bar";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/progress")({ component: ProgressPage });
 
 function ProgressPage() {
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const unit = useGym((s) => s.settings.unit);
   const addAccessoryForMuscle = useGym((s) => s.addAccessoryForMuscle);
   const weighIns = useGym((s) => s.weighIns);
