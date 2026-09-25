@@ -531,3 +531,19 @@ html[data-mode="light"][data-theme="steel"] {
 @media (prefers-reduced-motion: reduce) {
   .forge-splash-bar { animation: none; transform: scaleX(1); }
 }
+
+/* Muscle map plates — dark gutters keep hit neon from flooding into one blob */
+.muscle-plate {
+  stroke: var(--color-bg);
+  stroke-width: 4;
+  paint-order: stroke fill;
+}
+.muscle-plate-hit {
+  fill: color-mix(in srgb, var(--color-muscle-hit) 78%, var(--color-muscle));
+  stroke: var(--color-bg);
+  stroke-width: 4.2;
+}
+.muscle-plate-selected {
+  stroke: var(--color-ring);
+  stroke-width: 3.8;
+}

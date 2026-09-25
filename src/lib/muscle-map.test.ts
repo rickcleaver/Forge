@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  BACK_REGION_IDS,
+  FRONT_REGION_IDS,
   hitsFromExerciseIds,
   hitsFromMuscles,
   hitsFromProgramExercises,
@@ -43,5 +45,40 @@ describe("muscle-map hits helpers", () => {
     const hits = hitsFromWorkoutText("Day 1\nab\nBarbell Bench Press 3x8\n");
     assert.ok(hits);
     assert.equal(hits.cardio, undefined);
+  });
+});
+
+describe("muscle-map region contract", () => {
+  it("front view covers the expected selectable regions", () => {
+    assert.deepEqual(
+      [...FRONT_REGION_IDS].sort(),
+      ["biceps", "calves", "chest", "core", "quads", "shoulders"].sort(),
+    );
+  });
+
+  it("back view covers the expected selectable regions", () => {
+    assert.deepEqual(
+      [...BACK_REGION_IDS].sort(),
+      ["back", "calves", "glutes", "hamstrings", "shoulders", "triceps"].sort(),
+    );
+  });
+
+  it("front and back together cover all non-cardio muscles", () => {
+    const all = new Set([...FRONT_REGION_IDS, ...BACK_REGION_IDS]);
+    for (const id of [
+      "chest",
+      "back",
+      "shoulders",
+      "biceps",
+      "triceps",
+      "core",
+      "quads",
+      "hamstrings",
+      "glutes",
+      "calves",
+    ]) {
+      assert.ok(all.has(id as never), `missing ${id}`);
+    }
+    assert.equal(all.has("cardio" as never), false);
   });
 });
