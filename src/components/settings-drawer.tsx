@@ -5,6 +5,8 @@ import { useGym } from "@/lib/store";
 import { INTENSITY_LABEL, openMyFitnessPal } from "@/lib/mfp";
 import { cmToDisplay, displayToCm } from "@/lib/calories";
 import { backupStatus, buildBackup, downloadBackup, parseBackup } from "@/lib/backup";
+import { ForgeSyncCard } from "@/components/forge-sync-card";
+import { HealthConnectCard } from "@/components/health-connect-card";
 import { downloadSessionsCsv } from "@/lib/export-csv";
 import { parseWorkoutCsv } from "@/lib/import-csv";
 import type { Intensity } from "@/lib/types";
@@ -230,7 +232,15 @@ export function SettingsDrawer() {
             {backupMsg ? <p className="text-xs text-muted">{backupMsg}</p> : null}
           </section>
 
+                    <section className="flex flex-col gap-2">
+            <ForgeSyncCard />
+          </section>
+
           <section className="flex flex-col gap-2">
+            <HealthConnectCard />
+          </section>
+
+<section className="flex flex-col gap-2">
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Switch from Strong / Hevy</p>
             <p className="text-sm text-muted">
               Export a workout CSV in that app, then pick it here. Forge skips days you already have.

@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MusclesRouteImport } from './routes/muscles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as SessionRouteImport } from './routes/session'
 import { Route as SpotterRouteImport } from './routes/spotter'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -55,6 +56,11 @@ const ProgressRoute = ProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsRoute = ProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SessionRoute = SessionRouteImport.update({
   id: '/session',
   path: '/session',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
+  '/programs': typeof ProgramsRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
+  '/programs': typeof ProgramsRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
+  '/programs': typeof ProgramsRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/muscles'
     | '/privacy'
     | '/progress'
+    | '/programs'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/muscles'
     | '/privacy'
     | '/progress'
+    | '/programs'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/muscles'
     | '/privacy'
     | '/progress'
+    | '/programs'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   MusclesRoute: typeof MusclesRoute
   PrivacyRoute: typeof PrivacyRoute
   ProgressRoute: typeof ProgressRoute
+  ProgramsRoute: typeof ProgramsRoute
   SessionRoute: typeof SessionRoute
   SpotterRoute: typeof SpotterRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs': {
+      id: '/programs'
+      path: '/programs'
+      fullPath: '/programs'
+      preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/session': {
       id: '/session'
       path: '/session'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   MusclesRoute: MusclesRoute,
   PrivacyRoute: PrivacyRoute,
   ProgressRoute: ProgressRoute,
+  ProgramsRoute: ProgramsRoute,
   SessionRoute: SessionRoute,
   SpotterRoute: SpotterRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

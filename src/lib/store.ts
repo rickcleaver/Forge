@@ -28,6 +28,7 @@ import type {
   ColorMode,
 } from "./types";
 import { uid } from "./utils";
+import { buildWeekFromOnboarding } from "./week-plan";
 import type { ForgeBackup } from "./backup";
 
 const REST_DEFAULT = 90;
@@ -53,7 +54,7 @@ const defaultSettings: Settings = {
   theme: "steel",
   colorMode: "dark",
   onboarded: false,
-  setupDone: true,
+  setupDone: false,
   goal: null,
   morningGate: true,
   voiceName: null,
@@ -929,7 +930,15 @@ export const useGym = create<GymState>()(
         }),
       setOnboarding: ({ goal, trainDays, place }) =>
         set((s) => ({
-          settings: { ...s.settings, goal, trainDays, place, setupDone: true, onboarded: true },
+          settings: {
+            ...s.settings,
+            goal,
+            trainDays,
+            place,
+            setupDone: true,
+            onboarded: true,
+            weekPlan: buildWeekFromOnboarding(goal, trainDays, place),
+          },
         })),
       setBodyWeightLb: (lb) =>
         set((s) => ({ settings: { ...s.settings, bodyWeightLb: lb } })),
@@ -1200,6 +1209,15 @@ export const useGym = create<GymState>()(
               ? p.settings.colorMode
               : current.settings.colorMode,
             morningGate: p.settings?.morningGate ?? current.settings.morningGate,
+            setupDone: (() => {
+              const persisted = p.settings?.setupDone;
+              if (persisted === true || p.settings?.onboarded === true) return true;
+              if (sessions.some((s) => Boolean(s.finishedAt))) return true;
+              if (persisted === false) return false;
+              // Legacy installs already have a settings blob from when setupDone defaulted true.
+              if (p.settings) return true;
+              return false;
+            })(),
           },
           timer: live && live.liveAt != null ? { ...current.timer, ...(p.timer ?? {}) } : { ...idleTimer, duration: current.settings.defaultRestSec },
           lastBackupAt: p.lastBackupAt ?? current.lastBackupAt,

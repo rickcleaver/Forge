@@ -165,6 +165,66 @@ html[data-mode="light"][data-theme="ion"] {
   }
 }
 
+
+
+/* —— P0/P1 delight layer —— */
+.hero-glow {
+  position: relative;
+  isolation: isolate;
+}
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto;
+  height: 70%;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--color-accent) 28%, transparent), transparent 70%);
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+@keyframes forge-set-pop {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 0%, transparent); }
+  35% { transform: scale(1.08); box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-success) 28%, transparent); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 0%, transparent); }
+}
+@keyframes forge-pr-flash {
+  0% { opacity: 0; transform: translateY(6px) scale(0.96); }
+  20% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes forge-rest-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--color-accent) 55%, transparent)); }
+}
+@keyframes forge-tab-in {
+  from { opacity: 0.72; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.forge-set-pop { animation: forge-set-pop 420ms var(--ease-out-smooth); }
+.forge-pr-flash {
+  animation: forge-pr-flash 1.4s var(--ease-out-smooth) forwards;
+  pointer-events: none;
+}
+.forge-rest-theatre { animation: forge-rest-pulse 2.2s ease-in-out infinite; }
+.forge-page-enter { animation: forge-tab-in 280ms var(--ease-out-smooth); }
+
+.nav-pill {
+  transition: background-color 180ms var(--ease-out-smooth), color 180ms var(--ease-out-smooth), transform 180ms var(--ease-out-smooth);
+}
+.nav-pill[data-active="true"] {
+  box-shadow: var(--shadow-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-set-pop, .forge-pr-flash, .forge-rest-theatre, .forge-page-enter, .hero-glow::before {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

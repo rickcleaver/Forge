@@ -182,6 +182,16 @@ function Today() {
       <HomeNotes />
 
       <WeekStrip />
+      <Link
+        to="/programs"
+        className="mt-3 flex min-h-12 items-center justify-between rounded-xl bg-surface px-4 text-sm font-medium shadow-[var(--shadow-border)]"
+      >
+        <span>
+          <span className="block font-mono text-[10px] tracking-wider text-muted uppercase">Programs</span>
+          <span className="font-display text-base font-semibold">Browse yours, public & Spotter</span>
+        </span>
+        <span className="text-accent">→</span>
+      </Link>
 
       {!active ? (
         <details className="mt-3">
@@ -287,7 +297,7 @@ function Today() {
         <ul className="mt-3 flex flex-col gap-2">
           {recent.length === 0 ? (
             <li className="rounded-xl bg-surface px-4 py-8 text-center text-sm text-muted shadow-[var(--shadow-border)]">
-              Finished sessions land here.
+              No sessions yet. Hit Start on Today’s card — your first finish shows up here.
             </li>
           ) : (
             recent.map((s) => (

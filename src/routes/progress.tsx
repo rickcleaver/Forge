@@ -10,6 +10,8 @@ import { weekMuscleAdvice } from "@/lib/coach-engine";
 import { allTimeBests, formatPrevLoad, muscleHitsThisWeek } from "@/lib/stats";
 import { MUSCLES } from "@/lib/types";
 import { useGym } from "@/lib/store";
+import { ProgressCharts } from "@/components/progress-charts";
+import { CirclesCard } from "@/components/circles-card";
 
 export const Route = createFileRoute("/progress")({ component: ProgressPage });
 
@@ -33,15 +35,28 @@ function ProgressPage() {
   return (
     <main className="px-4 pt-4">
       <h1 className="font-display text-3xl font-extrabold tracking-tight">Progress</h1>
-      <p className="mt-1 text-sm text-muted">PRs, volume, photos. Proof you’re getting stronger.</p>
+            <p className="mt-1 text-sm text-muted">PRs, volume, photos. Proof you're getting stronger.</p>
+      <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <a href="#forge-score" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Score</a>
+        <a href="#forge-charts" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Charts</a>
+        <Link to="/muscles" className="shrink-0 rounded-full bg-accent px-3 py-2 font-mono text-[10px] tracking-wider text-accent-fg uppercase shadow-[var(--shadow-glow)]">Muscles</Link>
+        <a href="#forge-outcome" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Outcome</a>
+        <a href="#forge-circles" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Circles</a>
+      </nav>
 
-      <ForgeScoreCard />
+      <div id="forge-score">
+        <ForgeScoreCard />
+      </div>
 
       <div className="mt-6">
         <WeekRecapButton />
       </div>
 
-      <section className="mt-8">
+      <div id="forge-charts">
+        <ProgressCharts />
+      </div>
+
+<section className="mt-8">
         <h2 className="font-display text-lg font-semibold">Records</h2>
         <ul className="mt-3 flex flex-col gap-2">
           {records.slice(0, 8).map((r) => (
@@ -102,6 +117,13 @@ function ProgressPage() {
         </ul>
       </section>
 
+      <div id="forge-outcome" className="mt-8 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)]">
+        <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Outcome loop</p>
+        <h2 className="mt-1 font-display text-lg font-semibold">Weigh-ins · photos · Forge Score</h2>
+        <p className="mt-1 text-sm text-muted">
+          One story: scale trend, physique shots, and your score move together. Weekly direction over vanity spikes.
+        </p>
+      </div>
       <WeightLogCard />
       {trend != null && latest ? (
         <p className="mt-2 text-sm text-muted">
@@ -110,6 +132,9 @@ function ProgressPage() {
         </p>
       ) : null}
       <ProgressPhotos />
+      <div id="forge-circles">
+        <CirclesCard />
+      </div>
     </main>
   );
 }

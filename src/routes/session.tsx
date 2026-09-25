@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, Check, Plus, RotateCcw, X } from "lucide-react";
 import { ExerciseCard } from "@/components/exercise-card";
 import { ExercisePicker } from "@/components/exercise-picker";
@@ -81,8 +81,18 @@ function SessionPage() {
   if (!active) {
     return (
       <main className="px-4 pt-4">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Train</h1>
-        <p className="mt-1 text-sm text-muted">Pick today’s workout. Tap a card, then log sets.</p>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">Train</h1>
+            <p className="mt-1 text-sm text-muted">Pick today’s workout. Tap a card, then log sets.</p>
+          </div>
+          <Link
+            to="/programs"
+            className="mb-1 shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]"
+          >
+            Programs
+          </Link>
+        </div>
         <CoachStartCard onStart={() => startCoachSession()} />
         <div className="mt-6 flex flex-col gap-2">
           <ScanLogButton />

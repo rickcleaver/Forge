@@ -11,6 +11,7 @@ import { AppTour } from "./app-tour";
 import { splashDoneThisVisit } from "@/lib/splash";
 import { stepsFromBridge } from "@/lib/health-connect";
 import { registerOffline, subscribeOnline } from "@/lib/offline";
+import { Onboarding } from "./onboarding";
 
 const NAV = [
   { to: "/", label: "Home", icon: House },
@@ -130,7 +131,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Offline · sets still save on this phone
           </p>
         )}
-        {children}
+        <Onboarding />
+        <div className="forge-page-enter">{children}</div>
       </div>
       <WakeLock />
       {live && live.liveAt != null ? <RestTimerHost /> : null}
@@ -151,8 +153,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   to={item.to}
                   data-tour={item.label.toLowerCase()}
+                  data-active={on}
                   className={cn(
-                    "relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold",
+                    "nav-pill relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold",
                     on ? "bg-accent text-accent-fg" : "text-muted",
                   )}
                 >

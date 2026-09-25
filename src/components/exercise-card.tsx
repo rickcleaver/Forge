@@ -57,6 +57,8 @@ export function ExerciseCard({
   const cardio = isDurationLog(exercise);
   const rx = nextPrescription(sessions, exercise);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [popId, setPopId] = useState<string | null>(null);
+  const [prFlash, setPrFlash] = useState<string | null>(null);
   const [rxApplied, setRxApplied] = useState<"accept" | "keep" | "down" | null>(null);
   const muscles = resolveMuscles(exercise);
 
@@ -304,7 +306,7 @@ export function ExerciseCard({
                         )
                       }
                     />
-                    <span className="text-center font-mono text-[10px] leading-tight text-subtle tabular-nums">
+                    <span className="relative text-center font-mono text-[10px] leading-tight text-subtle tabular-nums">
                       {prevRow
                         ? cardio
                           ? formatPrevCardio(prevRow.durationMin, prevRow.distance)
@@ -313,14 +315,31 @@ export function ExerciseCard({
                       {!cardio && pr ? (
                         <span className="mt-0.5 block font-medium tracking-wider text-accent uppercase">PR</span>
                       ) : null}
+                      {prFlash === set.id ? (
+                        <span className="forge-pr-flash absolute -top-5 right-0 rounded-full bg-accent px-2 py-0.5 font-mono text-[10px] font-bold tracking-wider text-accent-fg uppercase">
+                          New PR
+                        </span>
+                      ) : null}
                     </span>
                     <button
                       type="button"
                       aria-label={set.completed ? "Mark incomplete" : "Complete set"}
-                      onClick={() => toggleSet(sessionId, exercise.id, set.id)}
+                      onClick={() => {
+                        const wasDone = set.completed;
+                        toggleSet(sessionId, exercise.id, set.id);
+                        if (!wasDone) {
+                          setPopId(set.id);
+                          window.setTimeout(() => setPopId((id) => (id === set.id ? null : id)), 450);
+                          if (!cardio && !set.warmup && pr) {
+                            setPrFlash(set.id);
+                            window.setTimeout(() => setPrFlash((id) => (id === set.id ? null : id)), 1400);
+                          }
+                        }
+                      }}
                       className={cn(
                         "flex size-11 items-center justify-center rounded-lg",
                         set.completed ? "bg-success text-accent-fg" : "bg-well text-accent ring-1 ring-accent/40",
+                        popId === set.id && "forge-set-pop",
                       )}
                     >
                       {set.completed ? <Check className="size-4" /> : null}

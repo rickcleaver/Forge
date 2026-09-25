@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { coachWorkoutPlan, forgeScore } from "@/lib/coach-engine";
+import { coachWorkoutPlan, forgeScore, weekMuscleAdvice } from "@/lib/coach-engine";
 import { LIBRARY_MAP } from "@/lib/exercises";
 import { planLabel } from "@/lib/week-plan";
 import { useGym } from "@/lib/store";
@@ -27,6 +27,10 @@ export function NextMove() {
   const targets = forged.exerciseIds
     .map((id) => LIBRARY_MAP[id]?.name ?? id)
     .slice(0, 4);
+  const lowAreas = weekMuscleAdvice(sessions)
+    .filter((w) => w.tone === "low")
+    .map((w) => w.label)
+    .slice(0, 2);
 
   if (active) return null;
 
@@ -53,9 +57,13 @@ export function NextMove() {
           ? `Feeling ${ready}. Go a bit lighter.`
           : ready != null
             ? `Feeling ${ready}/100`
-            : "Tap start. Log every set."}
+            : plan && !plan.rest
+              ? "From your week plan · log every set"
+              : "Tap start. Log every set."}
       </p>
-      {targets.length ? (
+      {lowAreas.length ? (
+        <p className="mt-1 text-xs opacity-70">Underworked: {lowAreas.join(" · ")}</p>
+      ) : targets.length ? (
         <p className="mt-1 text-xs opacity-70">{targets.join(" · ")}</p>
       ) : null}
       <Button

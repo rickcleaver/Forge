@@ -128,7 +128,7 @@ function RestOverlay({
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
-        <div className="relative size-56">
+        <div className={`relative size-56 ${running || done ? "forge-rest-theatre" : ""}`}>
           <svg viewBox="0 0 200 200" className="size-full -rotate-90">
             <circle
               cx="100"
@@ -156,7 +156,7 @@ function RestOverlay({
               {running ? formatClock(remaining) : done ? "00:00" : formatClock(defaultRestSec)}
             </span>
             <span className="mt-1 font-mono text-[10px] tracking-widest text-muted uppercase">
-              {done ? "Ready" : running ? `${duration}s rest` : "Stand by"}
+              {done ? "You’re up" : running ? `${duration}s rest` : "Stand by"}
             </span>
           </div>
         </div>
