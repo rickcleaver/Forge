@@ -516,3 +516,18 @@ html[data-mode="light"][data-theme="steel"] {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
+
+
+/* Splash progress — teen neon loading bar */
+@keyframes forge-splash-bar {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(1); }
+}
+.forge-splash-bar {
+  width: 100%;
+  transform-origin: left center;
+  animation: forge-splash-bar 2.2s var(--ease-out-smooth) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-splash-bar { animation: none; transform: scaleX(1); }
+}

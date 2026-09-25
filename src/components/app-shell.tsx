@@ -37,7 +37,20 @@ export function StoreHydration({ children }: { children: React.ReactNode }) {
     return () => window.clearTimeout(t);
   }, []);
   if (!hydrated) {
-    return <div className="min-h-dvh bg-bg" />;
+    return (
+      <div className="grid min-h-dvh place-items-center overflow-hidden bg-bg">
+        <div className="relative px-8 text-center">
+          <span className="forge-blob forge-blob--a opacity-50" />
+          <span className="forge-blob forge-blob--b opacity-40" />
+          <p className="relative z-[1] font-display text-4xl font-extrabold tracking-tight text-fg drop-shadow-[0_0_24px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]">
+            FORGE
+          </p>
+          <p className="relative z-[1] mt-2 font-mono text-[10px] tracking-[0.24em] text-muted uppercase">
+            Warming up the log
+          </p>
+        </div>
+      </div>
+    );
   }
   return children;
 }

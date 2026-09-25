@@ -1,4 +1,4 @@
-const CACHE = "forge-shell-v2";
+const CACHE = "forge-shell-v3";
 
 const PRECACHE = [
   "/",
@@ -13,27 +13,8 @@ const PRECACHE = [
   "/art/cardio.jpg",
   "/art/full.jpg",
   "/art/coach.jpg",
-  "/art/muscle-front.jpg",
-  "/art/muscle-back.jpg",
-  "/art/muscles/front-chest.png",
-  "/art/muscles/front-shoulders.png",
-  "/art/muscles/front-biceps.png",
-  "/art/muscles/front-core.png",
-  "/art/muscles/front-quads.png",
-  "/art/muscles/front-calves.png",
-  "/art/muscles/back-back.png",
-  "/art/muscles/back-shoulders.png",
-  "/art/muscles/back-triceps.png",
-  "/art/muscles/back-glutes.png",
-  "/art/muscles/back-hamstrings.png",
-  "/art/muscles/back-calves.png",
-  "/splash/1.jpg",
-  "/splash/2.jpg",
-  "/splash/3.jpg",
-  "/splash/4.jpg",
-  "/splash/5.jpg",
-  "/splash/6.jpg",
-  "/splash/7.jpg",
+  "/art/characters/mascot-hero.png",
+  "/art/characters/crew-hero.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -132,7 +113,7 @@ const FALLBACK_HTML = `<!doctype html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#07090c"/>
+  <meta name="theme-color" content="#070b16"/>
   <title>Forge</title>
   <style>
     html,body{margin:0;height:100%;background:#07090c;color:#f4f7fb;font-family:Outfit,system-ui,sans-serif}
