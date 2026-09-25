@@ -7,7 +7,7 @@ export const Route = createFileRoute("/coach")({ component: CoachPage });
 function CoachPage() {
   return (
     <main className="px-4 pt-4 pb-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">Coach</h1>
+      <h1 className="font-display text-3xl font-extrabold tracking-tight forge-page-title">Coach</h1>
       <p className="mt-1 text-sm text-muted">Chat like Grok. Scroll up for the thread. Not a doctor.</p>
       <div className="mt-4">
         <CoachPanel />

@@ -12,6 +12,9 @@ import { MUSCLES } from "@/lib/types";
 import { useGym } from "@/lib/store";
 import { ProgressCharts } from "@/components/progress-charts";
 import { CirclesCard } from "@/components/circles-card";
+import { ForgeCharacter } from "@/components/forge-character";
+import { QuestsPanel } from "@/components/quest-carousel";
+import { PlayerStatusBar } from "@/components/player-status-bar";
 
 export const Route = createFileRoute("/progress")({ component: ProgressPage });
 
@@ -34,8 +37,14 @@ function ProgressPage() {
 
   return (
     <main className="px-4 pt-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">Progress</h1>
-            <p className="mt-1 text-sm text-muted">PRs, volume, photos. Proof you're getting stronger.</p>
+      <PlayerStatusBar />
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Progress</h1>
+          <p className="mt-1 text-sm text-muted">PRs, charts, photos — receipts that you showed up.</p>
+        </div>
+        <ForgeCharacter kind="mascot" size="sm" motion="float" className="shrink-0" />
+      </div>
       <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
         <a href="#forge-score" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Score</a>
         <a href="#forge-charts" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Charts</a>
@@ -133,7 +142,8 @@ function ProgressPage() {
       ) : null}
       <ProgressPhotos />
       <div id="forge-circles">
-        <CirclesCard />
+        <QuestsPanel />
+      <CirclesCard />
       </div>
     </main>
   );

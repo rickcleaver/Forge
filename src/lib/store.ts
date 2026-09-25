@@ -4,6 +4,15 @@ import { LIBRARY, LIBRARY_MAP, TEMPLATES, resolveMuscles } from "./exercises";
 import { idbStorage } from "./idb-storage";
 import { estimateSessionKcal } from "./mfp";
 import { applySessionLength, coachWorkoutPlan, nextPrescription, readinessScore } from "./coach-engine";
+import { migrateThemeId } from "./themes";
+import {
+  DEFAULT_PLAYER,
+  evaluateQuests,
+  type PlayerFlags,
+  type PlayerProgress,
+  type QuestId,
+  type QuestView,
+} from "./quests";
 import type { QuickLog } from "./parse-quick-log";
 import type {
   ExerciseLog,
@@ -51,7 +60,7 @@ const defaultSettings: Settings = {
   exerciseRest: {},
   defaultIntensity: "moderate",
   weekPlan: emptyWeek,
-  theme: "steel",
+  theme: "neon",
   colorMode: "dark",
   onboarded: false,
   setupDone: false,
@@ -81,7 +90,12 @@ type GymState = {
   timer: RestTimer;
   lastBackupAt: number | null;
   sessionsAtLastBackup: number;
+  player: PlayerProgress;
   setHydrated: (v: boolean) => void;
+  claimQuest: (id: QuestId) => { ok: boolean; xp?: number; gems?: number };
+  setPlayerFlag: (flag: keyof PlayerFlags, value?: boolean) => void;
+  listQuests: () => QuestView[];
+
   startSession: (opts: { name?: string; templateId?: string; programId?: string }) => string;
   startCoachSession: () => string;
   goLive: (id: string) => void;
@@ -338,6 +352,26 @@ function parkOpenSession(sessions: Session[], activeId: string | null, keepId?: 
   });
 }
 
+
+function mergePlayer(raw: unknown, fallback: PlayerProgress): PlayerProgress {
+  if (!raw || typeof raw !== "object") return fallback;
+  const p = raw as Partial<PlayerProgress>;
+  const flags = (p.flags ?? {}) as Partial<PlayerFlags>;
+  const claimed = Array.isArray(p.claimedQuestIds)
+    ? p.claimedQuestIds.filter((id): id is QuestId => typeof id === "string")
+    : fallback.claimedQuestIds;
+  return {
+    xp: typeof p.xp === "number" && Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : fallback.xp,
+    gems: typeof p.gems === "number" && Number.isFinite(p.gems) ? Math.max(0, Math.floor(p.gems)) : fallback.gems,
+    claimedQuestIds: claimed,
+    flags: {
+      visitedMuscles: Boolean(flags.visitedMuscles ?? fallback.flags.visitedMuscles),
+      visitedPrograms: Boolean(flags.visitedPrograms ?? fallback.flags.visitedPrograms),
+      addedCircleBuddy: Boolean(flags.addedCircleBuddy ?? fallback.flags.addedCircleBuddy),
+    },
+  };
+}
+
 export const useGym = create<GymState>()(
   persist(
     (set, get) => ({
@@ -354,7 +388,44 @@ export const useGym = create<GymState>()(
       timer: idleTimer,
       lastBackupAt: null,
       sessionsAtLastBackup: 0,
+      player: { ...DEFAULT_PLAYER, flags: { ...DEFAULT_PLAYER.flags } },
       setHydrated: (v) => set({ hydrated: v }),
+      listQuests: () => {
+        const s = get();
+        return evaluateQuests({
+          setupDone: Boolean(s.settings.setupDone),
+          sessions: s.sessions,
+          player: s.player,
+        });
+      },
+      setPlayerFlag: (flag, value = true) =>
+        set((s) => ({
+          player: {
+            ...s.player,
+            flags: { ...s.player.flags, [flag]: value },
+          },
+        })),
+      claimQuest: (id) => {
+        const s = get();
+        const views = evaluateQuests({
+          setupDone: Boolean(s.settings.setupDone),
+          sessions: s.sessions,
+          player: s.player,
+        });
+        const q = views.find((x) => x.id === id);
+        if (!q || !q.claimable) return { ok: false };
+        set({
+          player: {
+            ...s.player,
+            xp: s.player.xp + q.rewardXp,
+            gems: s.player.gems + q.rewardGems,
+            claimedQuestIds: s.player.claimedQuestIds.includes(id)
+              ? s.player.claimedQuestIds
+              : [...s.player.claimedQuestIds, id],
+          },
+        });
+        return { ok: true, xp: q.rewardXp, gems: q.rewardGems };
+      },
       startSession: ({ name, templateId, programId }) => {
         const program = get().programs.find((p) => p.id === programId);
         const tpl = TEMPLATES.find((t) => t.id === templateId);
@@ -1175,6 +1246,7 @@ export const useGym = create<GymState>()(
         timer: s.timer,
         lastBackupAt: s.lastBackupAt,
         sessionsAtLastBackup: s.sessionsAtLastBackup,
+        player: s.player,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GymState>;
@@ -1201,10 +1273,7 @@ export const useGym = create<GymState>()(
                 ? p.settings.weekPlan
                 : current.settings.weekPlan,
             hapticRest: p.settings?.hapticRest ?? current.settings.hapticRest,
-            theme:
-              p.settings?.theme === "ember" || p.settings?.theme === "ion" || p.settings?.theme === "steel"
-                ? p.settings.theme
-                : current.settings.theme,
+            theme: migrateThemeId(p.settings?.theme) ?? current.settings.theme,
             colorMode: p.settings?.colorMode === "light" || p.settings?.colorMode === "dark"
               ? p.settings.colorMode
               : current.settings.colorMode,
@@ -1222,6 +1291,7 @@ export const useGym = create<GymState>()(
           timer: live && live.liveAt != null ? { ...current.timer, ...(p.timer ?? {}) } : { ...idleTimer, duration: current.settings.defaultRestSec },
           lastBackupAt: p.lastBackupAt ?? current.lastBackupAt,
           sessionsAtLastBackup: p.sessionsAtLastBackup ?? current.sessionsAtLastBackup,
+          player: mergePlayer(p.player, current.player),
         };
       },
     },

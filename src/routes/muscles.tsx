@@ -4,11 +4,16 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { MuscleMap } from "@/components/muscle-map";
 import { lastTrained, muscleHitsThisWeek } from "@/lib/stats";
 import { useGym } from "@/lib/store";
+import { useEffect } from "react";
 import { MUSCLES, type MuscleId, type Session } from "@/lib/types";
 
 export const Route = createFileRoute("/muscles")({ component: MusclesPage });
 
 function MusclesPage() {
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
+  useEffect(() => {
+    setPlayerFlag("visitedMuscles");
+  }, [setPlayerFlag]);
   const sessions = useGym((s) => s.sessions);
   const hits = muscleHitsThisWeek(sessions);
   const [selected, setSelected] = useState<MuscleId | null>(null);

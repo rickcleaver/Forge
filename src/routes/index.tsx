@@ -28,6 +28,12 @@ import {
 import { useGym } from "@/lib/store";
 import { formatDuration, formatVolume } from "@/lib/utils";
 import { applyWaitingCoachPlan } from "@/lib/spotter-sync";
+import { ForgeCharacter, ForgeEmptyState } from "@/components/forge-character";
+import { PlayerStatusBar } from "@/components/player-status-bar";
+import { QuestCarousel, QuestsPanel } from "@/components/quest-carousel";
+import { CirclesCard } from "@/components/circles-card";
+import { forgeScore } from "@/lib/coach-engine";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({ component: Today });
 
@@ -54,6 +60,54 @@ function HomeNotes() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+
+type HomeTab = "for-you" | "feed" | "discover";
+
+function LevelUpCard() {
+  const sessions = useGym((s) => s.sessions);
+  const readiness = useGym((s) => s.readinessLogs);
+  const settings = useGym((s) => s.settings);
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
+  const hits = muscleHitsThisWeek(sessions);
+  const score = forgeScore(sessions, readiness, settings);
+  const trained = MUSCLES.filter((m) => (hits[m.id] ?? 0) > 0).length;
+  const goal = Math.min(8, MUSCLES.length);
+  const progress = Math.min(1, trained / goal);
+
+  return (
+    <section className="forge-neon-frame relative mt-5 overflow-hidden rounded-[1.75rem] bg-surface p-4 shadow-[var(--shadow-lift)]">
+      <span className="forge-blob forge-blob-a opacity-35" />
+      <div className="relative z-[1] flex gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold tracking-wide text-accent uppercase">Leveling up</p>
+          <h2 className="mt-1 font-display text-xl font-semibold leading-snug">
+            Unlock Muscle Map progress
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Hit {goal} areas this week · Forge score {score.total}
+          </p>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-well">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[var(--color-ring)] via-fuchsia-400 to-[var(--color-accent)]"
+              style={{ width: `${Math.round(progress * 100)}%` }}
+            />
+          </div>
+          <Link
+            to="/muscles"
+            onClick={() => setPlayerFlag("visitedMuscles")}
+            className="mt-3 inline-flex min-h-10 items-center rounded-full bg-accent px-4 text-sm font-bold text-accent-fg"
+          >
+            Open map
+          </Link>
+        </div>
+        <div className="w-[7.25rem] shrink-0 overflow-hidden rounded-2xl bg-bg/50 p-1">
+          <MuscleMap hits={hits} compact className="!rounded-xl" />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -86,6 +140,8 @@ function Today() {
   const [gateLock, setGateLock] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [coachPlan, setCoachPlan] = useState<string | null>(null);
+  const [tab, setTab] = useState<HomeTab>("for-you");
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
   useEffect(() => {
     setNow(new Date());
     if (checkinDoneToday(readinessLogs)) setSkippedGate(true);
@@ -125,17 +181,89 @@ function Today() {
 
   return (
     <main className="px-4 pt-3" style={gateLock ? { pointerEvents: "none" } : undefined}>
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-muted">{format(now ?? new Date(), "EEEE, MMM d")}</p>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">Let’s lift</h1>
+      <PlayerStatusBar />
+
+      <nav className="mt-4 flex gap-1 rounded-full bg-surface p-1 shadow-[var(--shadow-border)]">
+        {(
+          [
+            ["for-you", "For You"],
+            ["feed", "Feed"],
+            ["discover", "Discover"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={cn(
+              "flex-1 rounded-full py-2.5 text-sm font-bold transition-colors",
+              tab === id ? "bg-accent text-accent-fg shadow-[var(--shadow-glow)]" : "text-muted",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "feed" ? (
+        <div className="mt-4">
+          <CirclesCard />
+          <QuestsPanel className="mt-2" />
+          <p className="mt-4 text-center text-sm text-muted">
+            Circles stay opt-in — no public feed noise.
+          </p>
         </div>
-        <SettingsDrawer />
-      </header>
+      ) : null}
+
+      {tab === "discover" ? (
+        <div className="mt-4 flex flex-col gap-3">
+          <Link
+            to="/programs"
+            onClick={() => setPlayerFlag("visitedPrograms")}
+            className="forge-neon-frame flex items-center justify-between rounded-[1.5rem] bg-surface p-4 shadow-[var(--shadow-border)]"
+          >
+            <span>
+              <span className="block font-mono text-[10px] tracking-wider text-accent uppercase">Programs</span>
+              <span className="font-display text-lg font-semibold">Yours, public & Spotter</span>
+            </span>
+            <ForgeCharacter kind="mascot" size="xs" motion="none" />
+          </Link>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {quick.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => {
+                  startSession({ templateId: t.id, name: t.name });
+                  void navigate({ to: "/session" });
+                }}
+                className="h-11 shrink-0 rounded-full bg-surface-2 px-4 font-mono text-xs font-bold tracking-wider uppercase"
+              >
+                {t.name}
+              </button>
+            ))}
+          </div>
+          <Link
+            to="/muscles"
+            onClick={() => setPlayerFlag("visitedMuscles")}
+            className="flex min-h-12 items-center justify-between rounded-2xl bg-surface px-4 text-sm font-medium shadow-[var(--shadow-border)]"
+          >
+            Muscle map
+            <span className="text-accent">Open</span>
+          </Link>
+        </div>
+      ) : null}
+
+      {tab === "for-you" ? (
+        <>
+      <p className="mt-3 text-sm font-semibold text-muted">{format(now ?? new Date(), "EEEE, MMM d")}</p>
 
       {coachPlan ? (
         <p className="mt-2 text-sm text-accent">{coachPlan} is on your week. Start it from Train.</p>
       ) : null}
+
+      <LevelUpCard />
+      <QuestCarousel />
 
       {active ? (
         <div className="mt-5 rounded-2xl bg-accent px-5 py-5 text-accent-fg shadow-[var(--shadow-glow)]">
@@ -322,6 +450,8 @@ function Today() {
         </ul>
       </section>
       {backupStale ? <p className="mt-4 pb-2 text-xs text-muted">Backup is in Settings when you want it.</p> : null}
+        </>
+      ) : null}
     </main>
   );
 }

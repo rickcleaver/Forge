@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Library } from "lucide-react";
 import { ProgramImportButton } from "@/components/program-import";
@@ -7,10 +8,15 @@ import { Button } from "@/components/ui/button";
 import { TEMPLATES } from "@/lib/exercises";
 import { useGym } from "@/lib/store";
 import type { Program } from "@/lib/types";
+import { ForgeCharacter, ForgeEmptyState } from "@/components/forge-character";
 
 export const Route = createFileRoute("/programs")({ component: ProgramsPage });
 
 export function ProgramsPage() {
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
+  useEffect(() => {
+    setPlayerFlag("visitedPrograms");
+  }, [setPlayerFlag]);
   const navigate = useNavigate();
   const programs = useGym((s) => s.programs);
   const startSession = useGym((s) => s.startSession);
@@ -40,13 +46,14 @@ export function ProgramsPage() {
         >
           <ArrowLeft className="size-4" />
         </button>
-        <div>
-          <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Library</p>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">Programs</h1>
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[10px] tracking-wider text-accent uppercase">Library</p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Programs</h1>
         </div>
+        <ForgeCharacter kind="mascot" size="xs" motion="none" className="shrink-0" />
       </header>
       <p className="mt-2 text-sm text-muted">
-        Your saved days, public starters, and Spotter plans — without crowding the tab bar.
+        Your saved days, public starters, and Spotter plans — zero tab-bar clutter.
       </p>
 
       <div className="mt-5 flex flex-col gap-2">
@@ -61,11 +68,12 @@ export function ProgramsPage() {
       </div>
 
       {programs.length === 0 ? (
-        <div className="mt-6 rounded-2xl bg-surface px-4 py-8 text-center shadow-[var(--shadow-border)]">
-          <p className="font-display text-lg font-semibold">No saved programs yet</p>
-          <p className="mt-1 text-sm text-muted">
-            Finish a session and tap Save as program, or import a pack below.
-          </p>
+        <div className="mt-6">
+          <ForgeEmptyState
+            title="No saved programs yet"
+            body="Finish a session → Save as program, or grab a public starter below."
+            kind="mascot"
+          />
         </div>
       ) : (
         <section className="mt-6">

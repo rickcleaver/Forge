@@ -9,10 +9,13 @@ import {
   shareCircleLink,
   type CirclesState,
 } from "@/lib/circles";
+import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
+import { ForgeCharacter } from "./forge-character";
 import { Input } from "./ui/input";
 
 export function CirclesCard() {
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
   const [state, setState] = useState<CirclesState | null>(null);
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -22,6 +25,7 @@ export function CirclesCard() {
     try {
       const q = new URLSearchParams(window.location.search).get("circle");
       if (q) {
+        setPlayerFlag("addedCircleBuddy");
         setState(addBuddy(q));
         setMsg(`Added buddy ${q.toUpperCase()}.`);
         const url = new URL(window.location.href);
@@ -36,13 +40,19 @@ export function CirclesCard() {
   if (!state) return null;
 
   return (
-    <section className="mt-8 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)]">
-      <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Circles</p>
-      <h2 className="mt-1 font-display text-lg font-semibold">Opt-in accountability</h2>
-      <p className="mt-1 text-sm text-muted">
-        Not a feed. Share a code with one training buddy. Optional nudges stay on this phone.
-      </p>
-      <div className="mt-3 flex items-center justify-between rounded-xl bg-bg px-3 py-3">
+    <section className="forge-card-play relative mt-8 overflow-hidden rounded-3xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      <span className="forge-blob forge-blob--c opacity-40" />
+      <div className="relative z-[1] flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[10px] tracking-wider text-accent uppercase">Circles</p>
+          <h2 className="mt-1 font-display text-lg font-semibold">Training buddies</h2>
+          <p className="mt-1 text-sm text-muted">
+            Not a feed. Share a code with one buddy. Optional nudges stay on this phone.
+          </p>
+        </div>
+        <ForgeCharacter kind="mascot" size="xs" motion="none" />
+      </div>
+      <div className="relative z-[1] mt-3 flex items-center justify-between rounded-xl bg-bg px-3 py-3">
         <div>
           <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Your code</p>
           <p className="font-display text-2xl font-bold tracking-wide">{state.myCode}</p>
@@ -64,7 +74,7 @@ export function CirclesCard() {
           Copy link
         </Button>
       </div>
-      <div className="mt-3 flex gap-2">
+      <div className="relative z-[1] mt-3 flex gap-2">
         <Input
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -74,7 +84,8 @@ export function CirclesCard() {
         <Button
           type="button"
           onClick={() => {
-            setState(addBuddy(code));
+            setPlayerFlag("addedCircleBuddy");
+        setState(addBuddy(code));
             setCode("");
             setMsg("Buddy saved locally.");
           }}
@@ -82,7 +93,7 @@ export function CirclesCard() {
           Add
         </Button>
       </div>
-      <label className="mt-3 flex items-center justify-between gap-3 text-sm">
+      <label className="relative z-[1] mt-3 flex items-center justify-between gap-3 text-sm">
         <span>Occasional “did you lift?” prompts</span>
         <input
           type="checkbox"
@@ -122,7 +133,7 @@ export function CirclesCard() {
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-sm text-muted">No buddies yet. Spotter remains the coach path.</p>
+        <p className="mt-3 text-sm text-muted">No buddies yet — invite someone who’ll actually ask “did you lift?” Spotter stays the coach path.</p>
       )}
       <p className="mt-2 text-xs text-muted">
         Want a coach in the loop? <Link to="/spotter" className="text-accent">Open Spotter</Link>.

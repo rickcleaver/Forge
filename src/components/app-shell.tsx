@@ -48,7 +48,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const activeId = useGym((s) => s.activeSessionId);
   const sessions = useGym((s) => s.sessions);
   const live = sessions.find((s) => s.id === activeId && !s.finishedAt);
-  const theme = useGym((s) => s.settings.theme ?? "steel");
+  const theme = useGym((s) => s.settings.theme ?? "neon");
   const colorMode = useGym((s) => s.settings.colorMode ?? "dark");
   const [splash, setSplash] = useState(() => !splashDoneThisVisit());
   const [online, setOnline] = useState(true);
@@ -141,7 +141,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="fixed inset-x-0 z-30 px-3"
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-5 rounded-full bg-surface/95 p-1 shadow-[var(--shadow-lift)] backdrop-blur-xl">
+        <ul className="nav-shell mx-auto grid max-w-lg grid-cols-5 rounded-full p-1.5 shadow-[var(--shadow-lift)] backdrop-blur-xl">
           {NAV.map((item) => {
             const on =
               item.to === "/"
@@ -153,6 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   to={item.to}
                   data-tour={item.label.toLowerCase()}
+                  data-nav={item.label.toLowerCase()}
                   data-active={on}
                   className={cn(
                     "nav-pill relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold",

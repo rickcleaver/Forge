@@ -116,8 +116,8 @@ export function SettingsDrawer() {
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Look</p>
             <div className="grid grid-cols-2 gap-2">
               {([
-                { id: "dark" as const, label: "Dark", blurb: "Night gym", Icon: Moon },
-                { id: "light" as const, label: "Light", blurb: "Daylight", Icon: Sun },
+                { id: "dark" as const, label: "Dark", blurb: "Arcade night", Icon: Moon },
+                { id: "light" as const, label: "Light", blurb: "Daylight clear", Icon: Sun },
               ]).map((m) => {
                 const on = (settings.colorMode ?? "dark") === m.id;
                 return (
@@ -140,7 +140,7 @@ export function SettingsDrawer() {
             </div>
             <div className="grid grid-cols-3 gap-2">
               {THEMES.map((t) => {
-                const on = (settings.theme ?? "steel") === t.id;
+                const on = (settings.theme ?? "neon") === t.id;
                 return (
                   <button
                     key={t.id}

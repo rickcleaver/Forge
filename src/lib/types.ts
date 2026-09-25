@@ -42,7 +42,7 @@ export const MUSCLE_MAP: Record<MuscleId, MuscleMeta> = Object.fromEntries(
 
 export type WeightUnit = "lb" | "kg";
 
-export type ThemeId = "steel" | "ember" | "ion";
+export type ThemeId = "pop" | "neon" | "sunny";
 
 export type ColorMode = "dark" | "light";
 

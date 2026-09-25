@@ -71,7 +71,7 @@ function HistoryPage() {
 
   return (
     <main className="px-4 pt-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">Log</h1>
+      <h1 className="font-display text-3xl font-extrabold tracking-tight forge-page-title">Log</h1>
       <p className="mt-1 text-sm text-muted">
         {finished.length} sessions · {stepLogs.length} step days
       </p>
