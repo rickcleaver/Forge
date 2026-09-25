@@ -8,11 +8,19 @@ import { migrateThemeId } from "./themes";
 import {
   DEFAULT_PLAYER,
   evaluateQuests,
+  isQuestId,
   type PlayerFlags,
   type PlayerProgress,
   type QuestId,
   type QuestView,
 } from "./quests";
+import { getCircles } from "./circles";
+import {
+  DEFAULT_HEALTH_SYNC,
+  type HealthSnapshot,
+  type HealthSource,
+  type HealthSyncState,
+} from "./health-connect";
 import type { QuickLog } from "./parse-quick-log";
 import type {
   ExerciseLog,
@@ -91,10 +99,13 @@ type GymState = {
   lastBackupAt: number | null;
   sessionsAtLastBackup: number;
   player: PlayerProgress;
+  healthSync: HealthSyncState;
   setHydrated: (v: boolean) => void;
   claimQuest: (id: QuestId) => { ok: boolean; xp?: number; gems?: number };
   setPlayerFlag: (flag: keyof PlayerFlags, value?: boolean) => void;
   listQuests: () => QuestView[];
+  applyHealthSnapshot: (snap: HealthSnapshot, source?: HealthSource) => { ok: boolean; error?: string };
+  setHealthSyncError: (error: string | null) => void;
 
   startSession: (opts: { name?: string; templateId?: string; programId?: string }) => string;
   startCoachSession: () => string;
@@ -353,12 +364,42 @@ function parkOpenSession(sessions: Session[], activeId: string | null, keepId?: 
 }
 
 
+
+function mergeHealthSync(raw: unknown, fallback: HealthSyncState): HealthSyncState {
+  if (!raw || typeof raw !== "object") return fallback;
+  const p = raw as Partial<HealthSyncState>;
+  const lastSyncedAt =
+    typeof p.lastSyncedAt === "number" && Number.isFinite(p.lastSyncedAt) ? p.lastSyncedAt : fallback.lastSyncedAt;
+  const linked = Boolean(p.linked) && lastSyncedAt != null;
+  return {
+    linked,
+    lastSyncedAt,
+    lastSource: (p.lastSource as HealthSource | null | undefined) ?? fallback.lastSource,
+    lastError: typeof p.lastError === "string" ? p.lastError : fallback.lastError,
+    lastSteps:
+      typeof p.lastSteps === "number" && Number.isFinite(p.lastSteps) ? Math.max(0, Math.round(p.lastSteps)) : fallback.lastSteps,
+    lastWeightLb:
+      typeof p.lastWeightLb === "number" && Number.isFinite(p.lastWeightLb)
+        ? Math.round(p.lastWeightLb * 10) / 10
+        : fallback.lastWeightLb,
+  };
+}
+
+function liveHasCircleBuddy(player: PlayerProgress): boolean {
+  try {
+    if (typeof window !== "undefined") return getCircles().buddies.length > 0;
+  } catch {
+    /* ignore */
+  }
+  return Boolean(player.flags.addedCircleBuddy);
+}
+
 function mergePlayer(raw: unknown, fallback: PlayerProgress): PlayerProgress {
   if (!raw || typeof raw !== "object") return fallback;
   const p = raw as Partial<PlayerProgress>;
   const flags = (p.flags ?? {}) as Partial<PlayerFlags>;
   const claimed = Array.isArray(p.claimedQuestIds)
-    ? p.claimedQuestIds.filter((id): id is QuestId => typeof id === "string")
+    ? p.claimedQuestIds.filter(isQuestId)
     : fallback.claimedQuestIds;
   return {
     xp: typeof p.xp === "number" && Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : fallback.xp,
@@ -389,6 +430,7 @@ export const useGym = create<GymState>()(
       lastBackupAt: null,
       sessionsAtLastBackup: 0,
       player: { ...DEFAULT_PLAYER, flags: { ...DEFAULT_PLAYER.flags } },
+      healthSync: { ...DEFAULT_HEALTH_SYNC },
       setHydrated: (v) => set({ hydrated: v }),
       listQuests: () => {
         const s = get();
@@ -396,6 +438,7 @@ export const useGym = create<GymState>()(
           setupDone: Boolean(s.settings.setupDone),
           sessions: s.sessions,
           player: s.player,
+          hasCircleBuddy: liveHasCircleBuddy(s.player),
         });
       },
       setPlayerFlag: (flag, value = true) =>
@@ -405,27 +448,83 @@ export const useGym = create<GymState>()(
             flags: { ...s.player.flags, [flag]: value },
           },
         })),
+      setHealthSyncError: (error) =>
+        set((s) => ({
+          healthSync: { ...s.healthSync, lastError: error },
+        })),
+      applyHealthSnapshot: (snap, source) => {
+        const src = source ?? snap.source ?? "bridge";
+        const hasData = snap.steps != null || snap.weightLb != null || snap.sleepHrs != null || snap.readiness != null;
+        if (!hasData) {
+          set((s) => ({
+            healthSync: { ...s.healthSync, lastError: "No steps, weight, or sleep in payload." },
+          }));
+          return { ok: false, error: "No steps, weight, or sleep in payload." };
+        }
+        const now = Date.now();
+        if (snap.steps != null && Number.isFinite(snap.steps) && snap.steps >= 0) {
+          const entry: StepLog = { id: uid(), at: now, steps: Math.round(snap.steps) };
+          const day = new Date();
+          day.setHours(0, 0, 0, 0);
+          set((s) => ({
+            stepLogs: [...s.stepLogs.filter((w) => w.at < day.getTime()), entry].sort((a, b) => a.at - b.at),
+          }));
+        }
+        if (snap.weightLb != null && Number.isFinite(snap.weightLb) && snap.weightLb > 0) {
+          get().logWeighIn(snap.weightLb);
+        }
+        if (
+          snap.sleepHrs != null &&
+          Number.isFinite(snap.sleepHrs) &&
+          snap.readiness == null
+        ) {
+          // Sleep alone is not a full check-in — leave Morning Gate for energy/sore/stress.
+        } else if (snap.readiness != null && snap.sleepHrs != null) {
+          // Bridge provided a recovery score + sleep: store a soft readiness log.
+          const energy = Math.max(1, Math.min(10, Math.round((snap.readiness ?? 50) / 10)));
+          get().logReadiness({
+            sleepHrs: snap.sleepHrs,
+            energy,
+            soreness: 4,
+            stress: 4,
+          });
+        }
+        set((s) => ({
+          healthSync: {
+            linked: true,
+            lastSyncedAt: now,
+            lastSource: src,
+            lastError: null,
+            lastSteps: snap.steps ?? s.healthSync.lastSteps,
+            lastWeightLb: snap.weightLb ?? s.healthSync.lastWeightLb,
+          },
+        }));
+        return { ok: true };
+      },
       claimQuest: (id) => {
-        const s = get();
-        const views = evaluateQuests({
-          setupDone: Boolean(s.settings.setupDone),
-          sessions: s.sessions,
-          player: s.player,
-        });
-        const q = views.find((x) => x.id === id);
-        if (!q || !q.claimable) return { ok: false };
-        const rewardXp = q.rewardXp;
-        const rewardGems = q.rewardGems;
-        // Functional set so rapid double-taps cannot double-grant.
+        if (!isQuestId(id)) return { ok: false };
+        // Re-evaluate inside set so incomplete / already-claimed / seed-only never grant.
+        let rewardXp = 0;
+        let rewardGems = 0;
         let granted = false;
         set((prev) => {
           if (prev.player.claimedQuestIds.includes(id)) return prev;
+          const views = evaluateQuests({
+            setupDone: Boolean(prev.settings.setupDone),
+            sessions: prev.sessions,
+            player: prev.player,
+            hasCircleBuddy: liveHasCircleBuddy(prev.player),
+          });
+          const q = views.find((x) => x.id === id);
+          if (!q || !q.claimable) return prev;
           granted = true;
+          rewardXp = q.rewardXp;
+          rewardGems = q.rewardGems;
           return {
             player: {
               ...prev.player,
-              xp: prev.player.xp + rewardXp,
-              gems: prev.player.gems + rewardGems,
+              xp: prev.player.xp + q.rewardXp,
+              gems: prev.player.gems + q.rewardGems,
               claimedQuestIds: [...prev.player.claimedQuestIds, id],
             },
           };
@@ -1254,6 +1353,7 @@ export const useGym = create<GymState>()(
         lastBackupAt: s.lastBackupAt,
         sessionsAtLastBackup: s.sessionsAtLastBackup,
         player: s.player,
+        healthSync: s.healthSync,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GymState>;
@@ -1299,6 +1399,7 @@ export const useGym = create<GymState>()(
           lastBackupAt: p.lastBackupAt ?? current.lastBackupAt,
           sessionsAtLastBackup: p.sessionsAtLastBackup ?? current.sessionsAtLastBackup,
           player: mergePlayer(p.player, current.player),
+          healthSync: mergeHealthSync(p.healthSync, current.healthSync),
         };
       },
     },

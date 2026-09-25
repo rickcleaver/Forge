@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
+import { ForgeCharacter } from "./forge-character";
 
 function Chip({
   label,
@@ -15,7 +16,7 @@ function Chip({
 }) {
   return (
     <label className="flex items-center justify-between gap-3 text-sm">
-      <span className="text-muted">{label}</span>
+      <span className="font-semibold text-fg">{label}</span>
       <input
         type="range"
         min={max === 12 ? 0 : 1}
@@ -41,28 +42,38 @@ export function ReadinessCard() {
   const [stress, setStress] = useState(4);
 
   return (
-    <section className="mt-6 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-      <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Readiness</p>
-      {today ? (
-        <p className="mt-1 font-display text-3xl font-semibold tabular-nums">
-          {last.score}
-          <span className="text-lg text-muted"> / 100</span>
-        </p>
-      ) : (
-        <p className="mt-1 text-sm text-muted">How you feel this morning. Forge uses it to hold or push loads.</p>
-      )}
+    <section className="forge-neon-frame forge-card-play relative mt-6 overflow-hidden rounded-[1.75rem] bg-surface p-4 shadow-[var(--shadow-lift)]">
+      <span className="forge-blob forge-blob--a opacity-30" />
+      <div className="relative z-[1] flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[10px] tracking-wider text-accent uppercase">Vibe check</p>
+          {today ? (
+            <p className="mt-1 font-display text-4xl font-semibold tabular-nums">
+              {last.score}
+              <span className="text-lg text-muted"> / 100</span>
+            </p>
+          ) : (
+            <h2 className="mt-1 font-display text-xl font-semibold">How charged are you?</h2>
+          )}
+          <p className="mt-1 text-sm text-muted">
+            {today
+              ? "Locked in for today. Forge will ease up or push based on this."
+              : "Sleep, energy, sore, stress — 10 seconds. No clinic vibes."}
+          </p>
+        </div>
+        <ForgeCharacter kind="mascot" size="xs" motion={today ? "none" : "float"} />
+      </div>
       {!today ? (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="relative z-[1] mt-3 flex flex-col gap-2">
           <Chip label="Sleep hrs" value={sleepHrs} onChange={setSleep} max={12} />
           <Chip label="Energy" value={energy} onChange={setEnergy} />
-          <Chip label="Soreness" value={soreness} onChange={setSore} />
+          <Chip label="Sore" value={soreness} onChange={setSore} />
           <Chip label="Stress" value={stress} onChange={setStress} />
           <Button
-            className="mt-2"
-            variant="secondary"
+            className="mt-2 rounded-full"
             onClick={() => logReadiness({ sleepHrs, energy, soreness, stress })}
           >
-            Save check-in
+            Save vibe
           </Button>
         </div>
       ) : null}

@@ -9,7 +9,7 @@ import { WakeLock } from "./wake-lock";
 import { PowerSplash } from "./power-splash";
 import { AppTour } from "./app-tour";
 import { splashDoneThisVisit } from "@/lib/splash";
-import { stepsFromBridge } from "@/lib/health-connect";
+import { healthFromBridge, stepsFromBridge } from "@/lib/health-connect";
 import { registerOffline, subscribeOnline } from "@/lib/offline";
 import { Onboarding } from "./onboarding";
 
@@ -59,13 +59,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    function apply(n: number) {
-      useGym.getState().logSteps(n);
+    function applySteps(n: number) {
+      useGym.getState().applyHealthSnapshot({ steps: n, source: "bridge" }, "bridge");
     }
-    (window as Window & { forgeApplySteps?: (n: number) => void }).forgeApplySteps = apply;
+    (window as Window & { forgeApplySteps?: (n: number) => void }).forgeApplySteps = applySteps;
     function onMsg(e: MessageEvent) {
+      const snap = healthFromBridge(e.data);
+      if (snap) {
+        useGym.getState().applyHealthSnapshot(snap, "bridge");
+        return;
+      }
       const n = stepsFromBridge(e.data);
-      if (n != null) apply(n);
+      if (n != null) applySteps(n);
     }
     window.addEventListener("message", onMsg);
     return () => {

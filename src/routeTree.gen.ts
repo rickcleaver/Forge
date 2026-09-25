@@ -15,8 +15,8 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MusclesRouteImport } from './routes/muscles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ProgramsRouteImport } from './routes/programs'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SessionRouteImport } from './routes/session'
 import { Route as SpotterRouteImport } from './routes/spotter'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -51,14 +51,14 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProgressRoute = ProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProgramsRoute = ProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionRoute = SessionRouteImport.update({
@@ -84,8 +84,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
-  '/progress': typeof ProgressRoute
   '/programs': typeof ProgramsRoute
+  '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -97,8 +97,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
-  '/progress': typeof ProgressRoute
   '/programs': typeof ProgramsRoute
+  '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -111,8 +111,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
-  '/progress': typeof ProgressRoute
   '/programs': typeof ProgramsRoute
+  '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -126,8 +126,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/muscles'
     | '/privacy'
-    | '/progress'
     | '/programs'
+    | '/progress'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -139,8 +139,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/muscles'
     | '/privacy'
-    | '/progress'
     | '/programs'
+    | '/progress'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -152,8 +152,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/muscles'
     | '/privacy'
-    | '/progress'
     | '/programs'
+    | '/progress'
     | '/session'
     | '/spotter'
     | '/api/auth/$'
@@ -166,8 +166,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MusclesRoute: typeof MusclesRoute
   PrivacyRoute: typeof PrivacyRoute
-  ProgressRoute: typeof ProgressRoute
   ProgramsRoute: typeof ProgramsRoute
+  ProgressRoute: typeof ProgressRoute
   SessionRoute: typeof SessionRoute
   SpotterRoute: typeof SpotterRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -217,18 +217,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/progress': {
-      id: '/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/programs': {
       id: '/programs'
       path: '/programs'
       fullPath: '/programs'
       preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/session': {
@@ -262,8 +262,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MusclesRoute: MusclesRoute,
   PrivacyRoute: PrivacyRoute,
-  ProgressRoute: ProgressRoute,
   ProgramsRoute: ProgramsRoute,
+  ProgressRoute: ProgressRoute,
   SessionRoute: SessionRoute,
   SpotterRoute: SpotterRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

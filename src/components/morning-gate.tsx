@@ -30,17 +30,18 @@ export function MorningGate({
         <p className="text-sm font-medium text-muted">{format(now, "EEEE, MMM d")}</p>
         <SettingsDrawer />
       </div>
-      <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight">How you feeling?</h1>
-      <p className="mt-2 text-sm text-muted">Quick check. Then we pick the right session.</p>
+      <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight">How you feeling?</h1>
+      <p className="mt-2 text-sm text-muted">Quick vibe check. Then we pick the right session — no lectures.</p>
 
       <Stepper label="Sleep (hrs)" value={sleepHrs} onMinus={() => bump(setSleep, sleepHrs, -0.5, 0, 12)} onPlus={() => bump(setSleep, sleepHrs, 0.5, 0, 12)} />
       <Stepper label="Energy" value={energy} onMinus={() => bump(setEnergy, energy, -1, 1, 10)} onPlus={() => bump(setEnergy, energy, 1, 1, 10)} />
       <Stepper label="Sore" value={soreness} onMinus={() => bump(setSore, soreness, -1, 0, 10)} onPlus={() => bump(setSore, soreness, 1, 0, 10)} />
       <Stepper label="Stress" value={stress} onMinus={() => bump(setStress, stress, -1, 0, 10)} onPlus={() => bump(setStress, stress, 1, 0, 10)} />
 
-      <div className="mt-6 rounded-2xl bg-surface px-4 py-4 shadow-[var(--shadow-border)]">
-        <p className="text-sm text-muted">Readiness</p>
-        <p className="font-display text-4xl font-extrabold tabular-nums">{preview}</p>
+      <div className="forge-neon-frame mt-6 rounded-3xl bg-surface px-4 py-4 shadow-[var(--shadow-glow)]">
+        <p className="font-mono text-[10px] tracking-wider text-accent uppercase">Today's charge</p>
+        <p className="font-display text-5xl font-extrabold tabular-nums">{preview}</p>
+        <p className="mt-1 text-xs text-muted">Higher = more gas in the tank</p>
       </div>
 
       <div className="mt-auto pt-10">

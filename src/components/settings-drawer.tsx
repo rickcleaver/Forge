@@ -91,7 +91,7 @@ export function SettingsDrawer() {
         <div className="flex max-h-[80dvh] flex-col gap-6 overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
             <DrawerTitle>Settings</DrawerTitle>
-            <DrawerDescription>Backup, look, units, rest, MyFitnessPal.</DrawerDescription>
+            <DrawerDescription>Look, backup, Health sync, units, rest, MyFitnessPal.</DrawerDescription>
           </div>
           <button
             type="button"
@@ -317,7 +317,7 @@ export function SettingsDrawer() {
           <section className="flex items-center justify-between gap-4 rounded-lg bg-surface-2 px-4 py-3">
             <div>
               <p className="text-sm font-medium">Start rest after a set</p>
-              <p className="text-xs text-muted">Timer begins when you check a working set complete.</p>
+              <p className="text-xs text-muted">Timer begins when you check a set complete.</p>
             </div>
             <Switch
               checked={settings.autoStartRest}

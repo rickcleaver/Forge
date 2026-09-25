@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useGym } from "@/lib/store";
+import { getCircles } from "@/lib/circles";
 import { evaluateQuests, type QuestId, type QuestTone, type QuestView } from "@/lib/quests";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -33,15 +34,22 @@ function useQuestViews(): QuestView[] {
   const player = useGym((s) => s.player);
   const sessions = useGym((s) => s.sessions);
   const setupDone = useGym((s) => s.settings.setupDone);
-  return useMemo(
-    () =>
-      evaluateQuests({
-        setupDone: Boolean(setupDone),
-        sessions,
-        player,
-      }),
-    [player, sessions, setupDone],
-  );
+  // Re-read Circles on player flag changes (buddy add sets the flag).
+  const buddyFlag = player.flags.addedCircleBuddy;
+  return useMemo(() => {
+    let hasCircleBuddy = Boolean(buddyFlag);
+    try {
+      hasCircleBuddy = getCircles().buddies.length > 0;
+    } catch {
+      /* SSR / private mode */
+    }
+    return evaluateQuests({
+      setupDone: Boolean(setupDone),
+      sessions,
+      player,
+      hasCircleBuddy,
+    });
+  }, [player, sessions, setupDone, buddyFlag]);
 }
 
 function buzzClaim() {
@@ -78,7 +86,7 @@ export function QuestCarousel({ className }: { className?: string }) {
   return (
     <section className={cn("mt-6", className)}>
       <div className="flex items-end justify-between gap-2">
-        <h2 className="font-display text-lg font-semibold">Getting started</h2>
+        <h2 className="font-display text-xl font-semibold">Getting started</h2>
         <Link to="/progress" hash="forge-quests" className="text-xs font-bold text-accent">
           All quests
         </Link>
@@ -147,7 +155,7 @@ export function QuestsPanel({ className }: { className?: string }) {
   return (
     <section className={cn("mt-8", className)} id="forge-quests">
       <h2 className="font-display text-lg font-semibold">Quests</h2>
-      <p className="mt-1 text-sm text-muted">Real goals. Claim XP and gems when you crush them.</p>
+      <p className="mt-1 text-sm text-muted">Real goals only — Claim unlocks when you actually do the thing.</p>
       {flash ? (
         <p
           className="mt-2 rounded-2xl border border-accent/40 bg-accent/15 px-3 py-2 text-center text-sm font-bold text-fg forge-bounce-in"

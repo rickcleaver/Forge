@@ -24,7 +24,16 @@ export type QuestDef = {
   tone: QuestTone;
 };
 
-/** Canonical starter quests — progress is derived from real app state. */
+/** Demo seed sessions (id starts with seed-) never count toward quest proof. */
+export function isDemoSession(session: { id: string }): boolean {
+  return session.id.startsWith("seed-");
+}
+
+export function realSessions(sessions: Session[]): Session[] {
+  return sessions.filter((s) => !isDemoSession(s));
+}
+
+/** Canonical starter quests — progress is derived from real app state only. */
 export const QUEST_DEFS: QuestDef[] = [
   {
     id: "setup",
@@ -47,7 +56,7 @@ export const QUEST_DEFS: QuestDef[] = [
   {
     id: "first-set",
     title: "Log a set",
-    description: "Check off one working set. Logging stays one-tap fast.",
+    description: "Check off one real set. Logging stays one-tap fast.",
     target: 1,
     rewardXp: 25,
     rewardGems: 15,
@@ -56,7 +65,7 @@ export const QUEST_DEFS: QuestDef[] = [
   {
     id: "sets-10",
     title: "Ten honest sets",
-    description: "Log 10 working sets across any sessions.",
+    description: "Log 10 sets across any of your sessions.",
     target: 10,
     rewardXp: 60,
     rewardGems: 30,
@@ -83,7 +92,7 @@ export const QUEST_DEFS: QuestDef[] = [
   {
     id: "open-muscles",
     title: "Check the map",
-    description: "Open the muscle map and see what you\u2019ve hit.",
+    description: "Open the muscle map and see what you've hit.",
     target: 1,
     rewardXp: 20,
     rewardGems: 10,
@@ -101,13 +110,19 @@ export const QUEST_DEFS: QuestDef[] = [
   {
     id: "circle-buddy",
     title: "Invite a buddy",
-    description: "Add someone in Circles \u2014 accountability without a feed.",
+    description: "Add someone in Circles — accountability without a feed.",
     target: 1,
     rewardXp: 35,
     rewardGems: 20,
     tone: "lime",
   },
 ];
+
+const QUEST_ID_SET = new Set<string>(QUEST_DEFS.map((d) => d.id));
+
+export function isQuestId(id: unknown): id is QuestId {
+  return typeof id === "string" && QUEST_ID_SET.has(id);
+}
 
 export type PlayerFlags = {
   visitedMuscles: boolean;
@@ -139,16 +154,29 @@ export type QuestView = QuestDef & {
   claimed: boolean;
 };
 
+/**
+ * Progress is proof-only:
+ * - Demo seed sessions never count
+ * - Sets require completed non-warmup rows
+ * - Visit / buddy flags must be set by real UI actions (or hasCircleBuddy)
+ * - Claimable only when progress >= target AND not already claimed
+ */
 export function evaluateQuests(opts: {
   setupDone: boolean;
   sessions: Session[];
   player: PlayerProgress;
+  /** Prefer live Circles buddy count over the mutable flag when available. */
+  hasCircleBuddy?: boolean;
 }): QuestView[] {
-  const { setupDone, sessions, player } = opts;
+  const { setupDone, player } = opts;
+  const sessions = realSessions(opts.sessions);
   const started = sessions.length > 0;
   const sets = sessions.reduce((n, s) => n + sessionSetCount(s), 0);
   const finished = sessions.filter((s) => s.finishedAt);
   const anyPr = finished.some((s) => sessionPrNames(s, sessions).length > 0);
+  const circleDone =
+    opts.hasCircleBuddy === true ||
+    (opts.hasCircleBuddy !== false && player.flags.addedCircleBuddy);
 
   const progressOf: Record<QuestId, number> = {
     setup: setupDone ? 1 : 0,
@@ -159,7 +187,7 @@ export function evaluateQuests(opts: {
     "first-pr": anyPr ? 1 : 0,
     "open-muscles": player.flags.visitedMuscles ? 1 : 0,
     "open-programs": player.flags.visitedPrograms ? 1 : 0,
-    "circle-buddy": player.flags.addedCircleBuddy ? 1 : 0,
+    "circle-buddy": circleDone ? 1 : 0,
   };
 
   return QUEST_DEFS.map((def) => {

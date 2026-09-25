@@ -53,7 +53,7 @@ export function ProgramsPage() {
         <ForgeCharacter kind="mascot" size="xs" motion="none" className="shrink-0" />
       </header>
       <p className="mt-2 text-sm text-muted">
-        Your saved days, public starters, and Spotter plans — zero tab-bar clutter.
+        Your saved days, public starters, and Spotter plans — pick one and go.
       </p>
 
       <div className="mt-5 flex flex-col gap-2">

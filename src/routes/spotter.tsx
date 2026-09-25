@@ -259,7 +259,7 @@ function CoachLive({
                             {format(d.at, "EEE d")} · {d.name}
                           </p>
                           {(d.lifts ?? []).length === 0 ? (
-                            <p className="mt-1 text-sm text-muted">No working sets logged.</p>
+                            <p className="mt-1 text-sm text-muted">No sets logged yet.</p>
                           ) : (
                             <ul className="mt-2 flex flex-col gap-2">
                               {(d.lifts ?? []).map((lift) => (

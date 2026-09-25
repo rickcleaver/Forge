@@ -41,7 +41,7 @@ function ProgressPage() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-semibold tracking-tight">Progress</h1>
-          <p className="mt-1 text-sm text-muted">PRs, charts, photos — receipts that you showed up.</p>
+          <p className="mt-1 text-sm text-muted">PRs, charts, photos — proof you showed up. Flex responsibly.</p>
         </div>
         <ForgeCharacter kind="mascot" size="sm" motion="float" className="shrink-0" />
       </div>
@@ -49,7 +49,7 @@ function ProgressPage() {
         <a href="#forge-score" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Score</a>
         <a href="#forge-charts" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Charts</a>
         <Link to="/muscles" className="shrink-0 rounded-full bg-accent px-3 py-2 font-mono text-[10px] tracking-wider text-accent-fg uppercase shadow-[var(--shadow-glow)]">Muscles</Link>
-        <a href="#forge-outcome" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Outcome</a>
+        <a href="#forge-outcome" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Glow-up</a>
         <a href="#forge-circles" className="shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]">Circles</a>
       </nav>
 
@@ -66,7 +66,8 @@ function ProgressPage() {
       </div>
 
 <section className="mt-8">
-        <h2 className="font-display text-lg font-semibold">Records</h2>
+        <h2 className="font-display text-xl font-semibold">Your records</h2>
+        <p className="mt-1 text-sm text-muted">Best set on each lift — no spreadsheet energy.</p>
         <ul className="mt-3 flex flex-col gap-2">
           {records.slice(0, 8).map((r) => (
             <li
@@ -79,7 +80,7 @@ function ProgressPage() {
               </div>
               <p className="mt-1 font-mono text-[11px] text-muted">
                 {format(r.when, "d MMM")}
-                {r.e1rm ? ` · e1RM ${r.e1rm} ${unit}` : ""}
+                {r.e1rm ? ` · est. max ${r.e1rm} ${unit}` : ""}
               </p>
             </li>
           ))}
@@ -126,11 +127,11 @@ function ProgressPage() {
         </ul>
       </section>
 
-      <div id="forge-outcome" className="mt-8 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)]">
-        <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Outcome loop</p>
-        <h2 className="mt-1 font-display text-lg font-semibold">Weigh-ins · photos · Forge Score</h2>
+      <div id="forge-outcome" className="forge-neon-frame mt-8 rounded-[1.75rem] bg-surface p-4 shadow-[var(--shadow-border)]">
+        <p className="font-mono text-[10px] tracking-wider text-accent uppercase">The glow-up loop</p>
+        <h2 className="mt-1 font-display text-xl font-semibold">Scale · photos · Forge Score</h2>
         <p className="mt-1 text-sm text-muted">
-          One story: scale trend, physique shots, and your score move together. Weekly direction over vanity spikes.
+          One story: weight trend, physique shots, and your score move together. Weekly vibe over one-day panic.
         </p>
       </div>
       <WeightLogCard />

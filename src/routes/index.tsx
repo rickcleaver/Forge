@@ -87,7 +87,7 @@ function LevelUpCard() {
             Unlock Muscle Map progress
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Hit {goal} areas this week · Forge score {score.total}
+            Hit {goal} areas this week · score {score.total}
           </p>
           <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-well">
             <div
@@ -368,7 +368,7 @@ function Today() {
 
       <section className="mt-8">
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-bold">This week</h2>
+          <h2 className="font-display text-xl font-semibold">This week</h2>
           <Link to="/muscles" className="font-mono text-[10px] tracking-wider text-muted uppercase">
             Map
           </Link>
@@ -417,7 +417,7 @@ function Today() {
 
       <section className="mt-8">
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-bold">Recent</h2>
+          <h2 className="font-display text-xl font-semibold">Recent</h2>
           <Link to="/history" className="font-mono text-[10px] tracking-wider text-muted uppercase">
             All
           </Link>
@@ -425,7 +425,7 @@ function Today() {
         <ul className="mt-3 flex flex-col gap-2">
           {recent.length === 0 ? (
             <li className="rounded-xl bg-surface px-4 py-8 text-center text-sm text-muted shadow-[var(--shadow-border)]">
-              No sessions yet. Hit Start on Today’s card — your first finish shows up here.
+              No sessions yet. Hit Start — your first finish shows up here.
             </li>
           ) : (
             recent.map((s) => (

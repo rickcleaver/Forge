@@ -25,9 +25,15 @@ export function CirclesCard() {
     try {
       const q = new URLSearchParams(window.location.search).get("circle");
       if (q) {
-        setPlayerFlag("addedCircleBuddy");
-        setState(addBuddy(q));
-        setMsg(`Added buddy ${q.toUpperCase()}.`);
+        const before = getCircles().buddies.length;
+        const next = addBuddy(q);
+        setState(next);
+        if (next.buddies.length > before) {
+          setPlayerFlag("addedCircleBuddy");
+          setMsg(`Added buddy ${q.toUpperCase()}.`);
+        } else {
+          setMsg(next.buddies.some((b) => b.code === q.trim().toUpperCase()) ? "Buddy already saved." : "That code did not add a buddy.");
+        }
         const url = new URL(window.location.href);
         url.searchParams.delete("circle");
         window.history.replaceState({}, "", url.pathname + url.search + url.hash);
@@ -84,10 +90,18 @@ export function CirclesCard() {
         <Button
           type="button"
           onClick={() => {
-            setPlayerFlag("addedCircleBuddy");
-        setState(addBuddy(code));
+            const before = getCircles().buddies.length;
+            const next = addBuddy(code);
+            setState(next);
             setCode("");
-            setMsg("Buddy saved locally.");
+            if (next.buddies.length > before) {
+              setPlayerFlag("addedCircleBuddy");
+              setMsg("Buddy saved locally.");
+            } else if (!code.trim()) {
+              setMsg("Paste a buddy code first.");
+            } else {
+              setMsg("Already added, or that is your own code.");
+            }
           }}
         >
           Add

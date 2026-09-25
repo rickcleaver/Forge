@@ -120,7 +120,7 @@ function SessionPage() {
               <span className="block font-mono text-[10px] tracking-wider uppercase">Repeat last</span>
               <span className="mt-1 block font-display text-lg font-semibold">{lastFinished.name}</span>
               <span className="mt-0.5 block text-sm opacity-70">
-                {sessionSetCount(lastFinished)} working sets, same weights waiting.
+                {sessionSetCount(lastFinished)} sets logged — same weights waiting.
               </span>
             </span>
             <RotateCcw className="size-4" />
@@ -214,7 +214,7 @@ function LiveSession({ id, onFinished }: { id: string; onFinished: (id: string) 
                 speakText(
                   nxt
                     ? `Next. ${nxt.name}. ${nxt.label}.`
-                    : "All working sets are done.",
+                    : "All sets are done.",
                 );
               }}
             >
@@ -361,7 +361,7 @@ function LiveSession({ id, onFinished }: { id: string; onFinished: (id: string) 
         <DialogContent>
           <DialogTitle>Finish session?</DialogTitle>
           <DialogDescription>
-            {sets} working sets · {formatDuration(sessionDurationMs(session, now))} · {formatVolume(volume, unit)}.
+            {sets} sets · {formatDuration(sessionDurationMs(session, now))} · {formatVolume(volume, unit)}.
           </DialogDescription>
           {prs.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-1">
