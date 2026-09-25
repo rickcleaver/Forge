@@ -98,6 +98,9 @@ export function QuestCarousel({ className }: { className?: string }) {
           aria-live="polite"
         >
           Claimed! +{flash.xp} XP · +{flash.gems} gems
+          <span className="mt-1 block text-xs font-medium text-muted">
+            HUD XP/gems updated · flair is in the Gem shop
+          </span>
         </p>
       ) : null}
       <div className="-mx-4 mt-3 flex gap-3 overflow-x-auto px-4 pb-1">
@@ -163,6 +166,9 @@ export function QuestsPanel({ className }: { className?: string }) {
           aria-live="polite"
         >
           Claimed! +{flash.xp} XP · +{flash.gems} gems
+          <span className="mt-1 block text-xs font-medium text-muted">
+            HUD updated · spend gems in the shop for avatar flair
+          </span>
         </p>
       ) : null}
       <ul className="mt-3 flex flex-col gap-2">

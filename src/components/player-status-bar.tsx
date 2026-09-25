@@ -18,15 +18,21 @@ export function PlayerStatusBar() {
     <header className="flex items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <div
-          className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-2"
+          className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-surface-2"
           style={{
             boxShadow: `0 0 0 2px ${ring}, 0 0 14px color-mix(in srgb, ${flair?.ring ?? "var(--color-ring)"} 40%, transparent)`,
           }}
           title={flair ? `Flair: ${flair.name}` : "Avatar"}
+          data-flair={flair?.id ?? "none"}
         >
-          <ForgeCharacter kind="mascot" size="xs" motion="none" className="scale-125" />
+          <div className="flex size-full items-center justify-center overflow-hidden rounded-full">
+            <ForgeCharacter kind="mascot" size="xs" motion="none" className="scale-125" />
+          </div>
           {flair ? (
-            <span className="pointer-events-none absolute -right-0.5 -top-0.5 text-[10px]" aria-hidden>
+            <span
+              className="pointer-events-none absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-surface text-[10px] shadow-[var(--shadow-border)]"
+              aria-hidden
+            >
               {flair.emoji}
             </span>
           ) : null}

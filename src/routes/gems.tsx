@@ -5,6 +5,7 @@ import { COSMETIC_DEFS, COSMETIC_MAP, type CosmeticId } from "@/lib/cosmetics";
 import { QUEST_DEFS } from "@/lib/quests";
 import { useGym } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { PlayerStatusBar } from "@/components/player-status-bar";
 
 export const Route = createFileRoute("/gems")({ component: GemsPage });
 
@@ -28,7 +29,7 @@ function GemsPage() {
       flash(res.error ?? "Nope.");
       return;
     }
-    flash(`Unlocked ${COSMETIC_MAP[id].name}!`);
+    flash(`Unlocked & equipped ${COSMETIC_MAP[id].name}!`);
   }
 
   function onEquip(id: CosmeticId | null) {
@@ -42,9 +43,10 @@ function GemsPage() {
 
   return (
     <main className="forge-page-enter px-4 pt-4 pb-10">
+      <PlayerStatusBar />
       <Link
         to="/"
-        className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-muted shadow-[var(--shadow-border)]"
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-muted shadow-[var(--shadow-border)]"
       >
         <ArrowLeft className="size-3.5" />
         Back
@@ -89,7 +91,9 @@ function GemsPage() {
           <ShoppingBag className="size-4 text-[var(--color-candy-3)]" />
           Gem shop
         </h2>
-        <p className="mt-1 text-sm text-muted">Avatar flair persists on your player save. Equip one at a time.</p>
+        <p className="mt-1 text-sm text-muted">
+          Buy auto-equips on your avatar ring (see HUD above). Equip one at a time — persists on your save.
+        </p>
         <ul className="mt-3 space-y-2">
           {COSMETIC_DEFS.map((item) => {
             const owned = player.unlockedCosmetics.includes(item.id);
@@ -184,7 +188,7 @@ function GemsPage() {
         <p className="font-display text-base font-bold text-fg">How gems work</p>
         <ul className="mt-2 space-y-1.5">
           <li>Quests pay gems when you Claim — proof only, no freebies.</li>
-          <li>Shop unlocks save on your player. Unequip anytime.</li>
+          <li>Buying flair unlocks and auto-equips it on your avatar. Unequip anytime.</li>
           <li>Spend wisely: gold glow is flex, spark trail is the starter drip.</li>
         </ul>
       </section>

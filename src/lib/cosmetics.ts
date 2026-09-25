@@ -87,3 +87,50 @@ const COSMETIC_ID_SET = new Set<string>(COSMETIC_DEFS.map((c) => c.id));
 export function isCosmeticId(id: unknown): id is CosmeticId {
   return typeof id === "string" && COSMETIC_ID_SET.has(id);
 }
+
+/** Minimal player slice the gem shop mutates. */
+export type CosmeticOwner = {
+  gems: number;
+  unlockedCosmetics: CosmeticId[];
+  equippedFlair: CosmeticId | null;
+};
+
+/**
+ * Unlock a cosmetic with gems and always equip it so the HUD avatar
+ * ring updates immediately (preferred shop UX).
+ */
+export function purchaseCosmetic<T extends CosmeticOwner>(
+  player: T,
+  id: CosmeticId,
+): { ok: true; player: T } | { ok: false; error: string } {
+  if (!isCosmeticId(id)) return { ok: false, error: "Unknown drip." };
+  const def = COSMETIC_MAP[id];
+  if (player.unlockedCosmetics.includes(id)) {
+    return { ok: false, error: "Already unlocked." };
+  }
+  if (player.gems < def.cost) {
+    return { ok: false, error: "Not enough gems — crush a quest." };
+  }
+  return {
+    ok: true,
+    player: {
+      ...player,
+      gems: player.gems - def.cost,
+      unlockedCosmetics: [...player.unlockedCosmetics, id],
+      equippedFlair: id,
+    },
+  };
+}
+
+/** Equip an owned flair (or clear with null). */
+export function equipCosmetic<T extends CosmeticOwner>(
+  player: T,
+  id: CosmeticId | null,
+): { ok: true; player: T } | { ok: false; error: string } {
+  if (id != null && !isCosmeticId(id)) return { ok: false, error: "Unknown flair." };
+  if (id != null && !player.unlockedCosmetics.includes(id)) {
+    return { ok: false, error: "Unlock it in the gem shop first." };
+  }
+  return { ok: true, player: { ...player, equippedFlair: id } };
+}
+

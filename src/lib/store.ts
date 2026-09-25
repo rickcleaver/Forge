@@ -15,8 +15,9 @@ import {
   type QuestView,
 } from "./quests";
 import {
-  COSMETIC_MAP,
+  equipCosmetic,
   isCosmeticId,
+  purchaseCosmetic,
   type CosmeticId,
 } from "./cosmetics";
 import { getCircles } from "./circles";
@@ -556,42 +557,30 @@ export const useGym = create<GymState>()(
         return { ok: true, xp: rewardXp, gems: rewardGems };
       },
       buyCosmetic: (id) => {
-        if (!isCosmeticId(id)) return { ok: false, error: "Unknown drip." };
-        const def = COSMETIC_MAP[id];
         let error: string | undefined;
         let ok = false;
         set((prev) => {
-          if (prev.player.unlockedCosmetics.includes(id)) {
-            error = "Already unlocked.";
-            return prev;
-          }
-          if (prev.player.gems < def.cost) {
-            error = "Not enough gems — crush a quest.";
+          const res = purchaseCosmetic(prev.player, id);
+          if (!res.ok) {
+            error = res.error;
             return prev;
           }
           ok = true;
-          return {
-            player: {
-              ...prev.player,
-              gems: prev.player.gems - def.cost,
-              unlockedCosmetics: [...prev.player.unlockedCosmetics, id],
-              equippedFlair: prev.player.equippedFlair ?? id,
-            },
-          };
+          return { player: res.player };
         });
         return ok ? { ok: true } : { ok: false, error: error ?? "Could not buy." };
       },
       equipFlair: (id) => {
-        if (id != null && !isCosmeticId(id)) return { ok: false, error: "Unknown flair." };
         let error: string | undefined;
         let ok = false;
         set((prev) => {
-          if (id != null && !prev.player.unlockedCosmetics.includes(id)) {
-            error = "Unlock it in the gem shop first.";
+          const res = equipCosmetic(prev.player, id);
+          if (!res.ok) {
+            error = res.error;
             return prev;
           }
           ok = true;
-          return { player: { ...prev.player, equippedFlair: id } };
+          return { player: res.player };
         });
         return ok ? { ok: true } : { ok: false, error: error ?? "Could not equip." };
       },
