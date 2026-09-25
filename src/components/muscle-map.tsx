@@ -331,7 +331,7 @@ export function MuscleMap({ hits = {}, selected = null, onSelect, className, com
     <div
       className={cn(
         "grid grid-cols-2 items-end overflow-hidden rounded-2xl bg-surface-2/90",
-        compact ? "gap-1 px-1 py-1" : "gap-3 px-3 pt-3 pb-2",
+        compact ? "gap-1.5 px-1.5 py-1.5" : "gap-3 px-3 pt-3 pb-2",
       )}
     >
       <Plate view="front" label="Front muscles" hits={hits} selected={selected} onSelect={onSelect} />
@@ -340,7 +340,7 @@ export function MuscleMap({ hits = {}, selected = null, onSelect, className, com
   );
 
   if (compact) {
-    return <div className={cn("w-[8.5rem] shrink-0", className)}>{pair}</div>;
+    return <div className={cn("w-[8.5rem] max-w-full shrink-0", className)}>{pair}</div>;
   }
 
   return (

@@ -103,8 +103,8 @@ function LevelUpCard() {
             Open map
           </Link>
         </div>
-        <div className="w-[7.25rem] shrink-0 overflow-hidden rounded-2xl bg-bg/50 p-1">
-          <MuscleMap hits={hits} compact className="!rounded-xl" />
+        <div className="w-[10rem] shrink-0 rounded-2xl bg-bg/50 p-1.5">
+          <MuscleMap hits={hits} compact className="!w-full" />
         </div>
       </div>
     </section>
