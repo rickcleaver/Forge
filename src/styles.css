@@ -532,18 +532,20 @@ html[data-mode="light"][data-theme="steel"] {
   .forge-splash-bar { animation: none; transform: scaleX(1); }
 }
 
-/* Muscle map plates — dark gutters keep hit neon from flooding into one blob */
+/* Muscle map — shapes sit on skin. Thin outline, not armor-plate strokes. */
 .muscle-plate {
-  stroke: var(--color-bg);
-  stroke-width: 4;
-  paint-order: stroke fill;
+  fill: color-mix(in srgb, var(--color-skin-deep) 48%, var(--color-skin));
+  stroke: color-mix(in srgb, var(--color-skin-deep) 82%, #2c140c);
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 .muscle-plate-hit {
-  fill: color-mix(in srgb, var(--color-muscle-hit) 78%, var(--color-muscle));
-  stroke: var(--color-bg);
-  stroke-width: 4.2;
+  fill: var(--color-muscle-hit);
+  stroke: color-mix(in srgb, white 70%, var(--color-candy-2));
+  stroke-width: 1.4;
 }
 .muscle-plate-selected {
   stroke: var(--color-ring);
-  stroke-width: 3.8;
+  stroke-width: 2.3;
 }

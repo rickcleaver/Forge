@@ -94,9 +94,11 @@ function ProgressPage() {
             Map
           </Link>
         </div>
-        <div className="mt-3 flex items-center gap-4 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-          <MuscleMap hits={hits} compact />
-          <div>
+        <div className="mt-3 flex items-center gap-3 rounded-2xl bg-surface p-3 shadow-[var(--shadow-border)]">
+          <div className="min-w-0 flex-1">
+            <MuscleMap hits={hits} compact className="w-full" />
+          </div>
+          <div className="w-[4.75rem] shrink-0">
             <p className="font-display text-3xl font-semibold tabular-nums">
               {trained}
               <span className="text-lg text-muted">/{MUSCLES.length}</span>
