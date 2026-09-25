@@ -56,3 +56,65 @@ export function trainingStreak(sessions: Session[], now = Date.now()): number {
 export function totalWorkingSets(sessions: Session[]): number {
   return sessions.reduce((n, s) => n + sessionSetCount(s), 0);
 }
+
+/** All finished-session calendar days as start-of-day timestamps. */
+export function workoutDaySet(sessions: Session[]): Set<number> {
+  const days = new Set<number>();
+  for (const s of sessions) {
+    if (!s.finishedAt) continue;
+    days.add(startOfDay(s.finishedAt).getTime());
+  }
+  return days;
+}
+
+/** Longest consecutive finished-workout streak in the log. */
+export function bestTrainingStreak(sessions: Session[]): number {
+  const days = [...workoutDaySet(sessions)].sort((a, b) => a - b);
+  if (days.length === 0) return 0;
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < days.length; i++) {
+    const gap = days[i]! - days[i - 1]!;
+    if (gap === 86_400_000) {
+      run += 1;
+      best = Math.max(best, run);
+    } else if (gap > 0) {
+      run = 1;
+    }
+  }
+  return best;
+}
+
+export type DayChip = {
+  /** start-of-day ms */
+  day: number;
+  label: string;
+  trained: boolean;
+  isToday: boolean;
+};
+
+/** Last `count` calendar days (oldest → newest) with workout flags. */
+export function recentDayChips(
+  sessions: Session[],
+  count = 14,
+  now = Date.now(),
+): DayChip[] {
+  const trained = workoutDaySet(sessions);
+  const today = startOfDay(now).getTime();
+  const labels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  const chips: DayChip[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const day = startOfDay(today - i * 86_400_000).getTime();
+    chips.push({
+      day,
+      label: labels[new Date(day).getDay()] ?? "?",
+      trained: trained.has(day),
+      isToday: day === today,
+    });
+  }
+  return chips;
+}
+
+export function trainedToday(sessions: Session[], now = Date.now()): boolean {
+  return workoutDaySet(sessions).has(startOfDay(now).getTime());
+}

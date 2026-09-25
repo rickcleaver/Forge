@@ -61,6 +61,8 @@ function player(partial: Partial<PlayerProgress> = {}): PlayerProgress {
     ...partial,
     flags: { ...DEFAULT_PLAYER.flags, ...(partial.flags ?? {}) },
     claimedQuestIds: [...(partial.claimedQuestIds ?? [])],
+    unlockedCosmetics: [...(partial.unlockedCosmetics ?? DEFAULT_PLAYER.unlockedCosmetics)],
+    equippedFlair: partial.equippedFlair ?? DEFAULT_PLAYER.equippedFlair,
   };
 }
 

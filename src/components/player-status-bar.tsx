@@ -1,6 +1,8 @@
 import { Bell, Flame, Gem, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { useGym } from "@/lib/store";
 import { levelFromXp, trainingStreak } from "@/lib/player-progress";
+import { COSMETIC_MAP } from "@/lib/cosmetics";
 import { SettingsDrawer } from "./settings-drawer";
 import { ForgeCharacter } from "./forge-character";
 
@@ -9,12 +11,25 @@ export function PlayerStatusBar() {
   const player = useGym((s) => s.player);
   const level = levelFromXp(player.xp);
   const streak = trainingStreak(sessions);
+  const flair = player.equippedFlair ? COSMETIC_MAP[player.equippedFlair] : null;
+  const ring = flair?.ring ?? "color-mix(in srgb, var(--color-ring) 70%, transparent)";
 
   return (
     <header className="flex items-center gap-2">
       <div className="flex min-w-0 flex-1 items-center gap-2">
-        <div className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-2 ring-2 ring-[color-mix(in_srgb,var(--color-ring)_70%,transparent)]">
+        <div
+          className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-2"
+          style={{
+            boxShadow: `0 0 0 2px ${ring}, 0 0 14px color-mix(in srgb, ${flair?.ring ?? "var(--color-ring)"} 40%, transparent)`,
+          }}
+          title={flair ? `Flair: ${flair.name}` : "Avatar"}
+        >
           <ForgeCharacter kind="mascot" size="xs" motion="none" className="scale-125" />
+          {flair ? (
+            <span className="pointer-events-none absolute -right-0.5 -top-0.5 text-[10px]" aria-hidden>
+              {flair.emoji}
+            </span>
+          ) : null}
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-display text-sm font-semibold tabular-nums">
@@ -32,14 +47,22 @@ export function PlayerStatusBar() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold shadow-[var(--shadow-border)]">
+        <Link
+          to="/streak"
+          className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold shadow-[var(--shadow-border)] transition hover:brightness-110"
+          aria-label={`Streak ${streak} days`}
+        >
           <Flame className="size-3.5 text-orange-400" />
           {streak}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold shadow-[var(--shadow-border)]">
+        </Link>
+        <Link
+          to="/gems"
+          className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold shadow-[var(--shadow-border)] transition hover:brightness-110"
+          aria-label={`${player.gems} gems`}
+        >
           <Gem className="size-3.5 text-[var(--color-candy-2)]" />
           {player.gems}
-        </span>
+        </Link>
         <span
           className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-1 text-xs font-bold text-muted shadow-[var(--shadow-border)]"
           title="Total XP"

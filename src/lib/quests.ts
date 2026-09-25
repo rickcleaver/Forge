@@ -1,4 +1,5 @@
 import type { Session } from "./types";
+import type { CosmeticId } from "./cosmetics";
 import { sessionPrNames, sessionSetCount } from "./stats";
 
 export type QuestId =
@@ -135,6 +136,10 @@ export type PlayerProgress = {
   gems: number;
   claimedQuestIds: QuestId[];
   flags: PlayerFlags;
+  /** Cosmetic unlocks bought with gems — persist across sessions. */
+  unlockedCosmetics: CosmeticId[];
+  /** Currently equipped avatar flair (must be owned). */
+  equippedFlair: CosmeticId | null;
 };
 
 export const DEFAULT_PLAYER: PlayerProgress = {
@@ -146,6 +151,8 @@ export const DEFAULT_PLAYER: PlayerProgress = {
     visitedPrograms: false,
     addedCircleBuddy: false,
   },
+  unlockedCosmetics: [],
+  equippedFlair: null,
 };
 
 export type QuestView = QuestDef & {

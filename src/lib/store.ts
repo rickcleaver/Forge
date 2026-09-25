@@ -14,6 +14,11 @@ import {
   type QuestId,
   type QuestView,
 } from "./quests";
+import {
+  COSMETIC_MAP,
+  isCosmeticId,
+  type CosmeticId,
+} from "./cosmetics";
 import { getCircles } from "./circles";
 import {
   DEFAULT_HEALTH_SYNC,
@@ -102,6 +107,8 @@ type GymState = {
   healthSync: HealthSyncState;
   setHydrated: (v: boolean) => void;
   claimQuest: (id: QuestId) => { ok: boolean; xp?: number; gems?: number };
+  buyCosmetic: (id: CosmeticId) => { ok: boolean; error?: string };
+  equipFlair: (id: CosmeticId | null) => { ok: boolean; error?: string };
   setPlayerFlag: (flag: keyof PlayerFlags, value?: boolean) => void;
   listQuests: () => QuestView[];
   applyHealthSnapshot: (snap: HealthSnapshot, source?: HealthSource) => { ok: boolean; error?: string };
@@ -401,6 +408,15 @@ function mergePlayer(raw: unknown, fallback: PlayerProgress): PlayerProgress {
   const claimed = Array.isArray(p.claimedQuestIds)
     ? p.claimedQuestIds.filter(isQuestId)
     : fallback.claimedQuestIds;
+  const unlocked = Array.isArray(p.unlockedCosmetics)
+    ? p.unlockedCosmetics.filter(isCosmeticId)
+    : fallback.unlockedCosmetics;
+  const equipped =
+    p.equippedFlair == null
+      ? null
+      : isCosmeticId(p.equippedFlair) && unlocked.includes(p.equippedFlair)
+        ? p.equippedFlair
+        : fallback.equippedFlair;
   return {
     xp: typeof p.xp === "number" && Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : fallback.xp,
     gems: typeof p.gems === "number" && Number.isFinite(p.gems) ? Math.max(0, Math.floor(p.gems)) : fallback.gems,
@@ -410,6 +426,8 @@ function mergePlayer(raw: unknown, fallback: PlayerProgress): PlayerProgress {
       visitedPrograms: Boolean(flags.visitedPrograms ?? fallback.flags.visitedPrograms),
       addedCircleBuddy: Boolean(flags.addedCircleBuddy ?? fallback.flags.addedCircleBuddy),
     },
+    unlockedCosmetics: unlocked,
+    equippedFlair: equipped,
   };
 }
 
@@ -429,7 +447,12 @@ export const useGym = create<GymState>()(
       timer: idleTimer,
       lastBackupAt: null,
       sessionsAtLastBackup: 0,
-      player: { ...DEFAULT_PLAYER, flags: { ...DEFAULT_PLAYER.flags } },
+      player: {
+        ...DEFAULT_PLAYER,
+        flags: { ...DEFAULT_PLAYER.flags },
+        unlockedCosmetics: [...DEFAULT_PLAYER.unlockedCosmetics],
+        equippedFlair: DEFAULT_PLAYER.equippedFlair,
+      },
       healthSync: { ...DEFAULT_HEALTH_SYNC },
       setHydrated: (v) => set({ hydrated: v }),
       listQuests: () => {
@@ -531,6 +554,46 @@ export const useGym = create<GymState>()(
         });
         if (!granted) return { ok: false };
         return { ok: true, xp: rewardXp, gems: rewardGems };
+      },
+      buyCosmetic: (id) => {
+        if (!isCosmeticId(id)) return { ok: false, error: "Unknown drip." };
+        const def = COSMETIC_MAP[id];
+        let error: string | undefined;
+        let ok = false;
+        set((prev) => {
+          if (prev.player.unlockedCosmetics.includes(id)) {
+            error = "Already unlocked.";
+            return prev;
+          }
+          if (prev.player.gems < def.cost) {
+            error = "Not enough gems — crush a quest.";
+            return prev;
+          }
+          ok = true;
+          return {
+            player: {
+              ...prev.player,
+              gems: prev.player.gems - def.cost,
+              unlockedCosmetics: [...prev.player.unlockedCosmetics, id],
+              equippedFlair: prev.player.equippedFlair ?? id,
+            },
+          };
+        });
+        return ok ? { ok: true } : { ok: false, error: error ?? "Could not buy." };
+      },
+      equipFlair: (id) => {
+        if (id != null && !isCosmeticId(id)) return { ok: false, error: "Unknown flair." };
+        let error: string | undefined;
+        let ok = false;
+        set((prev) => {
+          if (id != null && !prev.player.unlockedCosmetics.includes(id)) {
+            error = "Unlock it in the gem shop first.";
+            return prev;
+          }
+          ok = true;
+          return { player: { ...prev.player, equippedFlair: id } };
+        });
+        return ok ? { ok: true } : { ok: false, error: error ?? "Could not equip." };
       },
       startSession: ({ name, templateId, programId }) => {
         const program = get().programs.find((p) => p.id === programId);
