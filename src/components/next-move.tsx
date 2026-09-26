@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { coachWorkoutPlan, forgeScore, weekMuscleAdvice } from "@/lib/coach-engine";
 import { LIBRARY_MAP } from "@/lib/exercises";
-import { planLabel } from "@/lib/week-plan";
+import { planKind, planLabel, todayPlan } from "@/lib/week-plan";
 import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
 import { ForgeCharacter } from "./forge-character";
@@ -19,8 +19,8 @@ export function NextMove() {
   const startCoachSession = useGym((s) => s.startCoachSession);
   const [more, setMore] = useState(false);
   const active = sessions.find((s) => s.id === activeId && !s.finishedAt);
-  const today = new Date();
-  const plan = settings.weekPlan?.[today.getDay()];
+  const plan = todayPlan(settings.weekPlan);
+  const kind = planKind(plan);
   const name = planLabel(plan, programs);
   const lastReady = readiness.at(-1);
   const ready = lastReady && Date.now() - lastReady.at < 36 * 3600_000 ? lastReady.score : null;
@@ -37,9 +37,10 @@ export function NextMove() {
   if (active) return null;
 
   function startMain() {
-    if (plan && !plan.rest && (plan.programId || plan.templateId)) {
-      if (plan.programId) startSession({ programId: plan.programId, name: name ?? undefined });
-      else if (plan.templateId) startSession({ templateId: plan.templateId, name: name ?? undefined });
+    if (kind === "program" && plan?.programId) {
+      startSession({ programId: plan.programId, name: name ?? undefined });
+    } else if (kind === "template" && plan?.templateId) {
+      startSession({ templateId: plan.templateId, name: name ?? undefined });
     } else {
       startCoachSession();
     }
@@ -47,8 +48,22 @@ export function NextMove() {
   }
 
   const backOff = ready != null && ready < 50;
-  const title = plan?.rest ? "Rest day — still proud of you" : name || "Today’s session";
-  const cta = plan?.rest ? "Lift anyway" : "Let’s go";
+  const title =
+    kind === "rest"
+      ? "Rest day — still proud of you"
+      : name
+        ? name
+        : "Today’s session";
+  const cta = kind === "rest" ? "Lift anyway" : kind === "blank" ? "Build my session" : "Let’s go";
+  const subtitle = backOff
+    ? `Feeling ${ready}. Go a bit lighter — still counts.`
+    : ready != null
+      ? `Feeling ${ready}/100 · you’ve got this`
+      : kind === "template" || kind === "program"
+        ? "From your week board · log every set, keep it fast"
+        : kind === "rest"
+          ? "Optional work is fine — the board said recover"
+          : "One tap. Log every set. Flex later.";
 
   return (
     <section className="forge-card-play hero-glow relative mt-5 overflow-hidden rounded-[1.75rem] bg-accent px-5 py-5 text-accent-fg shadow-[var(--shadow-glow)]">
@@ -57,15 +72,7 @@ export function NextMove() {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold opacity-80">Up next</p>
           <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight">{title}</h2>
-          <p className="mt-1 text-sm opacity-80">
-            {backOff
-              ? `Feeling ${ready}. Go a bit lighter — still counts.`
-              : ready != null
-                ? `Feeling ${ready}/100 · you’ve got this`
-                : plan && !plan.rest
-                  ? "From your week · log every set, keep it fast"
-                  : "One tap. Log every set. Flex later."}
-          </p>
+          <p className="mt-1 text-sm opacity-80">{subtitle}</p>
           {lowAreas.length ? (
             <p className="mt-1 text-xs opacity-70">Could use love: {lowAreas.join(" · ")}</p>
           ) : targets.length ? (

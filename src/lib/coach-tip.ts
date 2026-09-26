@@ -1,7 +1,7 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import { realSessions } from "./demo-sessions";
 import { trainingStreak, trainedToday } from "./player-progress";
-import { planLabel } from "./week-plan";
+import { planLabel, todayPlan } from "./week-plan";
 import type { Program, ReadinessLog, Session, Settings } from "./types";
 
 export type CoachTipSource = "streak" | "last-session" | "sleep" | "program";
@@ -119,7 +119,7 @@ export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
     }
   }
 
-  const plan = ctx.settings.weekPlan?.[new Date(now).getDay()];
+  const plan = todayPlan(ctx.settings.weekPlan, now);
   const label = planLabel(plan, ctx.programs);
   if (plan && !plan.rest && label) {
     return {

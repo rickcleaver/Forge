@@ -80,3 +80,113 @@ export function buildWeekFromOnboarding(
   }
   return week;
 }
+
+/** JS getDay(): 0=Sun … 6=Sat */
+export function dayIndex(now: number | Date = Date.now()): number {
+  return new Date(now).getDay();
+}
+
+export function getDayPlan(
+  weekPlan: DayPlan[] | null | undefined,
+  day: number,
+): DayPlan | null {
+  if (!weekPlan?.length || day < 0 || day > 6) return null;
+  return weekPlan[day] ?? null;
+}
+
+export function todayPlan(
+  weekPlan: DayPlan[] | null | undefined,
+  now: number | Date = Date.now(),
+): DayPlan | null {
+  return getDayPlan(weekPlan, dayIndex(now));
+}
+
+export type PlanKind = "rest" | "template" | "program" | "blank";
+
+export function planKind(plan: DayPlan | null | undefined): PlanKind {
+  if (!plan) return "blank";
+  if (plan.rest) return "rest";
+  if (plan.programId) return "program";
+  if (plan.templateId) return "template";
+  return "blank";
+}
+
+export function planChip(plan: DayPlan | null | undefined, programs: Program[]): string {
+  const kind = planKind(plan);
+  if (kind === "rest") return "Rest";
+  if (kind === "blank") return "—";
+  const label = planLabel(plan, programs);
+  if (!label) return "Train";
+  return label.length > 8 ? `${label.slice(0, 7)}…` : label;
+}
+
+export type WeekPlanCounts = { train: number; rest: number; blank: number };
+
+export function weekPlanCounts(weekPlan: DayPlan[] | null | undefined): WeekPlanCounts {
+  const counts: WeekPlanCounts = { train: 0, rest: 0, blank: 0 };
+  for (let i = 0; i < 7; i++) {
+    const kind = planKind(getDayPlan(weekPlan, i));
+    if (kind === "rest") counts.rest += 1;
+    else if (kind === "blank") counts.blank += 1;
+    else counts.train += 1;
+  }
+  return counts;
+}
+
+/** One-liner for Feed / Discover cards. */
+export function weekPlanSummaryLine(
+  weekPlan: DayPlan[] | null | undefined,
+  programs: Program[],
+  now: number | Date = Date.now(),
+): string {
+  const counts = weekPlanCounts(weekPlan);
+  const today = todayPlan(weekPlan, now);
+  const todayName = planLabel(today, programs);
+  const kind = planKind(today);
+  const todayBit =
+    kind === "rest"
+      ? "Today is rest"
+      : kind === "blank"
+        ? "Today is open"
+        : `Today: ${todayName ?? "train"}`;
+  return `${todayBit} · ${counts.train} train · ${counts.rest} rest`;
+}
+
+/** Short grounded crew tips — not a fake social feed. */
+export const CREW_TIPS: Array<{ id: string; title: string; body: string; vibe: string }> = [
+  {
+    id: "log-fast",
+    title: "Log fast, flex later",
+    body: "One tap per set. Save the story for after you finish — Forge keeps the numbers honest.",
+    vibe: "Tip",
+  },
+  {
+    id: "rest-counts",
+    title: "Rest days still count",
+    body: "A planned rest day protects the streak energy. Walk, sleep, protein — no fake FOMO.",
+    vibe: "Crew",
+  },
+  {
+    id: "form-first",
+    title: "Form before ego weight",
+    body: "Add a clean rep before you add plates. PRs land when the log stays consistent.",
+    vibe: "Coach",
+  },
+  {
+    id: "week-board",
+    title: "Set the week board",
+    body: "Tap Mon–Sun on Home, assign Push / Pull / Legs / Rest. Today and Coach follow that plan.",
+    vibe: "How-to",
+  },
+  {
+    id: "circles",
+    title: "Circles ≠ followers",
+    body: "One buddy code. Optional nudges stay on your phone. No public feed noise.",
+    vibe: "Circles",
+  },
+];
+
+export function crewTipForDay(now: number | Date = Date.now()) {
+  const i = Math.abs(Math.floor(new Date(now).getTime() / 86_400_000)) % CREW_TIPS.length;
+  return CREW_TIPS[i]!;
+}

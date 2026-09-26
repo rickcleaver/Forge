@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { format, isSameDay } from "date-fns";
 import { useEffect, useState } from "react";
 import { ArrowRight, RotateCcw } from "lucide-react";
-import { SettingsDrawer } from "@/components/settings-drawer";
 import { MuscleMap } from "@/components/muscle-map";
-import { WeekStrip } from "@/components/week-strip";
+import { WeekPlanner } from "@/components/week-planner";
+import { HomeFeed } from "@/components/home-feed";
+import { HomeDiscover } from "@/components/home-discover";
 import { NextMove } from "@/components/next-move";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MorningGate } from "@/components/morning-gate";
@@ -28,10 +29,8 @@ import {
 import { useGym } from "@/lib/store";
 import { formatDuration, formatVolume } from "@/lib/utils";
 import { applyWaitingCoachPlan } from "@/lib/spotter-sync";
-import { ForgeCharacter, ForgeEmptyState } from "@/components/forge-character";
 import { PlayerStatusBar } from "@/components/player-status-bar";
-import { QuestCarousel, QuestsPanel } from "@/components/quest-carousel";
-import { CirclesCard } from "@/components/circles-card";
+import { QuestCarousel } from "@/components/quest-carousel";
 import { forgeScore } from "@/lib/coach-engine";
 import { cn } from "@/lib/utils";
 import { realSessions } from "@/lib/demo-sessions";
@@ -206,54 +205,9 @@ function Today() {
         ))}
       </nav>
 
-      {tab === "feed" ? (
-        <div className="mt-4">
-          <CirclesCard />
-          <QuestsPanel className="mt-2" />
-          <p className="mt-4 text-center text-sm text-muted">
-            Circles stay opt-in — no public feed noise.
-          </p>
-        </div>
-      ) : null}
+      {tab === "feed" ? <HomeFeed /> : null}
 
-      {tab === "discover" ? (
-        <div className="mt-4 flex flex-col gap-3">
-          <Link
-            to="/programs"
-            onClick={() => setPlayerFlag("visitedPrograms")}
-            className="forge-neon-frame flex items-center justify-between rounded-[1.5rem] bg-surface p-4 shadow-[var(--shadow-border)]"
-          >
-            <span>
-              <span className="block font-mono text-[10px] tracking-wider text-accent uppercase">Programs</span>
-              <span className="font-display text-lg font-semibold">Yours, public & Spotter</span>
-            </span>
-            <ForgeCharacter kind="mascot" size="xs" motion="none" />
-          </Link>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {quick.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => {
-                  startSession({ templateId: t.id, name: t.name });
-                  void navigate({ to: "/session" });
-                }}
-                className="h-11 shrink-0 rounded-full bg-surface-2 px-4 font-mono text-xs font-bold tracking-wider uppercase"
-              >
-                {t.name}
-              </button>
-            ))}
-          </div>
-          <Link
-            to="/muscles"
-            onClick={() => setPlayerFlag("visitedMuscles")}
-            className="flex min-h-12 items-center justify-between rounded-2xl bg-surface px-4 text-sm font-medium shadow-[var(--shadow-border)]"
-          >
-            Muscle map
-            <span className="text-accent">Open</span>
-          </Link>
-        </div>
-      ) : null}
+      {tab === "discover" ? <HomeDiscover /> : null}
 
       {tab === "for-you" ? (
         <>
@@ -262,6 +216,8 @@ function Today() {
       {coachPlan ? (
         <p className="mt-2 text-sm text-accent">{coachPlan} is on your week. Start it from Train.</p>
       ) : null}
+
+      <WeekPlanner />
 
       <LevelUpCard />
       <QuestCarousel />
@@ -310,9 +266,9 @@ function Today() {
       />
       <HomeNotes />
 
-      <WeekStrip />
       <Link
         to="/programs"
+        onClick={() => setPlayerFlag("visitedPrograms")}
         className="mt-3 flex min-h-12 items-center justify-between rounded-xl bg-surface px-4 text-sm font-medium shadow-[var(--shadow-border)]"
       >
         <span>

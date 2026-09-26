@@ -40,9 +40,17 @@ function loadThread(): ChatMsg[] {
 export function CoachPanel() {
   const sessions = useGym((s) => s.sessions);
   const settings = useGym((s) => s.settings);
+  const programs = useGym((s) => s.programs);
   const snap = useMemo(
-    () => buildCoachSnapshot(sessions, Date.now(), athleteCard(settings)),
-    [sessions, settings],
+    () =>
+      buildCoachSnapshot(
+        sessions,
+        Date.now(),
+        athleteCard(settings),
+        settings.weekPlan,
+        programs,
+      ),
+    [sessions, settings, programs],
   );
   const [question, setQuestion] = useState("");
   const [msgs, setMsgs] = useState<ChatMsg[]>(loadThread);
