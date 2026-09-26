@@ -303,15 +303,15 @@ function Plate({
         ) : (
           <>
             <path
-              d="M72 52 C70 32 80 14 100 12 C120 14 130 32 128 52 C126 44 120 40 114 46 C118 58 116 72 108 80 C100 86 92 80 86 72 C82 58 80 48 86 42 C78 40 74 46 72 52Z"
+              d="M74 50 C72 30 82 14 100 12 C118 14 128 30 126 50 C124 56 118 62 110 64 C100 66 90 64 82 60 C76 56 74 52 74 50Z"
               className="pointer-events-none fill-[#241833]"
             />
             <path
-              d="M88 24 C96 16 110 18 116 28"
+              d="M86 22 C94 16 106 16 114 24"
               className="pointer-events-none fill-none stroke-candy-3"
               strokeWidth="1.8"
               strokeLinecap="round"
-              opacity="0.8"
+              opacity="0.85"
             />
             <path
               d="M100 124 V166"
