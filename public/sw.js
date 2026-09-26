@@ -1,4 +1,4 @@
-const CACHE = "forge-shell-v3";
+const CACHE = "forge-shell-v4";
 
 const PRECACHE = [
   "/",

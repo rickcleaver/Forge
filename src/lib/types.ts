@@ -145,6 +145,10 @@ export type Settings = {
   hapticRest: boolean;
   bodyWeightLb: number | null;
   heightCm: number | null;
+  /** What they want to be called — Coach/AI personalization. */
+  displayName?: string | null;
+  /** Self-reported age in years (teen-friendly profile). */
+  ageYears?: number | null;
   calorieGoal: number | null;
   proteinGoal: number | null;
   exerciseRest: Record<string, number>;

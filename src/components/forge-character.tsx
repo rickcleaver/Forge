@@ -45,7 +45,7 @@ export function ForgeCharacter({
   return (
     <div
       className={cn(
-        "relative inline-flex items-end justify-center pointer-events-none select-none",
+        "forge-character-stage relative inline-flex items-end justify-center pointer-events-none select-none",
         className,
       )}
       aria-hidden={alt ? undefined : true}
@@ -61,10 +61,11 @@ export function ForgeCharacter({
         alt={alt}
         draggable={false}
         className={cn(
-          "relative z-[1] forge-sticker object-contain",
+          "forge-sticker forge-sticker-cutout relative z-[1] object-contain",
           SIZE[size],
           motion === "wiggle" && "forge-wiggle",
           motion === "float" && "forge-bounce-in",
+          kind === "crew" && "rounded-3xl",
           imgClassName,
         )}
       />

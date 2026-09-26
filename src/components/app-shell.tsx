@@ -12,6 +12,7 @@ import { splashDoneThisVisit } from "@/lib/splash";
 import { healthFromBridge, stepsFromBridge } from "@/lib/health-connect";
 import { registerOffline, subscribeOnline } from "@/lib/offline";
 import { Onboarding } from "./onboarding";
+import { CoachOpenTipBanner } from "./coach-open-tip";
 
 const NAV = [
   { to: "/", label: "Home", icon: House },
@@ -150,6 +151,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </p>
         )}
         <Onboarding />
+        <CoachOpenTipBanner ready={!splash} />
         <div className="forge-page-enter">{children}</div>
       </div>
       <WakeLock />

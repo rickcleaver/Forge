@@ -21,6 +21,13 @@ export type CoachSnapshot = {
   hardWeeks: number;
   lifts: LiftTrend[];
   note: string;
+  /** Optional player card for personalized Coach replies. */
+  athlete?: {
+    name: string | null;
+    age: number | null;
+    heightCm: number | null;
+    weightLb: number | null;
+  };
 };
 
 function weekVolume(sessions: Session[], weekStart: number, weekEnd: number): number {
@@ -29,7 +36,11 @@ function weekVolume(sessions: Session[], weekStart: number, weekEnd: number): nu
     .reduce((n, s) => n + sessionVolume(s), 0);
 }
 
-export function buildCoachSnapshot(sessions: Session[], now = Date.now()): CoachSnapshot {
+export function buildCoachSnapshot(
+  sessions: Session[],
+  now = Date.now(),
+  athlete?: CoachSnapshot["athlete"],
+): CoachSnapshot {
   const finished = sessions.filter((s) => s.finishedAt);
   const thisWeek = weekTraining(finished, now);
   const start = startOfWeek(now, { weekStartsOn: 1 }).getTime();
@@ -88,6 +99,7 @@ export function buildCoachSnapshot(sessions: Session[], now = Date.now()): Coach
     hardWeeks,
     lifts: lifts.filter((l) => l.latest != null).slice(0, 8),
     note: "",
+    athlete,
   };
 }
 
@@ -164,9 +176,11 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/hello|hi\b|hey|what's up|whats up|how are you/.test(q)) {
+    const who = snap.athlete?.name?.trim();
+    const greet = who ? `Hey ${who}.` : "Hey.";
     return snap.sessionsTotal
-      ? `Hey. I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
-      : "Hey. Ask about the gym, food, sleep, or anything else on your mind.";
+      ? `${greet} I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
+      : `${greet} Ask about the gym, food, sleep, or anything else on your mind.`;
   }
 
   if (/weather|recipe|cook|movie|show|game|news|joke|funny/.test(q)) {

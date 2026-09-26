@@ -354,6 +354,15 @@ html[data-mode="light"][data-theme="steel"] {
 .forge-sticker:hover {
   transform: rotate(-2deg) scale(1.03);
 }
+/* Character cutouts: transparent PNG on neon — no white plate behind art */
+.forge-sticker-cutout {
+  background: transparent;
+  mix-blend-mode: normal;
+}
+.forge-character-stage {
+  background: transparent;
+  isolation: isolate;
+}
 
 @keyframes forge-blob-drift {
   from { transform: translate(0, 0) rotate(0deg); }

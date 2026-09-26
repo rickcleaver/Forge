@@ -69,6 +69,8 @@ const defaultSettings: Settings = {
   hapticRest: true,
   bodyWeightLb: null,
   heightCm: null,
+  displayName: null,
+  ageYears: null,
   calorieGoal: null,
   proteinGoal: null,
   exerciseRest: {},
@@ -173,7 +175,23 @@ type GymState = {
   setMorningGate: (v: boolean) => void;
   setDayPlan: (day: number, plan: DayPlan) => void;
   slideWeekPlan: () => void;
-  setOnboarding: (input: { goal: TrainGoal; trainDays: number; place: "home" | "gym" | "both" }) => void;
+  setOnboarding: (input: {
+    goal: TrainGoal;
+    trainDays: number;
+    place: "home" | "gym" | "both";
+    displayName?: string | null;
+    ageYears?: number | null;
+    heightCm?: number | null;
+    bodyWeightLb?: number | null;
+  }) => void;
+  setPlayerProfile: (input: {
+    displayName?: string | null;
+    ageYears?: number | null;
+    heightCm?: number | null;
+    bodyWeightLb?: number | null;
+  }) => void;
+  setDisplayName: (name: string | null) => void;
+  setAgeYears: (age: number | null) => void;
   setBodyWeightLb: (lb: number | null) => void;
   setHeightCm: (cm: number | null) => void;
   setCalorieGoal: (n: number | null) => void;
@@ -1157,7 +1175,7 @@ export const useGym = create<GymState>()(
           const rotated = [plan[6], ...plan.slice(0, 6)];
           return { settings: { ...s.settings, weekPlan: rotated } };
         }),
-      setOnboarding: ({ goal, trainDays, place }) =>
+      setOnboarding: ({ goal, trainDays, place, displayName, ageYears, heightCm, bodyWeightLb }) =>
         set((s) => ({
           settings: {
             ...s.settings,
@@ -1167,8 +1185,26 @@ export const useGym = create<GymState>()(
             setupDone: true,
             onboarded: true,
             weekPlan: buildWeekFromOnboarding(goal, trainDays, place),
+            ...(displayName !== undefined ? { displayName } : {}),
+            ...(ageYears !== undefined ? { ageYears } : {}),
+            ...(heightCm !== undefined ? { heightCm } : {}),
+            ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
           },
         })),
+      setPlayerProfile: ({ displayName, ageYears, heightCm, bodyWeightLb }) =>
+        set((s) => ({
+          settings: {
+            ...s.settings,
+            ...(displayName !== undefined ? { displayName } : {}),
+            ...(ageYears !== undefined ? { ageYears } : {}),
+            ...(heightCm !== undefined ? { heightCm } : {}),
+            ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
+          },
+        })),
+      setDisplayName: (name) =>
+        set((s) => ({ settings: { ...s.settings, displayName: name } })),
+      setAgeYears: (age) =>
+        set((s) => ({ settings: { ...s.settings, ageYears: age } })),
       setBodyWeightLb: (lb) =>
         set((s) => ({ settings: { ...s.settings, bodyWeightLb: lb } })),
       setHeightCm: (cm) =>

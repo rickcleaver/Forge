@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Square, Volume2, VolumeX } from "lucide-react";
 import { askForgeCoach } from "@/lib/coach-ai";
 import { buildCoachSnapshot, localCoachAnswer } from "@/lib/coach";
+import { athleteCard } from "@/lib/player-profile";
 import { canSpeak, speakText, speechCtor, startSpeech, stopSpeak, type SpeechRec } from "@/lib/speech";
 import { useGym } from "@/lib/store";
 import { cn, uid } from "@/lib/utils";
@@ -38,7 +39,11 @@ function loadThread(): ChatMsg[] {
 
 export function CoachPanel() {
   const sessions = useGym((s) => s.sessions);
-  const snap = useMemo(() => buildCoachSnapshot(sessions), [sessions]);
+  const settings = useGym((s) => s.settings);
+  const snap = useMemo(
+    () => buildCoachSnapshot(sessions, Date.now(), athleteCard(settings)),
+    [sessions, settings],
+  );
   const [question, setQuestion] = useState("");
   const [msgs, setMsgs] = useState<ChatMsg[]>(loadThread);
   const [busy, setBusy] = useState(false);

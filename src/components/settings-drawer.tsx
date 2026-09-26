@@ -43,6 +43,8 @@ export function SettingsDrawer() {
   const setAutoStartRest = useGym((s) => s.setAutoStartRest);
   const setHapticRest = useGym((s) => s.setHapticRest);
   const setDayPlan = useGym((s) => s.setDayPlan);
+  const setDisplayName = useGym((s) => s.setDisplayName);
+  const setAgeYears = useGym((s) => s.setAgeYears);
   const setBodyWeightLb = useGym((s) => s.setBodyWeightLb);
   const setHeightCm = useGym((s) => s.setHeightCm);
   const setCalorieGoal = useGym((s) => s.setCalorieGoal);
@@ -425,6 +427,45 @@ export function SettingsDrawer() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1.5">
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                  What to call you
+                </span>
+                <Input
+                  maxLength={24}
+                  placeholder="Neo"
+                  value={settings.displayName ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value.slice(0, 24);
+                    setDisplayName(raw.trim().length ? raw : null);
+                  }}
+                  onBlur={(e) => {
+                    const t = e.target.value.trim().replace(/\s+/g, " ").slice(0, 24);
+                    setDisplayName(t.length ? t : null);
+                  }}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">Age</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={10}
+                  max={99}
+                  placeholder="16"
+                  value={settings.ageYears ?? ""}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    if (!Number.isFinite(n) || n < 10 || n > 99) {
+                      setAgeYears(null);
+                      return;
+                    }
+                    setAgeYears(Math.round(n));
+                  }}
+                />
+              </label>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <label className="flex flex-col gap-1.5">
