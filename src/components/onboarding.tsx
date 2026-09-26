@@ -10,6 +10,8 @@ import { cmToDisplay, displayToCm } from "@/lib/calories";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ForgeCharacter } from "./forge-character";
+import { AvatarPicker, type AvatarPickerValue } from "./avatar-picker";
+import { normalizeAvatarPresetId, normalizeAvatarPhotoUrl } from "@/lib/avatars";
 
 const GOALS: Array<{ id: TrainGoal; label: string; blurb: string }> = [
   { id: "muscle", label: "Build muscle", blurb: "Look strong, feel strong" },
@@ -41,7 +43,7 @@ function markProfileSkipped(): void {
   }
 }
 
-type Step = "name" | "age" | "body" | "goal" | "days" | "place";
+type Step = "name" | "avatar" | "age" | "body" | "goal" | "days" | "place";
 
 export function Onboarding() {
   const settings = useGym((s) => s.settings);
@@ -57,7 +59,7 @@ export function Onboarding() {
 
   const steps = useMemo(() => {
     const list: Step[] = [];
-    if (needProfile) list.push("name", "age", "body");
+    if (needProfile) list.push("name", "avatar", "age", "body");
     if (needSetup) list.push("goal", "days", "place");
     return list;
   }, [needProfile, needSetup]);
@@ -81,6 +83,10 @@ export function Onboarding() {
       ? String(Math.round(settings.bodyWeightLb * LB_TO_KG * 10) / 10)
       : String(Math.round(settings.bodyWeightLb * 10) / 10);
   });
+  const [avatar, setAvatar] = useState<AvatarPickerValue>(() => ({
+    presetId: normalizeAvatarPresetId(settings.avatarPresetId),
+    photoUrl: normalizeAvatarPhotoUrl(settings.avatarPhotoUrl),
+  }));
 
   if (!needProfile && !needSetup) return null;
   if (steps.length === 0) return null;
@@ -101,6 +107,8 @@ export function Onboarding() {
       ageYears: normalizeAgeYears(ageYears),
       heightCm: h == null ? null : displayToCm(h, unit),
       bodyWeightLb: w == null ? null : unit === "kg" ? w / LB_TO_KG : w,
+      avatarPresetId: avatar.photoUrl ? null : normalizeAvatarPresetId(avatar.presetId),
+      avatarPhotoUrl: normalizeAvatarPhotoUrl(avatar.photoUrl),
     };
   }
 
@@ -115,6 +123,7 @@ export function Onboarding() {
 
   function canAdvance(): boolean {
     if (step === "name") return Boolean(normalizeDisplayName(displayName));
+    if (step === "avatar") return true;
     if (step === "age") return normalizeAgeYears(ageYears) != null;
     if (step === "body") {
       const p = profilePayload();
@@ -148,6 +157,7 @@ export function Onboarding() {
 
   const titles: Record<Step, string> = {
     name: "What should we call you?",
+    avatar: "Pick your look",
     age: "How old are you?",
     body: "Quick size check",
     goal: "What are we chasing?",
@@ -156,6 +166,7 @@ export function Onboarding() {
   };
   const blurbs: Record<Step, string> = {
     name: "Nickname, first name, gym alias — Coach will use it. No last names needed.",
+    avatar: "Cartoon crew or your own photo. Shows in the HUD — skip anytime.",
     age: "Keeps tips teen-friendly. Not shared. Not a medical form.",
     body: "Helps calorie guesses and Coach tips. You can edit anytime in Settings.",
     goal: "No lecture — just pick a vibe. We’ll shape this week’s Next Move from it.",
@@ -163,7 +174,7 @@ export function Onboarding() {
     place: "Home, gym, or both. Forge keeps the log either way.",
   };
 
-  const onPlayerCard = step === "name" || step === "age" || step === "body";
+  const onPlayerCard = step === "name" || step === "avatar" || step === "age" || step === "body";
 
   return (
     <div className="fixed inset-0 z-[60] overflow-y-auto bg-bg/95 backdrop-blur-md">
@@ -198,6 +209,12 @@ export function Onboarding() {
             <p className="mt-2 font-mono text-[10px] tracking-wider text-muted uppercase">
               Shown to Coach · stays on this device
             </p>
+          </div>
+        ) : null}
+
+        {step === "avatar" ? (
+          <div className="relative z-[1] mt-5 max-h-[50dvh] overflow-y-auto pr-1">
+            <AvatarPicker value={avatar} onChange={setAvatar} />
           </div>
         ) : null}
 
@@ -359,7 +376,13 @@ export function Onboarding() {
             disabled={!canAdvance()}
             onClick={next}
           >
-            {stepIdx >= steps.length - 1 ? (needSetup ? "Build my week" : "Save my card") : "Next"}
+            {stepIdx >= steps.length - 1
+              ? needSetup
+                ? "Build my week"
+                : "Save my card"
+              : step === "avatar" && !avatar.presetId && !avatar.photoUrl
+                ? "Later"
+                : "Next"}
           </Button>
         </div>
       </section>

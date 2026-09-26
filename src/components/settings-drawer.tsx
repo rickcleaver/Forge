@@ -17,6 +17,8 @@ import { Button } from "./ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "./ui/drawer";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
+import { AvatarPicker } from "./avatar-picker";
+import { normalizeAvatarPresetId, normalizeAvatarPhotoUrl } from "@/lib/avatars";
 
 const REST_OPTIONS = [30, 45, 60, 90, 120, 150, 180];
 const INTENSITY_OPTIONS: Intensity[] = ["light", "moderate", "hard"];
@@ -44,6 +46,8 @@ export function SettingsDrawer() {
   const setHapticRest = useGym((s) => s.setHapticRest);
   const setDayPlan = useGym((s) => s.setDayPlan);
   const setDisplayName = useGym((s) => s.setDisplayName);
+  const setAvatar = useGym((s) => s.setAvatar);
+  const clearAvatar = useGym((s) => s.clearAvatar);
   const setAgeYears = useGym((s) => s.setAgeYears);
   const setBodyWeightLb = useGym((s) => s.setBodyWeightLb);
   const setHeightCm = useGym((s) => s.setHeightCm);
@@ -93,7 +97,7 @@ export function SettingsDrawer() {
         <div className="flex max-h-[80dvh] flex-col gap-6 overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
             <DrawerTitle>Settings</DrawerTitle>
-            <DrawerDescription>Look, backup, Health sync, units, rest, MyFitnessPal.</DrawerDescription>
+            <DrawerDescription>Avatar, look, backup, Health sync, units, rest, MyFitnessPal.</DrawerDescription>
           </div>
           <button
             type="button"
@@ -398,6 +402,30 @@ export function SettingsDrawer() {
                 );
               })}
             </ul>
+          </section>
+
+          <section className="flex flex-col gap-3">
+            <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Avatar</p>
+            <p className="text-sm text-muted">
+              Cartoon crew or a selfie. Shows in the top HUD instead of the default Forge mascot.
+            </p>
+            <AvatarPicker
+              compact
+              value={{
+                presetId: normalizeAvatarPresetId(settings.avatarPresetId),
+                photoUrl: normalizeAvatarPhotoUrl(settings.avatarPhotoUrl),
+              }}
+              onChange={(next) => {
+                if (!next.presetId && !next.photoUrl) {
+                  clearAvatar();
+                  return;
+                }
+                setAvatar({
+                  presetId: next.presetId,
+                  photoUrl: next.photoUrl,
+                });
+              }}
+            />
           </section>
 
           <section className="flex flex-col gap-3">

@@ -71,6 +71,8 @@ const defaultSettings: Settings = {
   heightCm: null,
   displayName: null,
   ageYears: null,
+  avatarPresetId: null,
+  avatarPhotoUrl: null,
   calorieGoal: null,
   proteinGoal: null,
   exerciseRest: {},
@@ -183,13 +185,19 @@ type GymState = {
     ageYears?: number | null;
     heightCm?: number | null;
     bodyWeightLb?: number | null;
+    avatarPresetId?: string | null;
+    avatarPhotoUrl?: string | null;
   }) => void;
   setPlayerProfile: (input: {
     displayName?: string | null;
     ageYears?: number | null;
     heightCm?: number | null;
     bodyWeightLb?: number | null;
+    avatarPresetId?: string | null;
+    avatarPhotoUrl?: string | null;
   }) => void;
+  setAvatar: (input: { presetId?: string | null; photoUrl?: string | null }) => void;
+  clearAvatar: () => void;
   setDisplayName: (name: string | null) => void;
   setAgeYears: (age: number | null) => void;
   setBodyWeightLb: (lb: number | null) => void;
@@ -1175,7 +1183,17 @@ export const useGym = create<GymState>()(
           const rotated = [plan[6], ...plan.slice(0, 6)];
           return { settings: { ...s.settings, weekPlan: rotated } };
         }),
-      setOnboarding: ({ goal, trainDays, place, displayName, ageYears, heightCm, bodyWeightLb }) =>
+      setOnboarding: ({
+        goal,
+        trainDays,
+        place,
+        displayName,
+        ageYears,
+        heightCm,
+        bodyWeightLb,
+        avatarPresetId,
+        avatarPhotoUrl,
+      }) =>
         set((s) => ({
           settings: {
             ...s.settings,
@@ -1189,9 +1207,18 @@ export const useGym = create<GymState>()(
             ...(ageYears !== undefined ? { ageYears } : {}),
             ...(heightCm !== undefined ? { heightCm } : {}),
             ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
+            ...(avatarPresetId !== undefined ? { avatarPresetId } : {}),
+            ...(avatarPhotoUrl !== undefined ? { avatarPhotoUrl } : {}),
           },
         })),
-      setPlayerProfile: ({ displayName, ageYears, heightCm, bodyWeightLb }) =>
+      setPlayerProfile: ({
+        displayName,
+        ageYears,
+        heightCm,
+        bodyWeightLb,
+        avatarPresetId,
+        avatarPhotoUrl,
+      }) =>
         set((s) => ({
           settings: {
             ...s.settings,
@@ -1199,7 +1226,28 @@ export const useGym = create<GymState>()(
             ...(ageYears !== undefined ? { ageYears } : {}),
             ...(heightCm !== undefined ? { heightCm } : {}),
             ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
+            ...(avatarPresetId !== undefined ? { avatarPresetId } : {}),
+            ...(avatarPhotoUrl !== undefined ? { avatarPhotoUrl } : {}),
           },
+        })),
+      setAvatar: ({ presetId, photoUrl }) =>
+        set((s) => {
+          const next = { ...s.settings };
+          if (photoUrl !== undefined) {
+            next.avatarPhotoUrl = photoUrl;
+            // Photo mode clears preset unless a preset is also provided in this call.
+            if (photoUrl && presetId === undefined) next.avatarPresetId = null;
+          }
+          if (presetId !== undefined) {
+            next.avatarPresetId = presetId;
+            // Preset mode clears photo unless a photo is also provided in this call.
+            if (presetId && photoUrl === undefined) next.avatarPhotoUrl = null;
+          }
+          return { settings: next };
+        }),
+      clearAvatar: () =>
+        set((s) => ({
+          settings: { ...s.settings, avatarPresetId: null, avatarPhotoUrl: null },
         })),
       setDisplayName: (name) =>
         set((s) => ({ settings: { ...s.settings, displayName: name } })),
@@ -1473,6 +1521,16 @@ export const useGym = create<GymState>()(
               ? p.settings.colorMode
               : current.settings.colorMode,
             morningGate: p.settings?.morningGate ?? current.settings.morningGate,
+            avatarPresetId: (() => {
+              const id = p.settings?.avatarPresetId;
+              return typeof id === "string" && id.length > 0 ? id : (p.settings?.avatarPresetId === null ? null : current.settings.avatarPresetId ?? null);
+            })(),
+            avatarPhotoUrl: (() => {
+              const url = p.settings?.avatarPhotoUrl;
+              if (url === null) return null;
+              if (typeof url === "string" && url.startsWith("data:image/")) return url;
+              return current.settings.avatarPhotoUrl ?? null;
+            })(),
             setupDone: (() => {
               const persisted = p.settings?.setupDone;
               if (persisted === true || p.settings?.onboarded === true) return true;

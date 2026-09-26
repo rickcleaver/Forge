@@ -3,16 +3,19 @@ import { Link } from "@tanstack/react-router";
 import { useGym } from "@/lib/store";
 import { levelFromXp, trainingStreak } from "@/lib/player-progress";
 import { COSMETIC_MAP } from "@/lib/cosmetics";
+import { resolveAvatarSrc } from "@/lib/avatars";
 import { SettingsDrawer } from "./settings-drawer";
 import { ForgeCharacter } from "./forge-character";
 
 export function PlayerStatusBar() {
   const sessions = useGym((s) => s.sessions);
   const player = useGym((s) => s.player);
+  const settings = useGym((s) => s.settings);
   const level = levelFromXp(player.xp);
   const streak = trainingStreak(sessions);
   const flair = player.equippedFlair ? COSMETIC_MAP[player.equippedFlair] : null;
   const ring = flair?.ring ?? "color-mix(in srgb, var(--color-ring) 70%, transparent)";
+  const avatarSrc = resolveAvatarSrc(settings);
 
   return (
     <header className="flex items-center gap-2">
@@ -24,9 +27,14 @@ export function PlayerStatusBar() {
           }}
           title={flair ? `Flair: ${flair.name}` : "Avatar"}
           data-flair={flair?.id ?? "none"}
+          data-avatar={avatarSrc ? "custom" : "mascot"}
         >
           <div className="flex size-full items-center justify-center overflow-hidden rounded-full">
-            <ForgeCharacter kind="mascot" size="xs" motion="none" className="scale-125" />
+            {avatarSrc ? (
+              <img src={avatarSrc} alt="" className="size-full object-cover" draggable={false} />
+            ) : (
+              <ForgeCharacter kind="mascot" size="xs" motion="none" className="scale-125" />
+            )}
           </div>
           {flair ? (
             <span

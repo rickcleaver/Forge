@@ -149,6 +149,10 @@ export type Settings = {
   displayName?: string | null;
   /** Self-reported age in years (teen-friendly profile). */
   ageYears?: number | null;
+  /** Preset cartoon avatar id from AVATAR_DEFS, or null. */
+  avatarPresetId?: string | null;
+  /** Custom selfie / gallery photo as compressed data URL (IndexedDB via zustand persist). */
+  avatarPhotoUrl?: string | null;
   calorieGoal: number | null;
   proteinGoal: number | null;
   exerciseRest: Record<string, number>;

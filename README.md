@@ -55,7 +55,24 @@ Forge is a PWA at https://forgelog.ca (Play package `ca.forge.log`). The `androi
 - UI: Health sync card shows **Synced** only after `applyHealthSnapshot` succeeds — never from a permission grant alone
 - Web ingest still listens for `window.forgeApplyHealth` / `postMessage({ type: "forge-health", source: "health-connect", ... })`
 
-PWA/web builds are unchanged and do not require Capacitor. Capgo’s HC plugin has no maintained Cap 6 line, so Forge ships its own Kotlin plugin.
+PWA/web builds are unchanged and do not require Capacitor.
+
+### Avatar / Cap Camera
+
+Onboarding and Settings let athletes pick a neon cartoon preset or a selfie.
+The **web / PWA path** always uses:
+
+```html
+<input type="file" accept="image/*" capture="user" />  <!-- front camera -->
+<input type="file" accept="image/*" />                 <!-- gallery -->
+```
+
+Photos are compressed to a data URL and persisted with the rest of settings
+(IndexedDB via zustand). No native plugin is required for that path.
+
+**Optional native upgrade:** `@capacitor/camera` can replace the file input on
+Android/iOS for a richer picker (`Camera.getPhoto({ resultType: CameraResultType.DataUrl, source: CameraSource.Prompt })`).
+Keep the web `<input>` fallback so desktop and installed PWA still work without Cap.
 
 ### Permissions + privacy
 
