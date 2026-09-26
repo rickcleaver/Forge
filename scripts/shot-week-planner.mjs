@@ -5,7 +5,10 @@ import { dirname } from "node:path";
 
 const url = process.env.SHOT_URL || "http://127.0.0.1:8080/";
 const out = process.env.SHOT_OUT || "/workspace/forge-app/screenshots/home-week-planner.png";
+const outSheet =
+  process.env.SHOT_OUT_SHEET || "/workspace/forge-app/screenshots/week-board-day-sheet.png";
 mkdirSync(dirname(out), { recursive: true });
+mkdirSync(dirname(outSheet), { recursive: true });
 
 const today = new Date();
 const dayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
@@ -144,5 +147,22 @@ await page.waitForSelector('[data-testid="week-planner"]', { timeout: 30_000 });
 await page.locator('[data-testid="week-planner"]').scrollIntoViewIfNeeded();
 await page.waitForTimeout(400);
 await page.screenshot({ path: out, fullPage: false });
-console.log(JSON.stringify({ ok: true, out, url }, null, 2));
+
+// Tap Monday (index 1 in WEEK_DAYS_MON_FIRST maps to day i=1)
+const monday = page.locator('[data-testid="week-day-1"]');
+await monday.click();
+const sheet = page.locator('[data-testid="week-day-sheet"]');
+await sheet.waitFor({ state: "visible", timeout: 10_000 });
+await sheet.getByTestId("week-day-rest").waitFor({ state: "visible", timeout: 5_000 });
+await sheet.getByTestId("week-day-clear").waitFor({ state: "visible", timeout: 5_000 });
+await sheet.getByText("Templates", { exact: true }).waitFor({ state: "visible", timeout: 5_000 });
+await sheet.getByTestId("week-day-template-push").waitFor({ state: "visible", timeout: 5_000 });
+await page.waitForTimeout(350);
+await page.screenshot({ path: outSheet, fullPage: false });
+
+// Backdrop dismiss
+await page.locator("[data-vaul-overlay]").click({ position: { x: 20, y: 20 }, force: true });
+await sheet.waitFor({ state: "hidden", timeout: 8_000 });
+
+console.log(JSON.stringify({ ok: true, out, outSheet, url, sheetDismissed: true }, null, 2));
 await browser.close();

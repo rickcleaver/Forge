@@ -12,7 +12,7 @@ import {
 import type { DayPlan } from "@/lib/types";
 import { useGym } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "./ui/dialog";
+import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "./ui/drawer";
 import { ForgeCharacter } from "./forge-character";
 
 const QUICK_TEMPLATES = TEMPLATES.filter((t) =>
@@ -80,6 +80,7 @@ export function WeekPlanner({ className }: { className?: string }) {
               type="button"
               onClick={() => setEditDay(d.i)}
               aria-label={`Plan ${d.label}${isToday ? " (today)" : ""}: ${chip}`}
+              data-testid={`week-day-${d.i}`}
               className={cn(
                 "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl px-0.5 py-2.5 transition-transform active:scale-[0.97]",
                 kind === "rest"
@@ -113,18 +114,22 @@ export function WeekPlanner({ className }: { className?: string }) {
         Editable anytime here or in Settings. Today, Next Move, and Coach follow this board.
       </p>
 
-      <Dialog open={editDay != null} onOpenChange={(open) => !open && setEditDay(null)}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto forge-neon-frame">
-          <DialogTitle>{editing ? `Plan ${editing.label}` : "Plan day"}</DialogTitle>
-          <DialogDescription>
-            Pick a template, one of your programs, rest, or leave it open. Saves on your player settings.
-          </DialogDescription>
+      <Drawer open={editDay != null} onOpenChange={(open) => !open && setEditDay(null)}>
+        <DrawerContent data-testid="week-day-sheet">
+          <div className="flex max-h-[85dvh] flex-col gap-2 overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div>
+              <DrawerTitle>{editing ? `Plan ${editing.label}` : "Plan day"}</DrawerTitle>
+              <DrawerDescription>
+                Pick a template, one of your programs, rest, or leave it open. Saves on your player
+                settings.
+              </DrawerDescription>
+            </div>
 
-          <div className="mt-4 flex flex-col gap-2">
-            <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Quick</p>
+            <p className="mt-2 font-mono text-[10px] tracking-wider text-muted uppercase">Quick</p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
+                data-testid="week-day-rest"
                 className="min-h-12 rounded-2xl bg-well px-3 text-sm font-bold ring-1 ring-border"
                 onClick={() => editDay != null && apply(editDay, restPlan())}
               >
@@ -132,6 +137,7 @@ export function WeekPlanner({ className }: { className?: string }) {
               </button>
               <button
                 type="button"
+                data-testid="week-day-clear"
                 className="min-h-12 rounded-2xl bg-well px-3 text-sm font-bold ring-1 ring-border"
                 onClick={() => editDay != null && apply(editDay, blankPlan())}
               >
@@ -139,7 +145,9 @@ export function WeekPlanner({ className }: { className?: string }) {
               </button>
             </div>
 
-            <p className="mt-3 font-mono text-[10px] tracking-wider text-muted uppercase">Templates</p>
+            <p className="mt-3 font-mono text-[10px] tracking-wider text-muted uppercase">
+              Templates
+            </p>
             <div className="flex flex-col gap-1.5">
               {QUICK_TEMPLATES.map((t) => {
                 const active = editingPlan?.templateId === t.id && !editingPlan.rest;
@@ -147,6 +155,7 @@ export function WeekPlanner({ className }: { className?: string }) {
                   <button
                     key={t.id}
                     type="button"
+                    data-testid={`week-day-template-${t.id}`}
                     onClick={() =>
                       editDay != null &&
                       apply(editDay, { rest: false, templateId: t.id, programId: null })
@@ -215,8 +224,8 @@ export function WeekPlanner({ className }: { className?: string }) {
               </p>
             ) : null}
           </div>
-        </DialogContent>
-      </Dialog>
+        </DrawerContent>
+      </Drawer>
     </section>
   );
 }

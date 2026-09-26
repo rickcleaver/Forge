@@ -456,6 +456,9 @@ html[data-mode="light"][data-theme="steel"] {
 
 /* —— Liftoff-inspired neon chrome —— */
 .forge-neon-frame {
+  /* relative only when not already fixed/absolute — unlayered CSS would
+     otherwise override Tailwind `fixed` on Dialog/Drawer portals (dark overlay,
+     invisible content). */
   position: relative;
   isolation: isolate;
   border: 1px solid color-mix(in srgb, var(--color-ring) 55%, var(--color-accent));
@@ -463,6 +466,14 @@ html[data-mode="light"][data-theme="steel"] {
     0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent),
     0 12px 40px color-mix(in srgb, var(--color-ring) 18%, transparent),
     var(--shadow-border);
+}
+.forge-neon-frame.fixed,
+.fixed.forge-neon-frame {
+  position: fixed;
+}
+.forge-neon-frame.absolute,
+.absolute.forge-neon-frame {
+  position: absolute;
 }
 .forge-neon-frame::before {
   content: "";
