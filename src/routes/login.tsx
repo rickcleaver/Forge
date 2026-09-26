@@ -6,7 +6,7 @@ export const Route = createFileRoute("/login")({ component: Login });
 
 function Login() {
   return (
-    <main className="relative grid min-h-[80dvh] place-items-center overflow-hidden px-5">
+    <main className="relative flex min-h-dvh justify-center overflow-y-auto px-5 pt-[max(1.25rem,8dvh)] pb-28">
       <span className="forge-blob forge-blob--a opacity-40" />
       <span className="forge-blob forge-blob--b opacity-35" />
       <div className="relative z-[1] w-full max-w-sm">

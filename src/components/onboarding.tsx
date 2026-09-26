@@ -166,16 +166,17 @@ export function Onboarding() {
   const onPlayerCard = step === "name" || step === "age" || step === "body";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-bg/95 px-4 pb-10 pt-10 backdrop-blur-md sm:items-center">
-      <section className="hero-glow forge-neon-frame forge-card-play forge-bounce-in relative w-full max-w-lg overflow-hidden rounded-[2rem] bg-surface p-5 shadow-[var(--shadow-lift)]">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-bg/95 backdrop-blur-md">
+      <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-4 pt-6 pb-[max(2.5rem,22dvh)]">
+      <section className="hero-glow forge-neon-frame forge-card-play forge-bounce-in relative w-full overflow-hidden rounded-[2rem] bg-surface p-5 shadow-[var(--shadow-lift)]">
         <span className="forge-blob forge-blob--a" />
         <span className="forge-blob forge-blob--b" />
         <div className="relative z-[1] flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-mono text-[10px] tracking-[0.2em] text-accent uppercase">
-              Forge · {onPlayerCard ? "Player card" : "Let’s go"}
+            <p className="font-mono text-[10px] tracking-[0.22em] text-accent uppercase">
+              Forge · {onPlayerCard ? "Join the crew" : "Let’s go"}
             </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">{titles[step]}</h2>
+            <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight">{titles[step]}</h2>
             <p className="mt-1 text-sm text-muted">{blurbs[step]}</p>
           </div>
           <ForgeCharacter kind="mascot" size="sm" motion="wiggle" className="-mt-1 -mr-1 shrink-0" />
@@ -362,6 +363,7 @@ export function Onboarding() {
           </Button>
         </div>
       </section>
+      </div>
     </div>
   );
 }
