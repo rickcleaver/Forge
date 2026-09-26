@@ -23,6 +23,7 @@ import { MUSCLE_MAP, type Session, type StepLog } from "@/lib/types";
 import { formatDuration, formatVolume, cn } from "@/lib/utils";
 import { WeekRecapButton } from "@/components/week-recap";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/history")({ component: HistoryPage });
 
@@ -41,8 +42,9 @@ function HistoryPage() {
   const weightLb = useGym((s) => s.settings.bodyWeightLb);
   const heightCm = useGym((s) => s.settings.heightCm);
   const navigate = useNavigate();
-  const finished = sessions.filter((s) => s.finishedAt);
-  const records = allTimeBests(sessions);
+  const visible = realSessions(sessions);
+  const finished = visible.filter((s) => s.finishedAt);
+  const records = allTimeBests(visible);
   const [openId, setOpenId] = useState<string | null>(null);
   const [tab, setTab] = useState<"sessions" | "records">("sessions");
   const [kill, setKill] = useState<{ kind: "session" | "steps"; id: string; name: string } | null>(null);
@@ -71,11 +73,11 @@ function HistoryPage() {
 
   return (
     <main className="px-4 pt-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">Log</h1>
+      <h1 className="font-display text-3xl font-extrabold tracking-tight forge-page-title">Log</h1>
       <p className="mt-1 text-sm text-muted">
         {finished.length} sessions · {stepLogs.length} step days
       </p>
-      <div className="mt-4 flex rounded-md bg-surface p-1">
+      <div className="mt-4 flex rounded-full bg-surface p-1 shadow-[var(--shadow-border)]">
         {(
           [
             { id: "sessions" as const, label: "Sessions" },
@@ -98,7 +100,7 @@ function HistoryPage() {
 
       {tab === "records" ? (
         <section className="mt-6">
-          <p className="text-sm text-muted">Best working set on each lift.</p>
+          <p className="text-sm text-muted">Best set you actually logged on each lift.</p>
           {records.length === 0 ? (
             <div className="mt-3 rounded-xl bg-surface px-4 py-10 text-center text-sm text-muted shadow-[var(--shadow-border)]">
               Finish lifts and PRs land here.
@@ -114,7 +116,7 @@ function HistoryPage() {
                     <p className="truncate font-medium">{r.name}</p>
                     <p className="mt-0.5 font-mono text-[11px] text-muted">
                       {format(r.when, "d MMM yyyy")}
-                      {r.e1rm ? ` · e1RM ${r.e1rm} ${unit}` : ""}
+                      {r.e1rm ? ` · est. max ${r.e1rm} ${unit}` : ""}
                     </p>
                   </div>
                   <p className="font-mono text-xs tabular-nums">{formatPrevLoad(r.weight, r.reps)}</p>
@@ -132,7 +134,7 @@ function HistoryPage() {
           <div className="mt-6 flex flex-col gap-8">
         {days.length === 0 ? (
           <div className="rounded-xl bg-surface px-4 py-10 text-center text-sm text-muted shadow-[var(--shadow-border)]">
-            Finish a session or log steps and they stamp here.
+            Finish a session or log steps — your receipts land here.
           </div>
         ) : (
           days.map((day) => (

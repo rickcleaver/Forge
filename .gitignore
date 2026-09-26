@@ -12,3 +12,13 @@ attachments
 artifacts
 .project_id
 .node_modules.lock
+
+# Capacitor / Android local build output (keep android/app source tracked)
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/captures/
+android/.idea/
+android/*.iml
+.capacitor/

@@ -9,8 +9,10 @@ import { WakeLock } from "./wake-lock";
 import { PowerSplash } from "./power-splash";
 import { AppTour } from "./app-tour";
 import { splashDoneThisVisit } from "@/lib/splash";
-import { stepsFromBridge } from "@/lib/health-connect";
+import { healthFromBridge, stepsFromBridge } from "@/lib/health-connect";
 import { registerOffline, subscribeOnline } from "@/lib/offline";
+import { Onboarding } from "./onboarding";
+import { CoachOpenTipBanner } from "./coach-open-tip";
 
 const NAV = [
   { to: "/", label: "Home", icon: House },
@@ -36,7 +38,20 @@ export function StoreHydration({ children }: { children: React.ReactNode }) {
     return () => window.clearTimeout(t);
   }, []);
   if (!hydrated) {
-    return <div className="min-h-dvh bg-bg" />;
+    return (
+      <div className="grid min-h-dvh place-items-center overflow-hidden bg-bg">
+        <div className="relative px-8 text-center">
+          <span className="forge-blob forge-blob--a opacity-50" />
+          <span className="forge-blob forge-blob--b opacity-40" />
+          <p className="relative z-[1] font-display text-4xl font-extrabold tracking-tight text-fg drop-shadow-[0_0_24px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]">
+            FORGE
+          </p>
+          <p className="relative z-[1] mt-2 font-mono text-[10px] tracking-[0.24em] text-muted uppercase">
+            Warming up the log
+          </p>
+        </div>
+      </div>
+    );
   }
   return children;
 }
@@ -47,7 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const activeId = useGym((s) => s.activeSessionId);
   const sessions = useGym((s) => s.sessions);
   const live = sessions.find((s) => s.id === activeId && !s.finishedAt);
-  const theme = useGym((s) => s.settings.theme ?? "steel");
+  const theme = useGym((s) => s.settings.theme ?? "neon");
   const colorMode = useGym((s) => s.settings.colorMode ?? "dark");
   const [splash, setSplash] = useState(() => !splashDoneThisVisit());
   const [online, setOnline] = useState(true);
@@ -58,13 +73,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    function apply(n: number) {
-      useGym.getState().logSteps(n);
+    function applySteps(n: number) {
+      useGym.getState().applyHealthSnapshot({ steps: n, source: "bridge" }, "bridge");
     }
-    (window as Window & { forgeApplySteps?: (n: number) => void }).forgeApplySteps = apply;
+    (window as Window & { forgeApplySteps?: (n: number) => void }).forgeApplySteps = applySteps;
     function onMsg(e: MessageEvent) {
+      const snap = healthFromBridge(e.data);
+      if (snap) {
+        useGym.getState().applyHealthSnapshot(snap, "bridge");
+        return;
+      }
       const n = stepsFromBridge(e.data);
-      if (n != null) apply(n);
+      if (n != null) applySteps(n);
     }
     window.addEventListener("message", onMsg);
     return () => {
@@ -130,7 +150,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Offline · sets still save on this phone
           </p>
         )}
-        {children}
+        <Onboarding />
+        <CoachOpenTipBanner ready={!splash} />
+        <div className="forge-page-enter">{children}</div>
       </div>
       <WakeLock />
       {live && live.liveAt != null ? <RestTimerHost /> : null}
@@ -139,7 +161,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="fixed inset-x-0 z-30 px-3"
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-5 rounded-full bg-surface/95 p-1 shadow-[var(--shadow-lift)] backdrop-blur-xl">
+        <ul className="nav-shell mx-auto grid max-w-lg grid-cols-5 rounded-full p-1.5 shadow-[var(--shadow-lift)] backdrop-blur-xl">
           {NAV.map((item) => {
             const on =
               item.to === "/"
@@ -151,8 +173,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   to={item.to}
                   data-tour={item.label.toLowerCase()}
+                  data-nav={item.label.toLowerCase()}
+                  data-active={on}
                   className={cn(
-                    "relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold",
+                    "nav-pill relative flex h-14 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold",
                     on ? "bg-accent text-accent-fg" : "text-muted",
                   )}
                 >

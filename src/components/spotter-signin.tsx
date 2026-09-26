@@ -85,10 +85,13 @@ export function SpotterSignIn() {
   }
 
   return (
-    <section className="mt-5 rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
-      <p className="text-xs font-semibold text-muted">Account</p>
-      <h2 className="mt-1 font-display text-xl font-semibold">{mode === "up" ? "Create account" : "Sign in"}</h2>
-      <p className="mt-1 text-sm text-muted">Coach and client each need their own login.</p>
+    <section className="hero-glow forge-neon-frame forge-card-play relative mt-3 overflow-hidden rounded-[1.75rem] bg-surface p-5 shadow-[var(--shadow-lift)]">
+      <span className="forge-blob forge-blob--a opacity-50" />
+      <span className="forge-blob forge-blob--b opacity-40" />
+      <div className="relative z-[1]">
+      <p className="font-mono text-[10px] tracking-[0.22em] text-accent uppercase">Forge · Account</p>
+      <h2 className="mt-1 font-display text-2xl font-extrabold tracking-tight">{mode === "up" ? "Create account" : "Sign in"}</h2>
+      <p className="mt-1 text-sm text-muted">Coach and client each need their own login. Neon on.</p>
       <div className="mt-4 flex flex-col gap-2">
         {typeof window !== "undefined" && window.location.hostname.endsWith("grok-sandbox.com")
           ? null
@@ -209,6 +212,7 @@ export function SpotterSignIn() {
           {mode === "up" ? "Already have an account" : "Create an account"}
         </Button>
         {err ? <p className="text-sm text-danger">{err}</p> : null}
+      </div>
       </div>
     </section>
   );

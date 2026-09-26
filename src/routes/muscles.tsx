@@ -4,22 +4,28 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { MuscleMap } from "@/components/muscle-map";
 import { lastTrained, muscleHitsThisWeek } from "@/lib/stats";
 import { useGym } from "@/lib/store";
+import { useEffect } from "react";
 import { MUSCLES, type MuscleId, type Session } from "@/lib/types";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/muscles")({ component: MusclesPage });
 
 function MusclesPage() {
-  const sessions = useGym((s) => s.sessions);
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
+  useEffect(() => {
+    setPlayerFlag("visitedMuscles");
+  }, [setPlayerFlag]);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const hits = muscleHitsThisWeek(sessions);
   const [selected, setSelected] = useState<MuscleId | null>(null);
   const trained = MUSCLES.filter((m) => (hits[m.id] ?? 0) > 0);
 
   return (
     <main className="px-4 pt-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">Muscles</h1>
-      <p className="mt-1 text-sm text-muted">Color pulses on muscles you trained this week. Tap a part.</p>
+      <h1 className="font-display text-3xl font-extrabold tracking-tight">Muscle map</h1>
+      <p className="mt-1 text-sm text-muted">Neon = you hit it this week. Tap a part to flex the details.</p>
 
-      <div className="mt-6 rounded-2xl bg-surface px-3 py-4 shadow-[var(--shadow-border)]">
+      <div className="forge-neon-frame mt-6 rounded-[1.75rem] bg-surface px-3 py-4 shadow-[var(--shadow-lift)]">
         <MuscleMap
           hits={hits}
           selected={selected}

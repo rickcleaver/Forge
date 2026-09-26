@@ -26,7 +26,7 @@ export function LiftHistory({
         <div className="flex max-h-[80dvh] flex-col gap-4 overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
             <DrawerTitle>{exercise.name}</DrawerTitle>
-            <DrawerDescription>Previous working sets, newest first.</DrawerDescription>
+            <DrawerDescription>Previous sets, newest first.</DrawerDescription>
           </div>
 
           {trend.length >= 2 ? (
@@ -53,7 +53,7 @@ export function LiftHistory({
                       width={36}
                     />
                     <Tooltip
-                      formatter={(value: number) => [`${value} ${unit}`, "e1RM"]}
+                      formatter={(value: number) => [`${value} ${unit}`, "est. max"]}
                       labelFormatter={(v: number) => format(v, "EEE d MMM")}
                       contentStyle={{
                         background: "var(--color-surface)",

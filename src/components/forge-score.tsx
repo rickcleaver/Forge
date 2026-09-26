@@ -1,8 +1,9 @@
 import { forgeScore, strengthProfile, weekMuscleAdvice } from "@/lib/coach-engine";
 import { useGym } from "@/lib/store";
+import { realSessions } from "@/lib/demo-sessions";
 
 export function ForgeScoreCard() {
-  const sessions = useGym((s) => s.sessions);
+  const sessions = realSessions(useGym((s) => s.sessions));
   const readiness = useGym((s) => s.readinessLogs);
   const settings = useGym((s) => s.settings);
   const score = forgeScore(sessions, readiness, settings);

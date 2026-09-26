@@ -1,0 +1,84 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import {
+  BACK_REGION_IDS,
+  FRONT_REGION_IDS,
+  hitsFromExerciseIds,
+  hitsFromMuscles,
+  hitsFromProgramExercises,
+  hitsFromWorkoutText,
+} from "../components/muscle-map";
+
+describe("muscle-map hits helpers", () => {
+  it("hitsFromMuscles skips cardio and marks regions", () => {
+    const hits = hitsFromMuscles(["chest", "quads", "cardio"]);
+    assert.equal(hits.chest, 8);
+    assert.equal(hits.quads, 8);
+    assert.equal(hits.cardio, undefined);
+  });
+
+  it("hitsFromProgramExercises accumulates by muscle", () => {
+    const hits = hitsFromProgramExercises([
+      {
+        libraryId: null,
+        name: "Bench",
+        muscles: ["chest", "shoulders"],
+        sets: [],
+      },
+      {
+        libraryId: null,
+        name: "Fly",
+        muscles: ["chest"],
+        sets: [],
+      },
+    ]);
+    assert.equal(hits.chest, 12);
+    assert.equal(hits.shoulders, 6);
+  });
+
+  it("hitsFromExerciseIds is stable for unknown ids", () => {
+    const hits = hitsFromExerciseIds(["not-a-real-exercise"]);
+    assert.deepEqual(hits, {});
+  });
+
+  it("hitsFromWorkoutText ignores short / day headers", () => {
+    const hits = hitsFromWorkoutText("Day 1\nab\nBarbell Bench Press 3x8\n");
+    assert.ok(hits);
+    assert.equal(hits.cardio, undefined);
+  });
+});
+
+describe("muscle-map region contract", () => {
+  it("front view covers the expected selectable regions", () => {
+    assert.deepEqual(
+      [...FRONT_REGION_IDS].sort(),
+      ["biceps", "calves", "chest", "core", "quads", "shoulders"].sort(),
+    );
+  });
+
+  it("back view covers the expected selectable regions", () => {
+    assert.deepEqual(
+      [...BACK_REGION_IDS].sort(),
+      ["back", "calves", "glutes", "hamstrings", "shoulders", "triceps"].sort(),
+    );
+  });
+
+  it("front and back together cover all non-cardio muscles", () => {
+    const all = new Set([...FRONT_REGION_IDS, ...BACK_REGION_IDS]);
+    for (const id of [
+      "chest",
+      "back",
+      "shoulders",
+      "biceps",
+      "triceps",
+      "core",
+      "quads",
+      "hamstrings",
+      "glutes",
+      "calves",
+    ]) {
+      assert.ok(all.has(id as never), `missing ${id}`);
+    }
+    assert.equal(all.has("cardio" as never), false);
+  });
+});

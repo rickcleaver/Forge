@@ -1,6 +1,7 @@
 import { addDays, startOfWeek } from "date-fns";
 import { e1rmHistory, sessionVolume, weekTraining } from "./stats";
-import type { Session } from "./types";
+import type { Program, Session, Settings } from "./types";
+import { planKind, planLabel, todayPlan } from "./week-plan";
 
 export type LiftTrend = {
   name: string;
@@ -21,6 +22,16 @@ export type CoachSnapshot = {
   hardWeeks: number;
   lifts: LiftTrend[];
   note: string;
+  /** Optional player card for personalized Coach replies. */
+  athlete?: {
+    name: string | null;
+    age: number | null;
+    heightCm: number | null;
+    weightLb: number | null;
+  };
+  /** Today's slot from settings.weekPlan — Coach respects the board. */
+  todayPlanLabel?: string | null;
+  todayPlanKind?: "rest" | "template" | "program" | "blank";
 };
 
 function weekVolume(sessions: Session[], weekStart: number, weekEnd: number): number {
@@ -29,7 +40,13 @@ function weekVolume(sessions: Session[], weekStart: number, weekEnd: number): nu
     .reduce((n, s) => n + sessionVolume(s), 0);
 }
 
-export function buildCoachSnapshot(sessions: Session[], now = Date.now()): CoachSnapshot {
+export function buildCoachSnapshot(
+  sessions: Session[],
+  now = Date.now(),
+  athlete?: CoachSnapshot["athlete"],
+  weekPlan?: Settings["weekPlan"] | null,
+  programs: Program[] = [],
+): CoachSnapshot {
   const finished = sessions.filter((s) => s.finishedAt);
   const thisWeek = weekTraining(finished, now);
   const start = startOfWeek(now, { weekStartsOn: 1 }).getTime();
@@ -77,6 +94,10 @@ export function buildCoachSnapshot(sessions: Session[], now = Date.now()): Coach
   const first = finished.at(-1)?.finishedAt ?? now;
   const weeksLogged = Math.max(1, Math.round((now - first) / (7 * 86_400_000)));
 
+  const plan = todayPlan(weekPlan, now);
+  const kind = planKind(plan);
+  const todayPlanLabel = planLabel(plan, programs);
+
   return {
     sessionsTotal: finished.length,
     weeksLogged,
@@ -88,6 +109,9 @@ export function buildCoachSnapshot(sessions: Session[], now = Date.now()): Coach
     hardWeeks,
     lifts: lifts.filter((l) => l.latest != null).slice(0, 8),
     note: "",
+    athlete,
+    todayPlanLabel,
+    todayPlanKind: kind,
   };
 }
 
@@ -119,13 +143,19 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/tomorrow|today|what should/.test(q)) {
+    if (snap.todayPlanKind === "rest") {
+      return "Your week board says rest today. Walk, soft mobility, or skip — both are valid. Don't invent a guilt session unless you truly want it.";
+    }
+    if (snap.todayPlanLabel) {
+      return `Your week board already picked ${snap.todayPlanLabel}. Open Today and hit Let's go — that's the session. Extra accessories only if joints feel good.`;
+    }
     if (snap.daysTrainedThisWeek >= 5) {
-      return "You’ve already trained most of this week. A walk, mobility, or a short pump session is plenty. Save the heavy work for the next block.";
+      return "You've already trained most of this week. A walk, mobility, or a short pump session is plenty. Save the heavy work for the next block.";
     }
     const lag = [...snap.lifts].sort((a, b) => a.weeksFlat - b.weeksFlat)[0];
     return lag
-      ? `Train the plan you already have. If you’re choosing, ${lag.name} still has room. Don’t invent extra work to make the week look busy.`
-      : "Follow the program on the week strip. If nothing’s planned, pick a push, pull, or legs template and stop there.";
+      ? `Nothing locked on the week board yet. If you're choosing, ${lag.name} still has room — or tap Mon–Sun on Home and assign Push / Pull / Legs.`
+      : "Nothing on today's board. Tap Mon–Sun on Home, assign a template or rest, then start from Today.";
   }
 
   if (/bench|squat|deadlift|press|trend/.test(q)) {
@@ -164,9 +194,11 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/hello|hi\b|hey|what's up|whats up|how are you/.test(q)) {
+    const who = snap.athlete?.name?.trim();
+    const greet = who ? `Hey ${who}.` : "Hey.";
     return snap.sessionsTotal
-      ? `Hey. I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
-      : "Hey. Ask about the gym, food, sleep, or anything else on your mind.";
+      ? `${greet} I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
+      : `${greet} Ask about the gym, food, sleep, or anything else on your mind.`;
   }
 
   if (/weather|recipe|cook|movie|show|game|news|joke|funny/.test(q)) {

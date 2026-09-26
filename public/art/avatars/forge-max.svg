@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Forge Max">
+  <defs>
+    <radialGradient id="g-forge-max" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#3b82ff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#101828" stop-opacity="1"/>
+    </radialGradient>
+    <linearGradient id="rim-forge-max" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82ff"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="url(#g-forge-max)"/>
+  <circle cx="64" cy="64" r="58" fill="none" stroke="url(#rim-forge-max)" stroke-width="3" opacity="0.9"/>
+  <!-- shoulders -->
+  <path d="M18 118 C28 92 44 86 64 86 C84 86 100 92 110 118 Z" fill="#3b82ff" opacity="0.85"/>
+  <path d="M28 118 C36 100 48 96 64 96 C80 96 92 100 100 118 Z" fill="#e8b896" opacity="0.95"/>
+  <!-- neck -->
+  <rect x="54" y="82" width="20" height="16" rx="6" fill="#e8b896"/>
+  <!-- head -->
+  <ellipse cx="64" cy="62" rx="32" ry="36" fill="#e8b896"/>
+  <path d="M28 58 C28 28 48 18 64 16 C80 18 100 28 100 58 L96 52 C88 30 72 26 64 26 C56 26 40 30 32 52 Z" fill="#38bdf8"/>
+  <path d="M40 34 L46 18 L52 36" fill="#38bdf8"/>
+  <path d="M58 28 L64 12 L70 28" fill="#38bdf8"/>
+  <path d="M76 34 L82 18 L88 36" fill="#38bdf8"/>
+  
+  <!-- ears -->
+  <ellipse cx="32" cy="64" rx="6" ry="8" fill="#e8b896"/>
+  <ellipse cx="96" cy="64" rx="6" ry="8" fill="#e8b896"/>
+  <!-- blush -->
+  <ellipse cx="42" cy="74" rx="7" ry="4" fill="#e89a7a" opacity="0.45"/>
+  <ellipse cx="86" cy="74" rx="7" ry="4" fill="#e89a7a" opacity="0.45"/>
+  <!-- eyes -->
+  <ellipse cx="50" cy="64" rx="7" ry="8" fill="#fff"/>
+  <ellipse cx="78" cy="64" rx="7" ry="8" fill="#fff"/>
+  <circle cx="51" cy="65" r="4" fill="#1a1a2e"/>
+  <circle cx="79" cy="65" r="4" fill="#1a1a2e"/>
+  <circle cx="52.5" cy="63" r="1.4" fill="#fff"/>
+  <circle cx="80.5" cy="63" r="1.4" fill="#fff"/>
+  
+  
+  <!-- brows -->
+  <path d="M42 54 Q50 50 58 54" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <path d="M70 54 Q78 50 86 54" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <!-- nose -->
+  <path d="M64 68 L62 74 H66 Z" fill="#e8b896" stroke="#c48a6a" stroke-width="1" opacity="0.5"/>
+  <!-- smile -->
+  <path d="M52 80 Q64 90 76 80" fill="none" stroke="#c45a6a" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <rect x="34" y="60" width="22" height="16" rx="4" fill="none" stroke="#3b82ff" stroke-width="3"/>
+  <rect x="72" y="60" width="22" height="16" rx="4" fill="none" stroke="#3b82ff" stroke-width="3"/>
+  <path d="M56 68 H72" stroke="#3b82ff" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- neon sparkle -->
+  <circle cx="24" cy="28" r="2.5" fill="#3b82ff" opacity="0.9"/>
+  <circle cx="108" cy="36" r="2" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="18" cy="72" r="1.5" fill="#fff" opacity="0.5"/>
+</svg>

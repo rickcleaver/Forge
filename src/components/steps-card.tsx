@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { format, isSameDay } from "date-fns";
 import { Footprints } from "lucide-react";
 import { stepsKcal } from "@/lib/calories";
-import { isAndroid, openGarminConnect, openHealthConnect, stepsFromBridge, stepsFromQuery } from "@/lib/health-connect";
+import { healthFromBridge, isAndroid, openGarminConnect, openHealthConnect, stepsFromBridge, stepsFromQuery } from "@/lib/health-connect";
 import { useGym } from "@/lib/store";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,8 +12,10 @@ const GOAL = 10_000;
 export function StepsCard() {
   const stepLogs = useGym((s) => s.stepLogs);
   const logSteps = useGym((s) => s.logSteps);
+  const applyHealthSnapshot = useGym((s) => s.applyHealthSnapshot);
   const weightLb = useGym((s) => s.settings.bodyWeightLb);
   const heightCm = useGym((s) => s.settings.heightCm);
+  const healthSync = useGym((s) => s.healthSync);
   const [draft, setDraft] = useState("");
   const [live, setLive] = useState(0);
   const [running, setRunning] = useState(false);
@@ -31,21 +33,27 @@ export function StepsCard() {
   useEffect(() => {
     const fromUrl = stepsFromQuery(window.location.search);
     if (fromUrl != null) {
-      logSteps(fromUrl);
+      applyHealthSnapshot({ steps: fromUrl, source: "query" }, "query");
       setHint("Pulled from Health Connect.");
       const url = new URL(window.location.href);
       url.searchParams.delete("healthSteps");
       window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     }
     function onMsg(e: MessageEvent) {
+      const snap = healthFromBridge(e.data);
+      if (snap) {
+        applyHealthSnapshot(snap, "bridge");
+        setHint("Pulled from Health Connect.");
+        return;
+      }
       const n = stepsFromBridge(e.data);
       if (n == null) return;
-      logSteps(n);
+      applyHealthSnapshot({ steps: n, source: "bridge" }, "bridge");
       setHint("Pulled from Health Connect.");
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [logSteps]);
+  }, [applyHealthSnapshot]);
 
   useEffect(() => {
     if (!running) return;
@@ -105,13 +113,20 @@ export function StepsCard() {
 
   return (
     <section className="mt-8">
-      <h2 className="text-lg font-bold">Steps</h2>
+      <h2 className="font-display text-xl font-semibold">Steps</h2>
       <p className="mt-1 text-sm text-muted">
         {isAndroid()
-          ? "Garmin, Pixel, Samsung → Health Connect → Forge. Auto-pull needs the native Play wrapper."
-          : "Type today’s steps, or count while this screen stays open."}
+          ? "Garmin / Pixel / Samsung → Health Connect → Forge. Sync from Settings when the bridge posts data."
+          : "Type today’s steps, import a file in Settings, or count while this screen stays open."}
       </p>
-      <div className="mt-3 rounded-2xl bg-surface p-4 shadow-[var(--shadow-border)]">
+      {healthSync.linked && healthSync.lastSyncedAt ? (
+        <p className="mt-1 text-xs text-success">
+          Health synced · {new Date(healthSync.lastSyncedAt).toLocaleString()}
+        </p>
+      ) : (
+        <p className="mt-1 text-xs text-muted">Not synced from Health Connect yet — manual still counts.</p>
+      )}
+      <div className="forge-neon-frame mt-3 rounded-[1.75rem] bg-surface p-4 shadow-[var(--shadow-border)]">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold text-muted">Today</p>

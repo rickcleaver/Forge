@@ -5,6 +5,8 @@ import { useGym } from "@/lib/store";
 import { INTENSITY_LABEL, openMyFitnessPal } from "@/lib/mfp";
 import { cmToDisplay, displayToCm } from "@/lib/calories";
 import { backupStatus, buildBackup, downloadBackup, parseBackup } from "@/lib/backup";
+import { ForgeSyncCard } from "@/components/forge-sync-card";
+import { HealthConnectCard } from "@/components/health-connect-card";
 import { downloadSessionsCsv } from "@/lib/export-csv";
 import { parseWorkoutCsv } from "@/lib/import-csv";
 import type { Intensity } from "@/lib/types";
@@ -15,6 +17,8 @@ import { Button } from "./ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "./ui/drawer";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
+import { AvatarPicker } from "./avatar-picker";
+import { normalizeAvatarPresetId, normalizeAvatarPhotoUrl } from "@/lib/avatars";
 
 const REST_OPTIONS = [30, 45, 60, 90, 120, 150, 180];
 const INTENSITY_OPTIONS: Intensity[] = ["light", "moderate", "hard"];
@@ -41,6 +45,10 @@ export function SettingsDrawer() {
   const setAutoStartRest = useGym((s) => s.setAutoStartRest);
   const setHapticRest = useGym((s) => s.setHapticRest);
   const setDayPlan = useGym((s) => s.setDayPlan);
+  const setDisplayName = useGym((s) => s.setDisplayName);
+  const setAvatar = useGym((s) => s.setAvatar);
+  const clearAvatar = useGym((s) => s.clearAvatar);
+  const setAgeYears = useGym((s) => s.setAgeYears);
   const setBodyWeightLb = useGym((s) => s.setBodyWeightLb);
   const setHeightCm = useGym((s) => s.setHeightCm);
   const setCalorieGoal = useGym((s) => s.setCalorieGoal);
@@ -89,7 +97,7 @@ export function SettingsDrawer() {
         <div className="flex max-h-[80dvh] flex-col gap-6 overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div>
             <DrawerTitle>Settings</DrawerTitle>
-            <DrawerDescription>Backup, look, units, rest, MyFitnessPal.</DrawerDescription>
+            <DrawerDescription>Avatar, look, backup, Health sync, units, rest, MyFitnessPal.</DrawerDescription>
           </div>
           <button
             type="button"
@@ -114,8 +122,8 @@ export function SettingsDrawer() {
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Look</p>
             <div className="grid grid-cols-2 gap-2">
               {([
-                { id: "dark" as const, label: "Dark", blurb: "Night gym", Icon: Moon },
-                { id: "light" as const, label: "Light", blurb: "Daylight", Icon: Sun },
+                { id: "dark" as const, label: "Dark", blurb: "Arcade night", Icon: Moon },
+                { id: "light" as const, label: "Light", blurb: "Daylight clear", Icon: Sun },
               ]).map((m) => {
                 const on = (settings.colorMode ?? "dark") === m.id;
                 return (
@@ -138,7 +146,7 @@ export function SettingsDrawer() {
             </div>
             <div className="grid grid-cols-3 gap-2">
               {THEMES.map((t) => {
-                const on = (settings.theme ?? "steel") === t.id;
+                const on = (settings.theme ?? "neon") === t.id;
                 return (
                   <button
                     key={t.id}
@@ -230,7 +238,15 @@ export function SettingsDrawer() {
             {backupMsg ? <p className="text-xs text-muted">{backupMsg}</p> : null}
           </section>
 
+                    <section className="flex flex-col gap-2">
+            <ForgeSyncCard />
+          </section>
+
           <section className="flex flex-col gap-2">
+            <HealthConnectCard />
+          </section>
+
+<section className="flex flex-col gap-2">
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Switch from Strong / Hevy</p>
             <p className="text-sm text-muted">
               Export a workout CSV in that app, then pick it here. Forge skips days you already have.
@@ -307,7 +323,7 @@ export function SettingsDrawer() {
           <section className="flex items-center justify-between gap-4 rounded-lg bg-surface-2 px-4 py-3">
             <div>
               <p className="text-sm font-medium">Start rest after a set</p>
-              <p className="text-xs text-muted">Timer begins when you check a working set complete.</p>
+              <p className="text-xs text-muted">Timer begins when you check a set complete.</p>
             </div>
             <Switch
               checked={settings.autoStartRest}
@@ -389,6 +405,30 @@ export function SettingsDrawer() {
           </section>
 
           <section className="flex flex-col gap-3">
+            <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Avatar</p>
+            <p className="text-sm text-muted">
+              Cartoon crew or a selfie. Shows in the top HUD instead of the default Forge mascot.
+            </p>
+            <AvatarPicker
+              compact
+              value={{
+                presetId: normalizeAvatarPresetId(settings.avatarPresetId),
+                photoUrl: normalizeAvatarPhotoUrl(settings.avatarPhotoUrl),
+              }}
+              onChange={(next) => {
+                if (!next.presetId && !next.photoUrl) {
+                  clearAvatar();
+                  return;
+                }
+                setAvatar({
+                  presetId: next.presetId,
+                  photoUrl: next.photoUrl,
+                });
+              }}
+            />
+          </section>
+
+          <section className="flex flex-col gap-3">
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">MyFitnessPal</p>
             <p className="text-sm text-muted">
               MFP does not let new apps log you in. Forge estimates the session's calories, copies it,
@@ -415,6 +455,45 @@ export function SettingsDrawer() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex flex-col gap-1.5">
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                  What to call you
+                </span>
+                <Input
+                  maxLength={24}
+                  placeholder="Neo"
+                  value={settings.displayName ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value.slice(0, 24);
+                    setDisplayName(raw.trim().length ? raw : null);
+                  }}
+                  onBlur={(e) => {
+                    const t = e.target.value.trim().replace(/\s+/g, " ").slice(0, 24);
+                    setDisplayName(t.length ? t : null);
+                  }}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">Age</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={10}
+                  max={99}
+                  placeholder="16"
+                  value={settings.ageYears ?? ""}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    if (!Number.isFinite(n) || n < 10 || n > 99) {
+                      setAgeYears(null);
+                      return;
+                    }
+                    setAgeYears(Math.round(n));
+                  }}
+                />
+              </label>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <label className="flex flex-col gap-1.5">

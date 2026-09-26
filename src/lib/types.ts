@@ -42,7 +42,7 @@ export const MUSCLE_MAP: Record<MuscleId, MuscleMeta> = Object.fromEntries(
 
 export type WeightUnit = "lb" | "kg";
 
-export type ThemeId = "steel" | "ember" | "ion";
+export type ThemeId = "pop" | "neon" | "sunny";
 
 export type ColorMode = "dark" | "light";
 
@@ -145,6 +145,14 @@ export type Settings = {
   hapticRest: boolean;
   bodyWeightLb: number | null;
   heightCm: number | null;
+  /** What they want to be called — Coach/AI personalization. */
+  displayName?: string | null;
+  /** Self-reported age in years (teen-friendly profile). */
+  ageYears?: number | null;
+  /** Preset cartoon avatar id from AVATAR_DEFS, or null. */
+  avatarPresetId?: string | null;
+  /** Custom selfie / gallery photo as compressed data URL (IndexedDB via zustand persist). */
+  avatarPhotoUrl?: string | null;
   calorieGoal: number | null;
   proteinGoal: number | null;
   exerciseRest: Record<string, number>;

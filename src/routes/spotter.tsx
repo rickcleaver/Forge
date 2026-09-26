@@ -45,7 +45,7 @@ function SpotterPage() {
     <main className="px-5 pt-6 pb-8">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">Spotter</h1>
+          <h1 className="font-display text-3xl font-extrabold tracking-tight forge-page-title">Spotter</h1>
           <p className="mt-1 text-sm text-muted">Coach desk</p>
         </div>
         {realAccount ? <UserButton /> : null}
@@ -259,7 +259,7 @@ function CoachLive({
                             {format(d.at, "EEE d")} · {d.name}
                           </p>
                           {(d.lifts ?? []).length === 0 ? (
-                            <p className="mt-1 text-sm text-muted">No working sets logged.</p>
+                            <p className="mt-1 text-sm text-muted">No sets logged yet.</p>
                           ) : (
                             <ul className="mt-2 flex flex-col gap-2">
                               {(d.lifts ?? []).map((lift) => (

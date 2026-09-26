@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Camera, Check, Plus, RotateCcw, X } from "lucide-react";
 import { ExerciseCard } from "@/components/exercise-card";
 import { ExercisePicker } from "@/components/exercise-picker";
@@ -13,6 +13,7 @@ import { PublicProgramShelf } from "@/components/public-programs";
 import { SessionPhotoButton } from "@/components/photo-capture";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ForgeCharacter, ForgeEmptyState } from "@/components/forge-character";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { coachWorkoutPlan } from "@/lib/coach-engine";
@@ -31,18 +32,20 @@ function CoachStartCard({ onStart }: { onStart: () => void }) {
   const settings = useGym((s) => s.settings);
   const plan = coachWorkoutPlan(sessions, readiness, settings);
   return (
-    <section className="mt-5 rounded-2xl bg-accent px-4 py-4 text-accent-fg shadow-[var(--shadow-glow)]">
-      <div className="flex items-center gap-3">
+    <section className="forge-card-play relative mt-5 overflow-hidden rounded-[1.75rem] bg-accent px-4 py-4 text-accent-fg shadow-[var(--shadow-glow)]">
+      <span className="forge-blob forge-blob--a opacity-35" />
+      <div className="relative z-[1] flex items-center gap-3">
         <div className="rounded-xl bg-bg/20 p-1">
           <MuscleMap hits={hitsFromExerciseIds(plan.exerciseIds)} compact />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold opacity-80">Built for you</p>
-          <h2 className="mt-1 font-display text-2xl font-extrabold">{plan.name}</h2>
+          <p className="text-sm font-bold opacity-80">Built for you</p>
+          <h2 className="mt-1 font-display text-2xl font-semibold">{plan.name}</h2>
           <p className="mt-1 text-sm opacity-80">{plan.why}</p>
         </div>
+        <ForgeCharacter kind="mascot" size="xs" motion="wiggle" className="shrink-0" />
       </div>
-      <Button className="mt-4 w-full bg-bg text-fg shadow-none hover:bg-bg/90" onClick={onStart}>
+      <Button className="relative z-[1] mt-4 w-full rounded-full bg-bg text-fg shadow-none hover:bg-bg/90" onClick={onStart}>
         Use this session
       </Button>
     </section>
@@ -81,8 +84,18 @@ function SessionPage() {
   if (!active) {
     return (
       <main className="px-4 pt-4">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Train</h1>
-        <p className="mt-1 text-sm text-muted">Pick today’s workout. Tap a card, then log sets.</p>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight forge-page-title">Train</h1>
+            <p className="mt-1 text-sm text-muted">Pick today’s workout. Tap a card — logging stays fast.</p>
+          </div>
+          <Link
+            to="/programs"
+            className="mb-1 shrink-0 rounded-full bg-surface px-3 py-2 font-mono text-[10px] tracking-wider uppercase shadow-[var(--shadow-border)]"
+          >
+            Programs
+          </Link>
+        </div>
         <CoachStartCard onStart={() => startCoachSession()} />
         <div className="mt-6 flex flex-col gap-2">
           <ScanLogButton />
@@ -107,7 +120,7 @@ function SessionPage() {
               <span className="block font-mono text-[10px] tracking-wider uppercase">Repeat last</span>
               <span className="mt-1 block font-display text-lg font-semibold">{lastFinished.name}</span>
               <span className="mt-0.5 block text-sm opacity-70">
-                {sessionSetCount(lastFinished)} working sets, same weights waiting.
+                {sessionSetCount(lastFinished)} sets logged — same weights waiting.
               </span>
             </span>
             <RotateCcw className="size-4" />
@@ -201,7 +214,7 @@ function LiveSession({ id, onFinished }: { id: string; onFinished: (id: string) 
                 speakText(
                   nxt
                     ? `Next. ${nxt.name}. ${nxt.label}.`
-                    : "All working sets are done.",
+                    : "All sets are done.",
                 );
               }}
             >
@@ -257,11 +270,11 @@ function LiveSession({ id, onFinished }: { id: string; onFinished: (id: string) 
 
       <div className="mt-6 flex flex-col gap-3">
         {session.exercises.length === 0 ? (
-          <div className="rounded-xl bg-surface px-4 py-10 text-center shadow-[var(--shadow-border)]">
-            <Camera className="mx-auto size-6 text-muted" />
-            <p className="mt-3 font-display text-lg font-semibold">No lifts yet</p>
-            <p className="mt-1 text-sm text-muted">Add from the library, or name one and tag muscles.</p>
-          </div>
+          <ForgeEmptyState
+            title="No lifts yet"
+            body="Add from the library, or name one and tag muscles. Logging stays one-tap fast."
+            kind="mascot"
+          />
         ) : (
           session.exercises.map((ex, i) => (
             <ExerciseCard
@@ -348,7 +361,7 @@ function LiveSession({ id, onFinished }: { id: string; onFinished: (id: string) 
         <DialogContent>
           <DialogTitle>Finish session?</DialogTitle>
           <DialogDescription>
-            {sets} working sets · {formatDuration(sessionDurationMs(session, now))} · {formatVolume(volume, unit)}.
+            {sets} sets · {formatDuration(sessionDurationMs(session, now))} · {formatVolume(volume, unit)}.
           </DialogDescription>
           {prs.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-1">

@@ -4,6 +4,29 @@ import { LIBRARY, LIBRARY_MAP, TEMPLATES, resolveMuscles } from "./exercises";
 import { idbStorage } from "./idb-storage";
 import { estimateSessionKcal } from "./mfp";
 import { applySessionLength, coachWorkoutPlan, nextPrescription, readinessScore } from "./coach-engine";
+import { migrateThemeId } from "./themes";
+import {
+  DEFAULT_PLAYER,
+  evaluateQuests,
+  isQuestId,
+  type PlayerFlags,
+  type PlayerProgress,
+  type QuestId,
+  type QuestView,
+} from "./quests";
+import {
+  equipCosmetic,
+  isCosmeticId,
+  purchaseCosmetic,
+  type CosmeticId,
+} from "./cosmetics";
+import { getCircles } from "./circles";
+import {
+  DEFAULT_HEALTH_SYNC,
+  type HealthSnapshot,
+  type HealthSource,
+  type HealthSyncState,
+} from "./health-connect";
 import type { QuickLog } from "./parse-quick-log";
 import type {
   ExerciseLog,
@@ -28,6 +51,7 @@ import type {
   ColorMode,
 } from "./types";
 import { uid } from "./utils";
+import { buildWeekFromOnboarding } from "./week-plan";
 import type { ForgeBackup } from "./backup";
 
 const REST_DEFAULT = 90;
@@ -45,15 +69,19 @@ const defaultSettings: Settings = {
   hapticRest: true,
   bodyWeightLb: null,
   heightCm: null,
+  displayName: null,
+  ageYears: null,
+  avatarPresetId: null,
+  avatarPhotoUrl: null,
   calorieGoal: null,
   proteinGoal: null,
   exerciseRest: {},
   defaultIntensity: "moderate",
   weekPlan: emptyWeek,
-  theme: "steel",
+  theme: "neon",
   colorMode: "dark",
   onboarded: false,
-  setupDone: true,
+  setupDone: false,
   goal: null,
   morningGate: true,
   voiceName: null,
@@ -80,7 +108,17 @@ type GymState = {
   timer: RestTimer;
   lastBackupAt: number | null;
   sessionsAtLastBackup: number;
+  player: PlayerProgress;
+  healthSync: HealthSyncState;
   setHydrated: (v: boolean) => void;
+  claimQuest: (id: QuestId) => { ok: boolean; xp?: number; gems?: number };
+  buyCosmetic: (id: CosmeticId) => { ok: boolean; error?: string };
+  equipFlair: (id: CosmeticId | null) => { ok: boolean; error?: string };
+  setPlayerFlag: (flag: keyof PlayerFlags, value?: boolean) => void;
+  listQuests: () => QuestView[];
+  applyHealthSnapshot: (snap: HealthSnapshot, source?: HealthSource) => { ok: boolean; error?: string };
+  setHealthSyncError: (error: string | null) => void;
+
   startSession: (opts: { name?: string; templateId?: string; programId?: string }) => string;
   startCoachSession: () => string;
   goLive: (id: string) => void;
@@ -139,7 +177,29 @@ type GymState = {
   setMorningGate: (v: boolean) => void;
   setDayPlan: (day: number, plan: DayPlan) => void;
   slideWeekPlan: () => void;
-  setOnboarding: (input: { goal: TrainGoal; trainDays: number; place: "home" | "gym" | "both" }) => void;
+  setOnboarding: (input: {
+    goal: TrainGoal;
+    trainDays: number;
+    place: "home" | "gym" | "both";
+    displayName?: string | null;
+    ageYears?: number | null;
+    heightCm?: number | null;
+    bodyWeightLb?: number | null;
+    avatarPresetId?: string | null;
+    avatarPhotoUrl?: string | null;
+  }) => void;
+  setPlayerProfile: (input: {
+    displayName?: string | null;
+    ageYears?: number | null;
+    heightCm?: number | null;
+    bodyWeightLb?: number | null;
+    avatarPresetId?: string | null;
+    avatarPhotoUrl?: string | null;
+  }) => void;
+  setAvatar: (input: { presetId?: string | null; photoUrl?: string | null }) => void;
+  clearAvatar: () => void;
+  setDisplayName: (name: string | null) => void;
+  setAgeYears: (age: number | null) => void;
   setBodyWeightLb: (lb: number | null) => void;
   setHeightCm: (cm: number | null) => void;
   setCalorieGoal: (n: number | null) => void;
@@ -337,6 +397,67 @@ function parkOpenSession(sessions: Session[], activeId: string | null, keepId?: 
   });
 }
 
+
+
+function mergeHealthSync(raw: unknown, fallback: HealthSyncState): HealthSyncState {
+  if (!raw || typeof raw !== "object") return fallback;
+  const p = raw as Partial<HealthSyncState>;
+  const lastSyncedAt =
+    typeof p.lastSyncedAt === "number" && Number.isFinite(p.lastSyncedAt) ? p.lastSyncedAt : fallback.lastSyncedAt;
+  const linked = Boolean(p.linked) && lastSyncedAt != null;
+  return {
+    linked,
+    lastSyncedAt,
+    lastSource: (p.lastSource as HealthSource | null | undefined) ?? fallback.lastSource,
+    lastError: typeof p.lastError === "string" ? p.lastError : fallback.lastError,
+    lastSteps:
+      typeof p.lastSteps === "number" && Number.isFinite(p.lastSteps) ? Math.max(0, Math.round(p.lastSteps)) : fallback.lastSteps,
+    lastWeightLb:
+      typeof p.lastWeightLb === "number" && Number.isFinite(p.lastWeightLb)
+        ? Math.round(p.lastWeightLb * 10) / 10
+        : fallback.lastWeightLb,
+  };
+}
+
+function liveHasCircleBuddy(player: PlayerProgress): boolean {
+  try {
+    if (typeof window !== "undefined") return getCircles().buddies.length > 0;
+  } catch {
+    /* ignore */
+  }
+  return Boolean(player.flags.addedCircleBuddy);
+}
+
+function mergePlayer(raw: unknown, fallback: PlayerProgress): PlayerProgress {
+  if (!raw || typeof raw !== "object") return fallback;
+  const p = raw as Partial<PlayerProgress>;
+  const flags = (p.flags ?? {}) as Partial<PlayerFlags>;
+  const claimed = Array.isArray(p.claimedQuestIds)
+    ? p.claimedQuestIds.filter(isQuestId)
+    : fallback.claimedQuestIds;
+  const unlocked = Array.isArray(p.unlockedCosmetics)
+    ? p.unlockedCosmetics.filter(isCosmeticId)
+    : fallback.unlockedCosmetics;
+  const equipped =
+    p.equippedFlair == null
+      ? null
+      : isCosmeticId(p.equippedFlair) && unlocked.includes(p.equippedFlair)
+        ? p.equippedFlair
+        : fallback.equippedFlair;
+  return {
+    xp: typeof p.xp === "number" && Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : fallback.xp,
+    gems: typeof p.gems === "number" && Number.isFinite(p.gems) ? Math.max(0, Math.floor(p.gems)) : fallback.gems,
+    claimedQuestIds: claimed,
+    flags: {
+      visitedMuscles: Boolean(flags.visitedMuscles ?? fallback.flags.visitedMuscles),
+      visitedPrograms: Boolean(flags.visitedPrograms ?? fallback.flags.visitedPrograms),
+      addedCircleBuddy: Boolean(flags.addedCircleBuddy ?? fallback.flags.addedCircleBuddy),
+    },
+    unlockedCosmetics: unlocked,
+    equippedFlair: equipped,
+  };
+}
+
 export const useGym = create<GymState>()(
   persist(
     (set, get) => ({
@@ -353,7 +474,142 @@ export const useGym = create<GymState>()(
       timer: idleTimer,
       lastBackupAt: null,
       sessionsAtLastBackup: 0,
+      player: {
+        ...DEFAULT_PLAYER,
+        flags: { ...DEFAULT_PLAYER.flags },
+        unlockedCosmetics: [...DEFAULT_PLAYER.unlockedCosmetics],
+        equippedFlair: DEFAULT_PLAYER.equippedFlair,
+      },
+      healthSync: { ...DEFAULT_HEALTH_SYNC },
       setHydrated: (v) => set({ hydrated: v }),
+      listQuests: () => {
+        const s = get();
+        return evaluateQuests({
+          setupDone: Boolean(s.settings.setupDone),
+          sessions: s.sessions,
+          player: s.player,
+          hasCircleBuddy: liveHasCircleBuddy(s.player),
+        });
+      },
+      setPlayerFlag: (flag, value = true) =>
+        set((s) => ({
+          player: {
+            ...s.player,
+            flags: { ...s.player.flags, [flag]: value },
+          },
+        })),
+      setHealthSyncError: (error) =>
+        set((s) => ({
+          healthSync: { ...s.healthSync, lastError: error },
+        })),
+      applyHealthSnapshot: (snap, source) => {
+        const src = source ?? snap.source ?? "bridge";
+        const hasData = snap.steps != null || snap.weightLb != null || snap.sleepHrs != null || snap.readiness != null;
+        if (!hasData) {
+          set((s) => ({
+            healthSync: { ...s.healthSync, lastError: "No steps, weight, or sleep in payload." },
+          }));
+          return { ok: false, error: "No steps, weight, or sleep in payload." };
+        }
+        const now = Date.now();
+        if (snap.steps != null && Number.isFinite(snap.steps) && snap.steps >= 0) {
+          const entry: StepLog = { id: uid(), at: now, steps: Math.round(snap.steps) };
+          const day = new Date();
+          day.setHours(0, 0, 0, 0);
+          set((s) => ({
+            stepLogs: [...s.stepLogs.filter((w) => w.at < day.getTime()), entry].sort((a, b) => a.at - b.at),
+          }));
+        }
+        if (snap.weightLb != null && Number.isFinite(snap.weightLb) && snap.weightLb > 0) {
+          get().logWeighIn(snap.weightLb);
+        }
+        if (
+          snap.sleepHrs != null &&
+          Number.isFinite(snap.sleepHrs) &&
+          snap.readiness == null
+        ) {
+          // Sleep alone is not a full check-in — leave Morning Gate for energy/sore/stress.
+        } else if (snap.readiness != null && snap.sleepHrs != null) {
+          // Bridge provided a recovery score + sleep: store a soft readiness log.
+          const energy = Math.max(1, Math.min(10, Math.round((snap.readiness ?? 50) / 10)));
+          get().logReadiness({
+            sleepHrs: snap.sleepHrs,
+            energy,
+            soreness: 4,
+            stress: 4,
+          });
+        }
+        set((s) => ({
+          healthSync: {
+            linked: true,
+            lastSyncedAt: now,
+            lastSource: src,
+            lastError: null,
+            lastSteps: snap.steps ?? s.healthSync.lastSteps,
+            lastWeightLb: snap.weightLb ?? s.healthSync.lastWeightLb,
+          },
+        }));
+        return { ok: true };
+      },
+      claimQuest: (id) => {
+        if (!isQuestId(id)) return { ok: false };
+        // Re-evaluate inside set so incomplete / already-claimed / seed-only never grant.
+        let rewardXp = 0;
+        let rewardGems = 0;
+        let granted = false;
+        set((prev) => {
+          if (prev.player.claimedQuestIds.includes(id)) return prev;
+          const views = evaluateQuests({
+            setupDone: Boolean(prev.settings.setupDone),
+            sessions: prev.sessions,
+            player: prev.player,
+            hasCircleBuddy: liveHasCircleBuddy(prev.player),
+          });
+          const q = views.find((x) => x.id === id);
+          if (!q || !q.claimable) return prev;
+          granted = true;
+          rewardXp = q.rewardXp;
+          rewardGems = q.rewardGems;
+          return {
+            player: {
+              ...prev.player,
+              xp: prev.player.xp + q.rewardXp,
+              gems: prev.player.gems + q.rewardGems,
+              claimedQuestIds: [...prev.player.claimedQuestIds, id],
+            },
+          };
+        });
+        if (!granted) return { ok: false };
+        return { ok: true, xp: rewardXp, gems: rewardGems };
+      },
+      buyCosmetic: (id) => {
+        let error: string | undefined;
+        let ok = false;
+        set((prev) => {
+          const res = purchaseCosmetic(prev.player, id);
+          if (!res.ok) {
+            error = res.error;
+            return prev;
+          }
+          ok = true;
+          return { player: res.player };
+        });
+        return ok ? { ok: true } : { ok: false, error: error ?? "Could not buy." };
+      },
+      equipFlair: (id) => {
+        let error: string | undefined;
+        let ok = false;
+        set((prev) => {
+          const res = equipCosmetic(prev.player, id);
+          if (!res.ok) {
+            error = res.error;
+            return prev;
+          }
+          ok = true;
+          return { player: res.player };
+        });
+        return ok ? { ok: true } : { ok: false, error: error ?? "Could not equip." };
+      },
       startSession: ({ name, templateId, programId }) => {
         const program = get().programs.find((p) => p.id === programId);
         const tpl = TEMPLATES.find((t) => t.id === templateId);
@@ -927,10 +1183,76 @@ export const useGym = create<GymState>()(
           const rotated = [plan[6], ...plan.slice(0, 6)];
           return { settings: { ...s.settings, weekPlan: rotated } };
         }),
-      setOnboarding: ({ goal, trainDays, place }) =>
+      setOnboarding: ({
+        goal,
+        trainDays,
+        place,
+        displayName,
+        ageYears,
+        heightCm,
+        bodyWeightLb,
+        avatarPresetId,
+        avatarPhotoUrl,
+      }) =>
         set((s) => ({
-          settings: { ...s.settings, goal, trainDays, place, setupDone: true, onboarded: true },
+          settings: {
+            ...s.settings,
+            goal,
+            trainDays,
+            place,
+            setupDone: true,
+            onboarded: true,
+            weekPlan: buildWeekFromOnboarding(goal, trainDays, place),
+            ...(displayName !== undefined ? { displayName } : {}),
+            ...(ageYears !== undefined ? { ageYears } : {}),
+            ...(heightCm !== undefined ? { heightCm } : {}),
+            ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
+            ...(avatarPresetId !== undefined ? { avatarPresetId } : {}),
+            ...(avatarPhotoUrl !== undefined ? { avatarPhotoUrl } : {}),
+          },
         })),
+      setPlayerProfile: ({
+        displayName,
+        ageYears,
+        heightCm,
+        bodyWeightLb,
+        avatarPresetId,
+        avatarPhotoUrl,
+      }) =>
+        set((s) => ({
+          settings: {
+            ...s.settings,
+            ...(displayName !== undefined ? { displayName } : {}),
+            ...(ageYears !== undefined ? { ageYears } : {}),
+            ...(heightCm !== undefined ? { heightCm } : {}),
+            ...(bodyWeightLb !== undefined ? { bodyWeightLb } : {}),
+            ...(avatarPresetId !== undefined ? { avatarPresetId } : {}),
+            ...(avatarPhotoUrl !== undefined ? { avatarPhotoUrl } : {}),
+          },
+        })),
+      setAvatar: ({ presetId, photoUrl }) =>
+        set((s) => {
+          const next = { ...s.settings };
+          if (photoUrl !== undefined) {
+            next.avatarPhotoUrl = photoUrl;
+            // Photo mode clears preset unless a preset is also provided in this call.
+            if (photoUrl && presetId === undefined) next.avatarPresetId = null;
+          }
+          if (presetId !== undefined) {
+            next.avatarPresetId = presetId;
+            // Preset mode clears photo unless a photo is also provided in this call.
+            if (presetId && photoUrl === undefined) next.avatarPhotoUrl = null;
+          }
+          return { settings: next };
+        }),
+      clearAvatar: () =>
+        set((s) => ({
+          settings: { ...s.settings, avatarPresetId: null, avatarPhotoUrl: null },
+        })),
+      setDisplayName: (name) =>
+        set((s) => ({ settings: { ...s.settings, displayName: name } })),
+      setAgeYears: (age) =>
+        set((s) => ({ settings: { ...s.settings, ageYears: age } })),
       setBodyWeightLb: (lb) =>
         set((s) => ({ settings: { ...s.settings, bodyWeightLb: lb } })),
       setHeightCm: (cm) =>
@@ -1166,6 +1488,8 @@ export const useGym = create<GymState>()(
         timer: s.timer,
         lastBackupAt: s.lastBackupAt,
         sessionsAtLastBackup: s.sessionsAtLastBackup,
+        player: s.player,
+        healthSync: s.healthSync,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<GymState>;
@@ -1192,18 +1516,36 @@ export const useGym = create<GymState>()(
                 ? p.settings.weekPlan
                 : current.settings.weekPlan,
             hapticRest: p.settings?.hapticRest ?? current.settings.hapticRest,
-            theme:
-              p.settings?.theme === "ember" || p.settings?.theme === "ion" || p.settings?.theme === "steel"
-                ? p.settings.theme
-                : current.settings.theme,
+            theme: migrateThemeId(p.settings?.theme) ?? current.settings.theme,
             colorMode: p.settings?.colorMode === "light" || p.settings?.colorMode === "dark"
               ? p.settings.colorMode
               : current.settings.colorMode,
             morningGate: p.settings?.morningGate ?? current.settings.morningGate,
+            avatarPresetId: (() => {
+              const id = p.settings?.avatarPresetId;
+              return typeof id === "string" && id.length > 0 ? id : (p.settings?.avatarPresetId === null ? null : current.settings.avatarPresetId ?? null);
+            })(),
+            avatarPhotoUrl: (() => {
+              const url = p.settings?.avatarPhotoUrl;
+              if (url === null) return null;
+              if (typeof url === "string" && url.startsWith("data:image/")) return url;
+              return current.settings.avatarPhotoUrl ?? null;
+            })(),
+            setupDone: (() => {
+              const persisted = p.settings?.setupDone;
+              if (persisted === true || p.settings?.onboarded === true) return true;
+              if (sessions.some((s) => Boolean(s.finishedAt))) return true;
+              if (persisted === false) return false;
+              // Legacy installs already have a settings blob from when setupDone defaulted true.
+              if (p.settings) return true;
+              return false;
+            })(),
           },
           timer: live && live.liveAt != null ? { ...current.timer, ...(p.timer ?? {}) } : { ...idleTimer, duration: current.settings.defaultRestSec },
           lastBackupAt: p.lastBackupAt ?? current.lastBackupAt,
           sessionsAtLastBackup: p.sessionsAtLastBackup ?? current.sessionsAtLastBackup,
+          player: mergePlayer(p.player, current.player),
+          healthSync: mergeHealthSync(p.healthSync, current.healthSync),
         };
       },
     },

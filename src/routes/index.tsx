@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { format, isSameDay } from "date-fns";
 import { useEffect, useState } from "react";
 import { ArrowRight, RotateCcw } from "lucide-react";
-import { SettingsDrawer } from "@/components/settings-drawer";
 import { MuscleMap } from "@/components/muscle-map";
-import { WeekStrip } from "@/components/week-strip";
+import { WeekPlanner } from "@/components/week-planner";
+import { HomeFeed } from "@/components/home-feed";
+import { HomeDiscover } from "@/components/home-discover";
 import { NextMove } from "@/components/next-move";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MorningGate } from "@/components/morning-gate";
@@ -28,6 +29,11 @@ import {
 import { useGym } from "@/lib/store";
 import { formatDuration, formatVolume } from "@/lib/utils";
 import { applyWaitingCoachPlan } from "@/lib/spotter-sync";
+import { PlayerStatusBar } from "@/components/player-status-bar";
+import { QuestCarousel } from "@/components/quest-carousel";
+import { forgeScore } from "@/lib/coach-engine";
+import { cn } from "@/lib/utils";
+import { realSessions } from "@/lib/demo-sessions";
 
 export const Route = createFileRoute("/")({ component: Today });
 
@@ -57,6 +63,54 @@ function HomeNotes() {
   );
 }
 
+
+type HomeTab = "for-you" | "feed" | "discover";
+
+function LevelUpCard() {
+  const sessions = useGym((s) => s.sessions);
+  const readiness = useGym((s) => s.readinessLogs);
+  const settings = useGym((s) => s.settings);
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
+  const hits = muscleHitsThisWeek(sessions);
+  const score = forgeScore(sessions, readiness, settings);
+  const trained = MUSCLES.filter((m) => (hits[m.id] ?? 0) > 0).length;
+  const goal = Math.min(8, MUSCLES.length);
+  const progress = Math.min(1, trained / goal);
+
+  return (
+    <section className="forge-neon-frame relative mt-5 overflow-hidden rounded-[1.75rem] bg-surface p-4 shadow-[var(--shadow-lift)]">
+      <span className="forge-blob forge-blob-a opacity-35" />
+      <div className="relative z-[1] flex gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold tracking-wide text-accent uppercase">Leveling up</p>
+          <h2 className="mt-1 font-display text-xl font-semibold leading-snug">
+            Unlock Muscle Map progress
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Hit {goal} areas this week · score {score.total}
+          </p>
+          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-well">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[var(--color-ring)] via-fuchsia-400 to-[var(--color-accent)]"
+              style={{ width: `${Math.round(progress * 100)}%` }}
+            />
+          </div>
+          <Link
+            to="/muscles"
+            onClick={() => setPlayerFlag("visitedMuscles")}
+            className="mt-3 inline-flex min-h-10 items-center rounded-full bg-accent px-4 text-sm font-bold text-accent-fg"
+          >
+            Open map
+          </Link>
+        </div>
+        <div className="w-[10rem] shrink-0 rounded-2xl bg-bg/50 p-1.5">
+          <MuscleMap hits={hits} compact className="!w-full" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Today() {
   const navigate = useNavigate();
   const sessions = useGym((s) => s.sessions);
@@ -68,7 +122,7 @@ function Today() {
   const settings = useGym((s) => s.settings);
   const readinessLogs = useGym((s) => s.readinessLogs);
   const active = sessions.find((s) => s.id === activeId && !s.finishedAt);
-  const finished = sessions
+  const finished = realSessions(sessions)
     .filter((s) => s.finishedAt)
     .sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0));
   const recent = finished.slice(0, 4);
@@ -86,6 +140,8 @@ function Today() {
   const [gateLock, setGateLock] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [coachPlan, setCoachPlan] = useState<string | null>(null);
+  const [tab, setTab] = useState<HomeTab>("for-you");
+  const setPlayerFlag = useGym((s) => s.setPlayerFlag);
   useEffect(() => {
     setNow(new Date());
     if (checkinDoneToday(readinessLogs)) setSkippedGate(true);
@@ -125,17 +181,46 @@ function Today() {
 
   return (
     <main className="px-4 pt-3" style={gateLock ? { pointerEvents: "none" } : undefined}>
-      <header className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-muted">{format(now ?? new Date(), "EEEE, MMM d")}</p>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">Let’s lift</h1>
-        </div>
-        <SettingsDrawer />
-      </header>
+      <PlayerStatusBar />
+
+      <nav className="mt-4 flex gap-1 rounded-full bg-surface p-1 shadow-[var(--shadow-border)]">
+        {(
+          [
+            ["for-you", "For You"],
+            ["feed", "Feed"],
+            ["discover", "Discover"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setTab(id)}
+            className={cn(
+              "flex-1 rounded-full py-2.5 text-sm font-bold transition-colors",
+              tab === id ? "bg-accent text-accent-fg shadow-[var(--shadow-glow)]" : "text-muted",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "feed" ? <HomeFeed /> : null}
+
+      {tab === "discover" ? <HomeDiscover /> : null}
+
+      {tab === "for-you" ? (
+        <>
+      <p className="mt-3 text-sm font-semibold text-muted">{format(now ?? new Date(), "EEEE, MMM d")}</p>
 
       {coachPlan ? (
         <p className="mt-2 text-sm text-accent">{coachPlan} is on your week. Start it from Train.</p>
       ) : null}
+
+      <WeekPlanner />
+
+      <LevelUpCard />
+      <QuestCarousel />
 
       {active ? (
         <div className="mt-5 rounded-2xl bg-accent px-5 py-5 text-accent-fg shadow-[var(--shadow-glow)]">
@@ -181,7 +266,17 @@ function Today() {
       />
       <HomeNotes />
 
-      <WeekStrip />
+      <Link
+        to="/programs"
+        onClick={() => setPlayerFlag("visitedPrograms")}
+        className="mt-3 flex min-h-12 items-center justify-between rounded-xl bg-surface px-4 text-sm font-medium shadow-[var(--shadow-border)]"
+      >
+        <span>
+          <span className="block font-mono text-[10px] tracking-wider text-muted uppercase">Programs</span>
+          <span className="font-display text-base font-semibold">Browse yours, public & Spotter</span>
+        </span>
+        <span className="text-accent">→</span>
+      </Link>
 
       {!active ? (
         <details className="mt-3">
@@ -230,7 +325,7 @@ function Today() {
 
       <section className="mt-8">
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-bold">This week</h2>
+          <h2 className="font-display text-xl font-semibold">This week</h2>
           <Link to="/muscles" className="font-mono text-[10px] tracking-wider text-muted uppercase">
             Map
           </Link>
@@ -263,7 +358,7 @@ function Today() {
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Today from Forge</p>
             <p className="mt-1 font-display text-3xl font-semibold tabular-nums">
               {sessions
-                .filter((s) => s.finishedAt && isSameDay(s.finishedAt, now ?? new Date()))
+                .filter((s) => !s.id.startsWith("seed-") && s.finishedAt && isSameDay(s.finishedAt, now ?? new Date()))
                 .reduce((n, s) => n + (s.estimatedKcal ?? 0), 0)}
               <span className="text-lg text-muted"> kcal trained</span>
             </p>
@@ -279,7 +374,7 @@ function Today() {
 
       <section className="mt-8">
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-bold">Recent</h2>
+          <h2 className="font-display text-xl font-semibold">Recent</h2>
           <Link to="/history" className="font-mono text-[10px] tracking-wider text-muted uppercase">
             All
           </Link>
@@ -287,7 +382,7 @@ function Today() {
         <ul className="mt-3 flex flex-col gap-2">
           {recent.length === 0 ? (
             <li className="rounded-xl bg-surface px-4 py-8 text-center text-sm text-muted shadow-[var(--shadow-border)]">
-              Finished sessions land here.
+              No sessions yet. Hit Start — your first finish shows up here.
             </li>
           ) : (
             recent.map((s) => (
@@ -312,6 +407,8 @@ function Today() {
         </ul>
       </section>
       {backupStale ? <p className="mt-4 pb-2 text-xs text-muted">Backup is in Settings when you want it.</p> : null}
+        </>
+      ) : null}
     </main>
   );
 }

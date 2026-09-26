@@ -11,13 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoachRouteImport } from './routes/coach'
+import { Route as GemsRouteImport } from './routes/gems'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MusclesRouteImport } from './routes/muscles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as SessionRouteImport } from './routes/session'
 import { Route as SpotterRouteImport } from './routes/spotter'
+import { Route as StreakRouteImport } from './routes/streak'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -28,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const CoachRoute = CoachRouteImport.update({
   id: '/coach',
   path: '/coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GemsRoute = GemsRouteImport.update({
+  id: '/gems',
+  path: '/gems',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -50,6 +58,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsRoute = ProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -65,6 +78,11 @@ const SpotterRoute = SpotterRouteImport.update({
   path: '/spotter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StreakRoute = StreakRouteImport.update({
+  id: '/streak',
+  path: '/streak',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -74,38 +92,47 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/coach': typeof CoachRoute
+  '/gems': typeof GemsRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
+  '/streak': typeof StreakRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/coach': typeof CoachRoute
+  '/gems': typeof GemsRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
+  '/streak': typeof StreakRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/coach': typeof CoachRoute
+  '/gems': typeof GemsRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/muscles': typeof MusclesRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/progress': typeof ProgressRoute
   '/session': typeof SessionRoute
   '/spotter': typeof SpotterRoute
+  '/streak': typeof StreakRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -113,50 +140,62 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/coach'
+    | '/gems'
     | '/history'
     | '/login'
     | '/muscles'
     | '/privacy'
+    | '/programs'
     | '/progress'
     | '/session'
     | '/spotter'
+    | '/streak'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/coach'
+    | '/gems'
     | '/history'
     | '/login'
     | '/muscles'
     | '/privacy'
+    | '/programs'
     | '/progress'
     | '/session'
     | '/spotter'
+    | '/streak'
     | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/coach'
+    | '/gems'
     | '/history'
     | '/login'
     | '/muscles'
     | '/privacy'
+    | '/programs'
     | '/progress'
     | '/session'
     | '/spotter'
+    | '/streak'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoachRoute: typeof CoachRoute
+  GemsRoute: typeof GemsRoute
   HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
   MusclesRoute: typeof MusclesRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProgramsRoute: typeof ProgramsRoute
   ProgressRoute: typeof ProgressRoute
   SessionRoute: typeof SessionRoute
   SpotterRoute: typeof SpotterRoute
+  StreakRoute: typeof StreakRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -174,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/coach'
       fullPath: '/coach'
       preLoaderRoute: typeof CoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gems': {
+      id: '/gems'
+      path: '/gems'
+      fullPath: '/gems'
+      preLoaderRoute: typeof GemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -204,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs': {
+      id: '/programs'
+      path: '/programs'
+      fullPath: '/programs'
+      preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/progress': {
       id: '/progress'
       path: '/progress'
@@ -225,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpotterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/streak': {
+      id: '/streak'
+      path: '/streak'
+      fullPath: '/streak'
+      preLoaderRoute: typeof StreakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -238,13 +298,16 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoachRoute: CoachRoute,
+  GemsRoute: GemsRoute,
   HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
   MusclesRoute: MusclesRoute,
   PrivacyRoute: PrivacyRoute,
+  ProgramsRoute: ProgramsRoute,
   ProgressRoute: ProgressRoute,
   SessionRoute: SessionRoute,
   SpotterRoute: SpotterRoute,
+  StreakRoute: StreakRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

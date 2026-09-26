@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Neon Zara">
+  <defs>
+    <radialGradient id="g-neon-zara" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#2a1038" stop-opacity="1"/>
+    </radialGradient>
+    <linearGradient id="rim-neon-zara" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="url(#g-neon-zara)"/>
+  <circle cx="64" cy="64" r="58" fill="none" stroke="url(#rim-neon-zara)" stroke-width="3" opacity="0.9"/>
+  <!-- shoulders -->
+  <path d="M18 118 C28 92 44 86 64 86 C84 86 100 92 110 118 Z" fill="#c084fc" opacity="0.85"/>
+  <path d="M28 118 C36 100 48 96 64 96 C80 96 92 100 100 118 Z" fill="#e8b896" opacity="0.95"/>
+  <!-- neck -->
+  <rect x="54" y="82" width="20" height="16" rx="6" fill="#e8b896"/>
+  <!-- head -->
+  <ellipse cx="64" cy="62" rx="32" ry="36" fill="#e8b896"/>
+  <path d="M26 56 C26 26 46 14 64 14 C82 14 102 26 102 56 L108 110 C108 118 100 122 94 118 L90 70 C88 52 78 40 64 40 C50 40 40 52 38 70 L34 118 C28 122 20 118 20 110 Z" fill="#f472b6"/>
+  <ellipse cx="78" cy="48" rx="18" ry="14" fill="#f472b6"/>
+  
+  <!-- ears -->
+  <ellipse cx="32" cy="64" rx="6" ry="8" fill="#e8b896"/>
+  <ellipse cx="96" cy="64" rx="6" ry="8" fill="#e8b896"/>
+  <!-- blush -->
+  <ellipse cx="42" cy="74" rx="7" ry="4" fill="#ff8fab" opacity="0.45"/>
+  <ellipse cx="86" cy="74" rx="7" ry="4" fill="#ff8fab" opacity="0.45"/>
+  <!-- eyes -->
+  <ellipse cx="50" cy="64" rx="7" ry="8" fill="#fff"/>
+  <ellipse cx="78" cy="64" rx="7" ry="8" fill="#fff"/>
+  <circle cx="51" cy="65" r="4" fill="#1a1a2e"/>
+  <circle cx="79" cy="65" r="4" fill="#1a1a2e"/>
+  <circle cx="52.5" cy="63" r="1.4" fill="#fff"/>
+  <circle cx="80.5" cy="63" r="1.4" fill="#fff"/>
+  <path d="M40 62 Q46 58 52 62" fill="none" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M76 62 Q82 58 88 62" fill="none" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- brows -->
+  <path d="M42 54 Q50 50 58 54" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <path d="M70 54 Q78 50 86 54" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>
+  <!-- nose -->
+  <path d="M64 68 L62 74 H66 Z" fill="#e8b896" stroke="#c48a6a" stroke-width="1" opacity="0.5"/>
+  <!-- smile -->
+  <path d="M52 80 Q64 90 76 80" fill="none" stroke="#c45a6a" stroke-width="2.5" stroke-linecap="round"/>
+  
+  
+  <!-- neon sparkle -->
+  <circle cx="24" cy="28" r="2.5" fill="#c084fc" opacity="0.9"/>
+  <circle cx="108" cy="36" r="2" fill="#f472b6" opacity="0.8"/>
+  <circle cx="18" cy="72" r="1.5" fill="#fff" opacity="0.5"/>
+</svg>

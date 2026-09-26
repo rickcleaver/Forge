@@ -1,128 +1,245 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #07090c;
-  --color-surface: #14181f;
-  --color-surface-2: #1d2430;
-  --color-well: #24303a;
-  --color-fg: #f4f7fb;
-  --color-muted: #93a0b0;
-  --color-subtle: #647084;
-  --color-accent: #2ee6c5;
-  --color-accent-fg: #04221c;
-  --color-border: #2a3340;
-  --color-ring: #2ee6c5;
-  --color-danger: #ff6b6b;
-  --color-success: #c8f542;
-  --color-skin: #c9a07c;
-  --color-skin-deep: #7a4f38;
+  /* Neon — deep ink navy + electric cyan/violet (hero default) */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
+  --color-skin: #e8b896;
+  --color-skin-deep: #b56a45;
   --color-fiber: rgb(40 18 10 / 0.42);
-  --color-overlay: rgb(4 8 10 / 72%);
-  --color-muscle: #3b4450;
-  --color-muscle-ink: #b7c0ca;
-  --color-muscle-hit: #3b6cff;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-muscle: #1c2744;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
 
-  --font-sans: "Outfit", ui-sans-serif, system-ui, "Roboto", sans-serif;
-  --font-display: "Outfit", ui-sans-serif, system-ui, "Roboto", sans-serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, "Roboto", sans-serif;
+  --font-display: "Fredoka", "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "Roboto Mono", "SF Mono", monospace;
 
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  --radius-2xl: 28px;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
 
-  --shadow-border: 0 1px 0 rgb(255 255 255 / 0.04), 0 10px 24px rgb(0 0 0 / 0.28);
-  --shadow-border-hover: 0 1px 0 rgb(255 255 255 / 0.08), 0 12px 28px rgb(0 0 0 / 0.34);
-  --shadow-lift: 0 12px 40px rgb(0 0 0 / 0.45);
-  --shadow-glow: 0 10px 36px color-mix(in srgb, var(--color-accent) 32%, transparent);
+  --shadow-border: 0 1px 0 rgb(255 255 255 / 0.06), 0 12px 28px rgb(0 0 0 / 0.28);
+  --shadow-border-hover: 0 1px 0 rgb(255 255 255 / 0.1), 0 14px 32px rgb(0 0 0 / 0.34);
+  --shadow-lift: 0 16px 48px rgb(0 0 0 / 0.4);
+  --shadow-glow: 0 12px 40px color-mix(in srgb, var(--color-accent) 42%, transparent);
 
   --ease-out-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Neon hero tokens live in @theme + html[data-theme="neon"] */
+
+/* Pop — candy pink alternate */
+html[data-theme="pop"] {
+  --color-bg: #0b1220;
+  --color-surface: #152238;
+  --color-surface-2: #1e3150;
+  --color-well: #274066;
+  --color-fg: #f7fbff;
+  --color-muted: #9eb4d4;
+  --color-subtle: #6f87ab;
+  --color-accent: #ff4d8d;
+  --color-accent-fg: #2a0614;
+  --color-border: #2c4568;
+  --color-ring: #2ee6c5;
+  --color-danger: #ff5c7a;
+  --color-success: #b8ff3c;
+  --color-overlay: rgb(6 10 22 / 72%);
+  --color-muscle: #2f4566;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #2ee6c5;
+  --color-candy-2: #2ee6c5;
+  --color-candy-3: #ffd84d;
+}
+
+html[data-theme="neon"] {
+  /* Deep ink navy · electric blue/cyan · violet glow — premium Liftoff energy */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-skin: #e8b896;
+  --color-skin-deep: #b56a45;
+  --color-fiber: rgb(12 18 40 / 0.45);
+  --color-muscle: #1c2744;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
+}
+
+/* Sunny — citrus coral glow */
+html[data-theme="sunny"] {
+  --color-bg: #1a0f08;
+  --color-surface: #2a1810;
+  --color-surface-2: #3a2418;
+  --color-well: #4a3020;
+  --color-fg: #fff8ee;
+  --color-muted: #d4b498;
+  --color-subtle: #9a7558;
+  --color-accent: #ffb020;
+  --color-accent-fg: #2a1804;
+  --color-border: #4a3220;
+  --color-ring: #ff6b4a;
+  --color-danger: #ff5c5c;
+  --color-success: #7dff9a;
+  --color-overlay: rgb(18 10 4 / 72%);
+  --color-skin: #e8b890;
+  --color-skin-deep: #a06038;
+  --color-fiber: rgb(50 20 8 / 0.45);
+  --color-muscle: #4a3228;
+  --color-muscle-ink: #e8d0b8;
+  --color-muscle-hit: #ff6b4a;
+  --color-candy-2: #ff6b4a;
+  --color-candy-3: #2ee6c5;
+}
+
+/* Legacy aliases → Pop / Neon / Sunny (persisted installs) */
+html[data-theme="steel"] {
+  --color-bg: #0b1220;
+  --color-surface: #152238;
+  --color-surface-2: #1e3150;
+  --color-well: #274066;
+  --color-fg: #f7fbff;
+  --color-muted: #9eb4d4;
+  --color-subtle: #6f87ab;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #2c4568;
+  --color-ring: #7c5cff;
+  --color-danger: #ff5c7a;
+  --color-success: #b8ff3c;
+  --color-overlay: rgb(6 10 22 / 72%);
+  --color-muscle: #2f4566;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #2ee6c5;
+  --color-candy-2: #2ee6c5;
+  --color-candy-3: #ffd84d;
 }
 
 html[data-theme="ember"] {
-  --color-bg: #120906;
-  --color-surface: #22140e;
-  --color-surface-2: #2e1b13;
-  --color-well: #3d2418;
-  --color-fg: #fff4ea;
-  --color-muted: #c9a892;
-  --color-subtle: #8d6b56;
-  --color-accent: #ff8a3c;
-  --color-accent-fg: #1a0c04;
-  --color-border: #3d2a1e;
-  --color-ring: #ff8a3c;
-  --color-danger: #ff6b5a;
-  --color-success: #ffe08a;
-  --color-overlay: rgb(12 6 4 / 72%);
-  --color-skin: #d4a07a;
-  --color-skin-deep: #8a4a2a;
-  --color-fiber: rgb(50 18 8 / 0.45);
+  --color-bg: #1a0f08;
+  --color-surface: #2a1810;
+  --color-surface-2: #3a2418;
+  --color-well: #4a3020;
+  --color-fg: #fff8ee;
+  --color-muted: #d4b498;
+  --color-subtle: #9a7558;
+  --color-accent: #ffb020;
+  --color-accent-fg: #2a1804;
+  --color-border: #4a3220;
+  --color-ring: #ff6b4a;
+  --color-danger: #ff5c5c;
+  --color-success: #7dff9a;
+  --color-overlay: rgb(18 10 4 / 72%);
   --color-muscle: #4a3228;
-  --color-muscle-ink: #d4b8a8;
-  --color-muscle-hit: #3b6cff;
+  --color-muscle-ink: #e8d0b8;
+  --color-muscle-hit: #ff6b4a;
+  --color-candy-2: #ff6b4a;
+  --color-candy-3: #2ee6c5;
 }
 
 html[data-theme="ion"] {
-  --color-bg: #08060f;
-  --color-surface: #151222;
-  --color-surface-2: #1e1a30;
-  --color-well: #2a2444;
-  --color-fg: #f3f0ff;
-  --color-muted: #a59bc8;
-  --color-subtle: #6f6790;
-  --color-accent: #b794ff;
-  --color-accent-fg: #140c28;
-  --color-border: #2e2848;
-  --color-ring: #b794ff;
-  --color-danger: #ff6b9a;
-  --color-success: #6ef0c8;
-  --color-overlay: rgb(6 4 14 / 72%);
-  --color-skin: #c4b0d4;
-  --color-skin-deep: #6a4a88;
-  --color-fiber: rgb(20 8 40 / 0.45);
-  --color-muscle: #3a3450;
-  --color-muscle-ink: #c5bdd8;
-  --color-muscle-hit: #3b6cff;
+  /* Legacy alias → neon hero palette */
+  --color-bg: #070b16;
+  --color-surface: #0c1224;
+  --color-surface-2: #131b32;
+  --color-well: #1a2440;
+  --color-fg: #f4f7ff;
+  --color-muted: #93a4c7;
+  --color-subtle: #64779a;
+  --color-accent: #3b82ff;
+  --color-accent-fg: #061022;
+  --color-border: #243356;
+  --color-ring: #a78bfa;
+  --color-danger: #ff6b8a;
+  --color-success: #2ee6c5;
+  --color-overlay: rgb(5 8 18 / 74%);
+  --color-muscle: #1c2744;
+  --color-muscle-ink: #c5d6ef;
+  --color-muscle-hit: #22d3ee;
+  --color-candy-2: #22d3ee;
+  --color-candy-3: #c084fc;
 }
 
 html[data-mode="light"] {
-  --color-bg: #f3f5f8;
+  --color-bg: #eef7ff;
   --color-surface: #ffffff;
-  --color-surface-2: #e8eef3;
-  --color-well: #dce3ea;
-  --color-fg: #12161c;
-  --color-muted: #5a6573;
-  --color-subtle: #8b96a4;
-  --color-border: #d4dce4;
-  --color-overlay: rgb(18 22 28 / 48%);
-  --shadow-border: 0 1px 0 rgb(16 24 32 / 0.04), 0 8px 20px rgb(16 24 32 / 0.08);
-  --shadow-border-hover: 0 1px 0 rgb(16 24 32 / 0.06), 0 10px 24px rgb(16 24 32 / 0.1);
-  --shadow-lift: 0 12px 32px rgb(16 24 32 / 0.12);
-  --shadow-glow: 0 8px 28px color-mix(in srgb, var(--color-accent) 28%, transparent);
+  --color-surface-2: #dcecfb;
+  --color-well: #c8dff5;
+  --color-fg: #101828;
+  --color-muted: #4a6484;
+  --color-subtle: #7a92b0;
+  --color-border: #c5d8ee;
+  --color-overlay: rgb(16 24 40 / 42%);
+  --shadow-border: 0 1px 0 rgb(16 40 72 / 0.04), 0 10px 24px rgb(16 40 72 / 0.1);
+  --shadow-border-hover: 0 1px 0 rgb(16 40 72 / 0.06), 0 12px 28px rgb(16 40 72 / 0.12);
+  --shadow-lift: 0 16px 40px rgb(16 40 72 / 0.14);
+  --shadow-glow: 0 10px 32px color-mix(in srgb, var(--color-accent) 32%, transparent);
 }
 
+html[data-mode="light"][data-theme="sunny"],
 html[data-mode="light"][data-theme="ember"] {
-  --color-bg: #faf3ec;
-  --color-surface: #fffdfb;
-  --color-surface-2: #f3e6da;
-  --color-well: #ead9cb;
-  --color-fg: #1a100a;
-  --color-muted: #7a5e4c;
-  --color-subtle: #a38472;
-  --color-border: #e4d4c6;
+  --color-bg: #fff6e8;
+  --color-surface: #fffdf8;
+  --color-surface-2: #ffe8c8;
+  --color-well: #ffd9a8;
+  --color-fg: #1a1008;
+  --color-muted: #8a6340;
+  --color-subtle: #b08860;
+  --color-border: #f0d4a8;
 }
 
+html[data-mode="light"][data-theme="neon"],
 html[data-mode="light"][data-theme="ion"] {
-  --color-bg: #f5f3fb;
-  --color-surface: #fcfbff;
-  --color-surface-2: #ebe7f6;
-  --color-well: #ddd7ee;
-  --color-fg: #14101c;
-  --color-muted: #6b6280;
-  --color-subtle: #9389a8;
-  --color-border: #ddd6ec;
+  --color-bg: #eef2ff;
+  --color-surface: #ffffff;
+  --color-surface-2: #e0e7ff;
+  --color-well: #c7d2fe;
+  --color-fg: #0b1220;
+  --color-muted: #4c5d82;
+  --color-subtle: #7a8bb0;
+  --color-border: #c5d0f0;
+}
+
+html[data-mode="light"][data-theme="pop"],
+html[data-mode="light"][data-theme="steel"] {
+  --color-bg: #eef7ff;
+  --color-surface: #ffffff;
+  --color-surface-2: #dcecfb;
+  --color-well: #c8dff5;
+  --color-fg: #101828;
+  --color-muted: #4a6484;
+  --color-subtle: #7a92b0;
+  --color-border: #c5d8ee;
 }
 
 @layer base {
@@ -138,7 +255,12 @@ html[data-mode="light"][data-theme="ion"] {
   }
 
   body {
-    background: var(--color-bg);
+    background:
+      radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, color-mix(in srgb, var(--color-candy-2) 18%, transparent), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--color-candy-3) 12%, transparent), transparent 55%),
+      var(--color-bg);
+    background-attachment: fixed;
     color: var(--color-fg);
     font-family: var(--font-sans);
     min-height: 100dvh;
@@ -156,13 +278,169 @@ html[data-mode="light"][data-theme="ion"] {
   h1,
   h2,
   h3 {
+    font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
   }
 
   p {
     text-wrap: pretty;
   }
+}
+
+/* —— Teen delight layer —— */
+.hero-glow {
+  position: relative;
+  isolation: isolate;
+}
+.hero-glow::before {
+  content: "";
+  position: absolute;
+  inset: -24% -14% auto;
+  height: 75%;
+  background:
+    radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--color-accent) 38%, transparent), transparent 55%),
+    radial-gradient(ellipse at 70% 30%, color-mix(in srgb, var(--color-candy-2) 28%, transparent), transparent 50%);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+.forge-blob {
+  position: absolute;
+  border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(0.5px);
+  opacity: 0.55;
+  animation: forge-blob-drift 12s ease-in-out infinite alternate;
+}
+.forge-blob--a {
+  width: 9rem;
+  height: 8rem;
+  background: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  top: -1.5rem;
+  right: -1.5rem;
+}
+.forge-blob--b {
+  width: 7rem;
+  height: 7rem;
+  background: color-mix(in srgb, var(--color-candy-2) 50%, transparent);
+  bottom: -1rem;
+  left: -1.25rem;
+  animation-delay: -4s;
+  border-radius: 55% 45% 40% 60% / 50% 55% 45% 50%;
+}
+.forge-blob--c {
+  width: 5rem;
+  height: 5.5rem;
+  background: color-mix(in srgb, var(--color-candy-3) 45%, transparent);
+  top: 40%;
+  right: 8%;
+  animation-delay: -7s;
+}
+
+.forge-card-play {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+}
+
+.forge-sticker {
+  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 0.28));
+  transition: transform 280ms var(--ease-bounce);
+}
+.forge-sticker:hover {
+  transform: rotate(-2deg) scale(1.03);
+}
+/* Character cutouts: transparent PNG on neon — no white plate behind art */
+.forge-sticker-cutout {
+  background: transparent;
+  mix-blend-mode: normal;
+}
+.forge-character-stage {
+  background: transparent;
+  isolation: isolate;
+}
+
+@keyframes forge-blob-drift {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(8px, -10px) rotate(8deg); }
+}
+
+@keyframes forge-set-pop {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 0%, transparent); }
+  35% { transform: scale(1.1); box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-success) 32%, transparent); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-success) 0%, transparent); }
+}
+@keyframes forge-pr-flash {
+  0% { opacity: 0; transform: translateY(6px) scale(0.9) rotate(-4deg); }
+  20% { opacity: 1; transform: translateY(0) scale(1.08) rotate(2deg); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px) rotate(0deg); }
+}
+@keyframes forge-rest-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 20px color-mix(in srgb, var(--color-accent) 60%, transparent)); }
+}
+@keyframes forge-tab-in {
+  from { opacity: 0.72; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes forge-bounce-in {
+  0% { opacity: 0; transform: scale(0.86) translateY(12px); }
+  60% { opacity: 1; transform: scale(1.04) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes forge-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+.forge-set-pop { animation: forge-set-pop 420ms var(--ease-out-smooth); }
+.forge-pr-flash {
+  animation: forge-pr-flash 1.4s var(--ease-out-smooth) forwards;
+  pointer-events: none;
+}
+.forge-rest-theatre { animation: forge-rest-pulse 2.2s ease-in-out infinite; }
+.forge-page-enter { animation: forge-tab-in 280ms var(--ease-out-smooth); }
+.forge-bounce-in { animation: forge-bounce-in 520ms var(--ease-bounce); }
+.forge-wiggle { animation: forge-wiggle 2.4s ease-in-out infinite; }
+
+.nav-pill {
+  transition: background-color 180ms var(--ease-out-smooth), color 180ms var(--ease-out-smooth), transform 180ms var(--ease-bounce), box-shadow 180ms var(--ease-out-smooth);
+}
+.nav-pill[data-active="true"] {
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px) scale(1.04);
+}
+.nav-shell {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-surface) 92%, var(--color-accent)), color-mix(in srgb, var(--color-surface) 88%, var(--color-candy-2)));
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, var(--color-accent));
+}
+
+.forge-cta-pulse {
+  position: relative;
+}
+.forge-cta-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid color-mix(in srgb, var(--color-accent-fg) 35%, transparent);
+  animation: forge-rest-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-set-pop, .forge-pr-flash, .forge-rest-theatre, .forge-page-enter, .hero-glow::before,
+  .forge-blob, .forge-bounce-in, .forge-wiggle, .forge-cta-pulse::after, .forge-sticker {
+    animation: none !important;
+  }
+  .nav-pill[data-active="true"] { transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -173,4 +451,121 @@ html[data-mode="light"][data-theme="ion"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+/* —— Liftoff-inspired neon chrome —— */
+.forge-neon-frame {
+  /* relative only when not already fixed/absolute — unlayered CSS would
+     otherwise override Tailwind `fixed` on Dialog/Drawer portals (dark overlay,
+     invisible content). */
+  position: relative;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--color-ring) 55%, var(--color-accent));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent),
+    0 12px 40px color-mix(in srgb, var(--color-ring) 18%, transparent),
+    var(--shadow-border);
+}
+.forge-neon-frame.fixed,
+.fixed.forge-neon-frame {
+  position: fixed;
+}
+.forge-neon-frame.absolute,
+.absolute.forge-neon-frame {
+  position: absolute;
+}
+.forge-neon-frame::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-ring) 80%, white),
+    color-mix(in srgb, var(--color-accent) 70%, #c084ff),
+    color-mix(in srgb, var(--color-candy-2, #2ee6c5) 60%, transparent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.forge-blob {
+  position: absolute;
+  border-radius: 42% 58% 55% 45% / 48% 42% 58% 52%;
+  pointer-events: none;
+  filter: blur(2px);
+  z-index: 0;
+}
+.forge-blob-a {
+  width: 9rem;
+  height: 8rem;
+  top: -1.5rem;
+  right: -1.25rem;
+  background: color-mix(in srgb, var(--color-accent) 45%, transparent);
+  animation: forge-blob-drift 12s ease-in-out infinite alternate;
+}
+.forge-blob-b {
+  width: 7rem;
+  height: 7rem;
+  bottom: -1.25rem;
+  left: -1rem;
+  background: color-mix(in srgb, var(--color-ring) 40%, transparent);
+  animation: forge-blob-drift 14s ease-in-out infinite alternate-reverse;
+}
+
+.nav-shell {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-surface) 92%, var(--color-ring)),
+    color-mix(in srgb, var(--color-surface) 88%, var(--color-accent))
+  );
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, var(--color-ring));
+}
+.nav-pill[data-active="true"] {
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.forge-page-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+
+/* Splash progress — teen neon loading bar */
+@keyframes forge-splash-bar {
+  from { transform: scaleX(0.08); }
+  to { transform: scaleX(1); }
+}
+.forge-splash-bar {
+  width: 100%;
+  transform-origin: left center;
+  animation: forge-splash-bar 2.2s var(--ease-out-smooth) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-splash-bar { animation: none; transform: scaleX(1); }
+}
+
+/* Muscle map — shapes sit on skin. Thin outline, not armor-plate strokes. */
+.muscle-plate {
+  fill: color-mix(in srgb, var(--color-skin-deep) 48%, var(--color-skin));
+  stroke: color-mix(in srgb, var(--color-skin-deep) 82%, #2c140c);
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.muscle-plate-hit {
+  fill: var(--color-muscle-hit);
+  stroke: color-mix(in srgb, white 70%, var(--color-candy-2));
+  stroke-width: 1.4;
+}
+.muscle-plate-selected {
+  stroke: var(--color-ring);
+  stroke-width: 2.3;
 }
