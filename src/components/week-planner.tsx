@@ -3,16 +3,20 @@ import { TEMPLATES } from "@/lib/exercises";
 import {
   WEEK_DAYS_MON_FIRST,
   isPlanSet,
+  nextIsoWeekKey,
   planChip,
   planKind,
   planLabel,
   todayPlan,
+  weekKeyAtLeast,
   weekPlanCounts,
+  isoWeekKey,
 } from "@/lib/week-plan";
 import type { DayPlan } from "@/lib/types";
 import { useGym } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "./ui/drawer";
+import { Switch } from "./ui/switch";
 import { ForgeCharacter } from "./forge-character";
 
 const QUICK_TEMPLATES = TEMPLATES.filter((t) =>
@@ -29,21 +33,42 @@ function restPlan(): DayPlan {
 
 export function WeekPlanner({ className }: { className?: string }) {
   const weekPlan = useGym((s) => s.settings.weekPlan);
+  const sameSplit = useGym((s) => s.settings.sameSplitEveryWeek !== false);
+  const throughKey = useGym((s) => s.settings.weekPlanThroughKey ?? null);
   const programs = useGym((s) => s.programs);
   const setDayPlan = useGym((s) => s.setDayPlan);
+  const setSameSplitEveryWeek = useGym((s) => s.setSameSplitEveryWeek);
+  const copyWeekPlanToNextWeek = useGym((s) => s.copyWeekPlanToNextWeek);
   const todayIdx = new Date().getDay();
   const [editDay, setEditDay] = useState<number | null>(null);
+  const [copiedNote, setCopiedNote] = useState<string | null>(null);
   const counts = useMemo(() => weekPlanCounts(weekPlan), [weekPlan]);
   const today = todayPlan(weekPlan);
   const todayLabel = planLabel(today, programs);
+  const todayKind = planKind(today);
   const editing = editDay == null ? null : WEEK_DAYS_MON_FIRST.find((d) => d.i === editDay) ?? null;
   const editingPlan =
     editDay == null ? null : (weekPlan?.[editDay] ?? blankPlan());
+  const nextKey = nextIsoWeekKey();
+  const coveredNext = sameSplit || weekKeyAtLeast(throughKey, nextKey);
 
   function apply(day: number, plan: DayPlan) {
     setDayPlan(day, plan);
     setEditDay(null);
   }
+
+  function onCopyNext() {
+    const { throughKey: key } = copyWeekPlanToNextWeek();
+    setCopiedNote(`Locked through ${key}`);
+    window.setTimeout(() => setCopiedNote(null), 2400);
+  }
+
+  const todayLine =
+    todayKind === "rest"
+      ? "Today is rest"
+      : todayLabel
+        ? `Today: ${todayLabel}`
+        : "Today is open — tap a day to plan";
 
   return (
     <section
@@ -60,9 +85,8 @@ export function WeekPlanner({ className }: { className?: string }) {
           <h2 className="mt-0.5 font-display text-xl font-semibold leading-snug">Plan Mon–Sun</h2>
           <p className="mt-1 text-sm text-muted">
             Tap a day · {counts.train} train · {counts.rest} rest
-            {todayLabel || planKind(today) === "rest"
-              ? ` · today ${planKind(today) === "rest" ? "rest" : todayLabel}`
-              : " · today open"}
+            {" · "}
+            <span className={cn(todayKind !== "blank" && "font-semibold text-fg")}>{todayLine}</span>
           </p>
         </div>
         <ForgeCharacter kind="mascot" size="xs" motion="none" className="shrink-0" />
@@ -97,7 +121,7 @@ export function WeekPlanner({ className }: { className?: string }) {
                   isToday ? "text-accent" : "text-muted",
                 )}
               >
-                {d.short.slice(0, 3)}
+                {isToday ? "Today" : d.short.slice(0, 3)}
               </span>
               <span className="text-sm font-extrabold leading-none">
                 {kind === "rest" ? "R" : kind === "blank" ? "+" : "●"}
@@ -108,6 +132,41 @@ export function WeekPlanner({ className }: { className?: string }) {
             </button>
           );
         })}
+      </div>
+
+      <div className="relative z-[1] mt-3 flex items-center justify-between gap-3 rounded-2xl bg-well/70 px-3 py-2.5 ring-1 ring-border">
+        <div className="min-w-0">
+          <p className="text-sm font-bold">Same split every week</p>
+          <p className="text-[11px] text-muted">
+            {sameSplit
+              ? "Board stays sticky — next week keeps this plan."
+              : "Off: copy forward when you want next week locked."}
+          </p>
+        </div>
+        <Switch
+          checked={sameSplit}
+          onCheckedChange={setSameSplitEveryWeek}
+          aria-label="Same split every week"
+          data-testid="week-same-split"
+        />
+      </div>
+
+      <div className="relative z-[1] mt-2 flex items-center gap-2">
+        <button
+          type="button"
+          data-testid="week-copy-next"
+          onClick={onCopyNext}
+          className="min-h-11 flex-1 rounded-2xl bg-surface-2 px-3 text-sm font-bold ring-1 ring-border transition-transform active:scale-[0.98]"
+        >
+          {coveredNext ? "Copy plan to next week ✓" : "Copy plan to next week"}
+        </button>
+        {copiedNote ? (
+          <span className="shrink-0 text-[11px] font-semibold text-accent">{copiedNote}</span>
+        ) : throughKey ? (
+          <span className="shrink-0 text-[11px] text-muted">Thru {throughKey}</span>
+        ) : (
+          <span className="shrink-0 text-[11px] text-muted">Week {isoWeekKey()}</span>
+        )}
       </div>
 
       <p className="relative z-[1] mt-3 text-xs text-muted">

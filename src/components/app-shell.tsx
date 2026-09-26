@@ -112,17 +112,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       land = false;
     }
     if (!land) return;
+    // Consume the one-shot land flag immediately so Train/Progress/Coach/Log
+    // stay reachable after splash or morning check-in.
+    try {
+      window.sessionStorage.removeItem("forge-land-home");
+      window.sessionStorage.removeItem("forge-after-checkin");
+    } catch {
+      /* ignore */
+    }
+    // Only bounce an accidental live-session deep link right after check-in —
+    // never trap later tab navigations on Home.
     if (pathname === "/session" || pathname.startsWith("/session/")) {
       void navigate({ to: "/", replace: true });
-      return;
-    }
-    if (pathname === "/") {
-      try {
-        window.sessionStorage.removeItem("forge-land-home");
-        window.sessionStorage.removeItem("forge-after-checkin");
-      } catch {
-        /* ignore */
-      }
     }
   }, [splash, pathname, navigate]);
 
@@ -132,12 +133,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <PowerSplash
           onDone={() => {
             setSplash(false);
+            // Preserve deep links (Train/Progress/Coach/Log). Only force Home
+            // when splash opened on `/` or an unknown path.
+            const deep =
+              pathname === "/session" ||
+              pathname.startsWith("/session/") ||
+              pathname === "/progress" ||
+              pathname === "/coach" ||
+              pathname === "/history" ||
+              pathname === "/programs" ||
+              pathname === "/muscles" ||
+              pathname === "/spotter" ||
+              pathname === "/gems" ||
+              pathname === "/streak";
+            if (deep) return;
             try {
               window.sessionStorage.setItem("forge-land-home", "1");
             } catch {
               /* ignore */
             }
-            void navigate({ to: "/", replace: true });
+            if (pathname !== "/") {
+              void navigate({ to: "/", replace: true });
+            }
           }}
         />
       ) : null}

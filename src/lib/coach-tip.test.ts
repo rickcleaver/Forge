@@ -20,6 +20,10 @@ function sessionOn(dayOffset: number, name = "Push"): Session {
 
 const settings = {
   displayName: "Kai",
+  ageYears: 16,
+  heightCm: 175,
+  bodyWeightLb: 150,
+  goal: "muscle",
   weekPlan: Array.from({ length: 7 }, () => ({ rest: false, templateId: "push", programId: null })),
 } as Settings;
 
@@ -63,6 +67,7 @@ describe("pickCoachOpenTip", () => {
     assert.ok(tip);
     assert.equal(tip!.source, "program");
     assert.match(tip!.text, /Push/);
+    assert.match(tip!.text, /build muscle/);
   });
 
   it("ignores demo seed sessions for last-session tips", () => {

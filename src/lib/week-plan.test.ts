@@ -2,13 +2,18 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildWeekFromOnboarding,
+  cloneWeekPlan,
   crewTipForDay,
   dayIndex,
+  goalShortLabel,
   isPlanSet,
+  isoWeekKey,
+  nextIsoWeekKey,
   planChip,
   planKind,
   planLabel,
   todayPlan,
+  weekKeyAtLeast,
   weekPlanCounts,
   weekPlanSummaryLine,
 } from "./week-plan.ts";
@@ -74,5 +79,29 @@ describe("week-plan", () => {
     const b = crewTipForDay(new Date("2026-09-26"));
     assert.equal(a.id, b.id);
     assert.ok(a.title.length > 3);
+  });
+
+  it("cloneWeekPlan deep-copies slots", () => {
+    const week = buildWeekFromOnboarding("muscle", 4, "gym");
+    const copy = cloneWeekPlan(week);
+    assert.notEqual(copy, week);
+    assert.deepEqual(copy, week);
+    copy[1]!.rest = true;
+    assert.equal(week[1]!.rest, false);
+  });
+
+  it("isoWeekKey / nextIsoWeekKey / weekKeyAtLeast", () => {
+    const now = new Date("2026-09-26T12:00:00");
+    const key = isoWeekKey(now);
+    assert.match(key, /^2026-W\d{2}$/);
+    const next = nextIsoWeekKey(now);
+    assert.ok(next > key);
+    assert.equal(weekKeyAtLeast(next, next), true);
+    assert.equal(weekKeyAtLeast(key, next), false);
+  });
+
+  it("goalShortLabel covers train goals", () => {
+    assert.equal(goalShortLabel("muscle"), "build muscle");
+    assert.equal(goalShortLabel(null), null);
   });
 });

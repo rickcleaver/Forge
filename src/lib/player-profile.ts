@@ -1,4 +1,5 @@
-import type { Settings } from "./types";
+import type { Settings, TrainGoal } from "./types";
+import { goalShortLabel } from "./week-plan";
 
 export type PlayerProfileFields = {
   displayName: string | null;
@@ -37,17 +38,38 @@ export function normalizeAgeYears(raw: number | null | undefined): number | null
   return n;
 }
 
-/** Slim athlete card for Coach / Spotter prompts. */
-export function athleteCard(settings: Settings): {
+export type AthleteCard = {
   name: string | null;
   age: number | null;
   heightCm: number | null;
   weightLb: number | null;
-} {
+  goal: TrainGoal | null;
+};
+
+/** Slim athlete card for Coach / Spotter prompts + tip copy. */
+export function athleteCard(settings: Settings): AthleteCard {
   return {
     name: settings.displayName?.trim() || null,
     age: settings.ageYears ?? null,
     heightCm: settings.heightCm ?? null,
     weightLb: settings.bodyWeightLb ?? null,
+    goal: settings.goal ?? null,
   };
+}
+
+/** One short clause for tips / session why-lines. */
+export function athleteCardCue(card: AthleteCard): string | null {
+  const bits: string[] = [];
+  if (card.name) bits.push(card.name);
+  if (card.age != null) bits.push(`${card.age}y`);
+  if (card.heightCm != null && card.weightLb != null) {
+    bits.push(`${Math.round(card.heightCm)}cm / ${Math.round(card.weightLb)}lb`);
+  } else if (card.weightLb != null) {
+    bits.push(`${Math.round(card.weightLb)}lb`);
+  } else if (card.heightCm != null) {
+    bits.push(`${Math.round(card.heightCm)}cm`);
+  }
+  const g = goalShortLabel(card.goal);
+  if (g) bits.push(g);
+  return bits.length ? bits.join(" · ") : null;
 }

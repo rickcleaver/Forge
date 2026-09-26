@@ -1,7 +1,8 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import { realSessions } from "./demo-sessions";
 import { trainingStreak, trainedToday } from "./player-progress";
-import { planLabel, todayPlan } from "./week-plan";
+import { athleteCard } from "./player-profile";
+import { goalShortLabel, planLabel, todayPlan } from "./week-plan";
 import type { Program, ReadinessLog, Session, Settings } from "./types";
 
 export type CoachTipSource = "streak" | "last-session" | "sleep" | "program";
@@ -68,8 +69,10 @@ function lastFinished(sessions: Session[]): Session | null {
 export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
   const now = ctx.now ?? Date.now();
   const sessions = realSessions(ctx.sessions);
-  const name = ctx.settings.displayName?.trim() || null;
+  const card = athleteCard(ctx.settings);
+  const name = card.name;
   const hi = name ? `${name}, ` : "";
+  const goal = goalShortLabel(card.goal);
 
   const ready = latestReadiness(ctx.readiness, now);
   if (ready && ready.sleepHrs > 0 && ready.sleepHrs < 6.5) {
@@ -83,7 +86,7 @@ export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
     return {
       id: `ready-${todayKey(new Date(now))}`,
       source: "sleep",
-      text: `${hi}check-in came in soft (${ready.score}/100). Lighter loads still count — leave one in the tank.`,
+      text: `${hi}check-in came in soft (${ready.score}/100)${card.weightLb != null ? ` · card ${Math.round(card.weightLb)}lb` : ""}. Lighter loads still count — leave one in the tank.`,
     };
   }
 
@@ -94,8 +97,8 @@ export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
       id: `streak-${streak}-${todayKey(new Date(now))}`,
       source: "streak",
       text: trained
-        ? `${hi}that’s a ${streak}-day streak and today’s already in the log. Protect it — sleep and food tonight.`
-        : `${hi}you’re on a ${streak}-day streak. One honest session keeps the chain alive.`,
+        ? `${hi}that’s a ${streak}-day streak and today’s already in the log. Protect it — sleep and food tonight${card.age != null && card.age < 18 ? " (teen recovery matters)" : ""}.`
+        : `${hi}you’re on a ${streak}-day streak${goal ? ` toward ${goal}` : ""}. One honest session keeps the chain alive.`,
     };
   }
 
@@ -107,7 +110,7 @@ export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
       return {
         id: `last-${last.id}`,
         source: "last-session",
-        text: `${hi}nice work on ${last.name} ${ago}. Soft walk + protein beats scrolling the recovery away.`,
+        text: `${hi}nice work on ${last.name} ${ago}. Soft walk + protein beats scrolling the recovery away${goal ? ` — keeps ${goal} on track` : ""}.`,
       };
     }
     if (hours >= 36 && hours < 96) {
@@ -122,10 +125,11 @@ export function pickCoachOpenTip(ctx: CoachTipContext): CoachOpenTip | null {
   const plan = todayPlan(ctx.settings.weekPlan, now);
   const label = planLabel(plan, ctx.programs);
   if (plan && !plan.rest && label) {
+    const goalBit = goal ? ` Goal stays ${goal}.` : "";
     return {
       id: `program-${label}-${todayKey(new Date(now))}`,
       source: "program",
-      text: `${hi}today’s on the board: ${label}. Open Train when you want to start logging.`,
+      text: `${hi}today’s on the board: ${label}.${goalBit} Open Train when you want to start logging.`,
     };
   }
   if (plan?.rest) {

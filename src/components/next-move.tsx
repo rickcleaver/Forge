@@ -47,7 +47,14 @@ export function NextMove() {
     void navigate({ to: "/session" });
   }
 
+  const planned = kind === "template" || kind === "program";
+  const displayName = settings.displayName?.trim() || null;
   const backOff = ready != null && ready < 50;
+  const eyebrow = planned
+    ? "Today · on the board"
+    : kind === "rest"
+      ? "Today · rest"
+      : "Up next";
   const title =
     kind === "rest"
       ? "Rest day — still proud of you"
@@ -59,19 +66,21 @@ export function NextMove() {
     ? `Feeling ${ready}. Go a bit lighter — still counts.`
     : ready != null
       ? `Feeling ${ready}/100 · you’ve got this`
-      : kind === "template" || kind === "program"
-        ? "From your week board · log every set, keep it fast"
+      : planned
+        ? `${displayName ? `${displayName} · ` : ""}Planned from your week board · log every set, keep it fast`
         : kind === "rest"
           ? "Optional work is fine — the board said recover"
           : "One tap. Log every set. Flex later.";
 
   return (
-    <section className="forge-card-play hero-glow relative mt-5 overflow-hidden rounded-[1.75rem] bg-accent px-5 py-5 text-accent-fg shadow-[var(--shadow-glow)]">
+    <section className="forge-card-play hero-glow relative mt-5 overflow-hidden rounded-[1.75rem] bg-accent px-5 py-5 text-accent-fg shadow-[var(--shadow-glow)]" data-testid="today-next-move">
       <span className="forge-blob forge-blob--a opacity-40" />
       <div className="relative z-[1] flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold opacity-80">Up next</p>
-          <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight">{title}</h2>
+          <p className="text-sm font-bold opacity-80">{eyebrow}</p>
+          <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight">
+            {planned && name ? <>Today: {title}</> : title}
+          </h2>
           <p className="mt-1 text-sm opacity-80">{subtitle}</p>
           {lowAreas.length ? (
             <p className="mt-1 text-xs opacity-70">Could use love: {lowAreas.join(" · ")}</p>

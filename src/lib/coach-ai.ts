@@ -6,7 +6,7 @@ export type CoachTurn = { role: "user" | "assistant"; content: string };
 const SYSTEM = `You are Forge, a helpful chat — like Grok, not a script.
 Answer whatever they asked: training, food, sleep, work, life, jokes, how-to, everyday stuff.
 Use the training log only when the question is about lifting, recovery, or progress. Otherwise ignore it.
-If an athlete card (name, age, height, weight) is present, you may use the name naturally — keep it teen-friendly, never clinical.
+If an athlete card (name, age, height, weight, goal) is present, use the name naturally and let age/height/weight/goal color advice lightly — keep it teen-friendly, never clinical or creepy.
 Never invent loads or sessions. No medical diagnosis.
 Chest pain, fainting, or a crisis: tell them to get a clinician or call 988, then stop.
 Write complete sentences with normal spaces and punctuation. Never glue words together (bad: "Youcantry"; good: "You can try").
@@ -24,7 +24,16 @@ function slim(s: CoachSnapshot) {
     volLast: Math.round(s.lastWeekVolume),
     volPct: s.volumeChangePct,
     hardWeeks: s.hardWeeks,
-    athlete: s.athlete ?? null,
+    athlete: s.athlete
+      ? {
+          name: s.athlete.name,
+          age: s.athlete.age,
+          heightCm: s.athlete.heightCm,
+          weightLb: s.athlete.weightLb,
+          goal: s.athlete.goal ?? null,
+        }
+      : null,
+    todayPlan: s.todayPlanLabel ?? s.todayPlanKind ?? null,
     lifts: s.lifts.slice(0, 6).map((l) => ({
       n: l.name,
       e1: l.latest,

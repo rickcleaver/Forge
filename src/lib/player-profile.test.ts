@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   athleteCard,
+  athleteCardCue,
   isPlayerProfileComplete,
   normalizeAgeYears,
   normalizeDisplayName,
@@ -36,14 +37,21 @@ describe("player profile", () => {
     assert.equal(normalizeAgeYears(100), null);
   });
 
-  it("athleteCard trims name", () => {
+  it("athleteCard includes goal and cue", () => {
     const card = athleteCard({
       displayName: "  Zara ",
       ageYears: 17,
       heightCm: 165,
       bodyWeightLb: 130,
+      goal: "muscle",
     } as Settings);
     assert.equal(card.name, "Zara");
     assert.equal(card.age, 17);
+    assert.equal(card.goal, "muscle");
+    const cue = athleteCardCue(card);
+    assert.ok(cue);
+    assert.match(cue!, /Zara/);
+    assert.match(cue!, /build muscle/);
+    assert.match(cue!, /165cm/);
   });
 });

@@ -1,6 +1,6 @@
 import { addDays, startOfWeek } from "date-fns";
 import { e1rmHistory, sessionVolume, weekTraining } from "./stats";
-import type { Program, Session, Settings } from "./types";
+import type { Program, Session, Settings, TrainGoal } from "./types";
 import { planKind, planLabel, todayPlan } from "./week-plan";
 
 export type LiftTrend = {
@@ -28,6 +28,7 @@ export type CoachSnapshot = {
     age: number | null;
     heightCm: number | null;
     weightLb: number | null;
+    goal?: TrainGoal | null;
   };
   /** Today's slot from settings.weekPlan — Coach respects the board. */
   todayPlanLabel?: string | null;
@@ -115,6 +116,42 @@ export function buildCoachSnapshot(
   };
 }
 
+function athleteWho(snap: CoachSnapshot): string | null {
+  return snap.athlete?.name?.trim() || null;
+}
+
+function athleteGoalBit(snap: CoachSnapshot): string | null {
+  const g = snap.athlete?.goal;
+  if (!g) return null;
+  switch (g) {
+    case "muscle":
+      return "building muscle";
+    case "strength":
+      return "getting stronger";
+    case "fat":
+      return "losing fat";
+    case "fitness":
+      return "getting fitter";
+    case "recomp":
+      return "recomp";
+    default:
+      return null;
+  }
+}
+
+function athleteBodyBit(snap: CoachSnapshot): string | null {
+  const a = snap.athlete;
+  if (!a) return null;
+  const bits: string[] = [];
+  if (a.age != null) bits.push(`${a.age}`);
+  if (a.heightCm != null && a.weightLb != null) {
+    bits.push(`${Math.round(a.heightCm)}cm / ${Math.round(a.weightLb)}lb`);
+  } else if (a.weightLb != null) {
+    bits.push(`${Math.round(a.weightLb)}lb`);
+  }
+  return bits.length ? bits.join(", ") : null;
+}
+
 export function localCoachAnswer(question: string, snap: CoachSnapshot): string {
   const q = question.toLowerCase();
   const stall = snap.lifts.filter((l) => l.weeksFlat >= 3);
@@ -143,19 +180,23 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/tomorrow|today|what should/.test(q)) {
+    const who = athleteWho(snap);
+    const hi = who ? `${who}, ` : "";
+    const goal = athleteGoalBit(snap);
+    const goalBit = goal ? ` That fits ${goal}.` : "";
     if (snap.todayPlanKind === "rest") {
-      return "Your week board says rest today. Walk, soft mobility, or skip — both are valid. Don't invent a guilt session unless you truly want it.";
+      return `${hi}your week board says rest today. Walk, soft mobility, or skip — both are valid. Don't invent a guilt session unless you truly want it.`;
     }
     if (snap.todayPlanLabel) {
-      return `Your week board already picked ${snap.todayPlanLabel}. Open Today and hit Let's go — that's the session. Extra accessories only if joints feel good.`;
+      return `${hi}your week board already picked ${snap.todayPlanLabel}.${goalBit} Open Today and hit Let's go — that's the session. Extra accessories only if joints feel good.`;
     }
     if (snap.daysTrainedThisWeek >= 5) {
-      return "You've already trained most of this week. A walk, mobility, or a short pump session is plenty. Save the heavy work for the next block.";
+      return `${hi}you've already trained most of this week. A walk, mobility, or a short pump session is plenty. Save the heavy work for the next block.`;
     }
     const lag = [...snap.lifts].sort((a, b) => a.weeksFlat - b.weeksFlat)[0];
     return lag
-      ? `Nothing locked on the week board yet. If you're choosing, ${lag.name} still has room — or tap Mon–Sun on Home and assign Push / Pull / Legs.`
-      : "Nothing on today's board. Tap Mon–Sun on Home, assign a template or rest, then start from Today.";
+      ? `${hi}nothing locked on the week board yet. If you're choosing, ${lag.name} still has room — or tap Mon–Sun on Home and assign Push / Pull / Legs.`
+      : `${hi}nothing on today's board. Tap Mon–Sun on Home, assign a template or rest, then start from Today.`;
   }
 
   if (/bench|squat|deadlift|press|trend/.test(q)) {
@@ -170,7 +211,17 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/eat|food|protein|diet|calorie|hungry|meal|cut|bulk/.test(q)) {
-    return "Keep it boring. Protein at each meal (meat, eggs, dairy, or a shake), veggies when you can, drink water at work. A cut is a small calorie drop plus walking, not a war on carbs. A bulk is a small surplus and the same lifts. If MyFitnessPal is linked, log there — Forge is for the work, not the grocery list.";
+    const who = athleteWho(snap);
+    const goal = athleteGoalBit(snap);
+    const hi = who ? `${who}, ` : "";
+    const wt = snap.athlete?.weightLb != null ? ` At ~${Math.round(snap.athlete.weightLb)}lb,` : "";
+    if (goal === "losing fat") {
+      return `${hi}keep it boring.${wt} protein at each meal, veggies when you can, water at work. A cut is a small calorie drop plus walking — not a war on carbs. Forge logs the work; MyFitnessPal can hold the groceries.`;
+    }
+    if (goal === "building muscle" || goal === "getting stronger") {
+      return `${hi}keep it boring.${wt} protein at each meal (meat, eggs, dairy, or a shake) and a small surplus beats dirty bulk chaos. Same lifts, honest log. MFP for food if you want numbers — Forge is for the work.`;
+    }
+    return `${hi}keep it boring.${wt} protein at each meal, veggies when you can, drink water. A cut is a small drop plus walking; a bulk is a small surplus and the same lifts. If MyFitnessPal is linked, log there — Forge is for the work.`;
   }
 
   if (/stress|anxiety|motivation|mood|quit|don't want|dont want|burnout/.test(q)) {
@@ -186,7 +237,17 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/weight|fat|scale|belly/.test(q)) {
-    return "The scale jumps with salt, sleep, and training. Watch the weekly average and the photos, not one morning. Strength going up while the waist is quiet is still a win. Eat enough protein, walk, lift. That’s the whole trick.";
+    const who = athleteWho(snap);
+    const hi = who ? `${who}, ` : "";
+    const wt = snap.athlete?.weightLb != null ? ` Your card says ~${Math.round(snap.athlete.weightLb)}lb —` : "";
+    const goal = athleteGoalBit(snap);
+    const aim =
+      goal === "losing fat"
+        ? " For fat loss, trust the weekly average and photos more than one morning."
+        : goal === "building muscle"
+          ? " Muscle goals care more about strength and photos than the daily scale bounce."
+          : " Watch the weekly average and the photos, not one morning.";
+    return `${hi}the scale jumps with salt, sleep, and training.${wt}${aim} Strength going up while the waist is quiet is still a win. Eat enough protein, walk, lift.`;
   }
 
   if (/work|job|time|busy|life|routine|habit/.test(q)) {
@@ -194,11 +255,17 @@ export function localCoachAnswer(question: string, snap: CoachSnapshot): string 
   }
 
   if (/hello|hi\b|hey|what's up|whats up|how are you/.test(q)) {
-    const who = snap.athlete?.name?.trim();
+    const who = athleteWho(snap);
+    const goal = athleteGoalBit(snap);
+    const body = athleteBodyBit(snap);
     const greet = who ? `Hey ${who}.` : "Hey.";
+    const profile =
+      goal || body
+        ? ` ${[goal ? `Goal: ${goal}` : null, body ? `Card: ${body}` : null].filter(Boolean).join(". ")}.`
+        : "";
     return snap.sessionsTotal
-      ? `${greet} I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
-      : `${greet} Ask about the gym, food, sleep, or anything else on your mind.`;
+      ? `${greet}${profile} I'm here for training or anything else — dinner, sleep, a rough day, whatever. You've got ${snap.sessionsTotal} sessions in the log if you want to talk lifts.`
+      : `${greet}${profile} Ask about the gym, food, sleep, or anything else on your mind.`;
   }
 
   if (/weather|recipe|cook|movie|show|game|news|joke|funny/.test(q)) {
@@ -212,5 +279,10 @@ export function snapshotPrompt(snap: CoachSnapshot): string {
   const lifts = snap.lifts
     .map((l) => `${l.name}: e1RM ${l.latest ?? "—"} (${l.changePct ?? 0}%, flat ${l.weeksFlat} wk)`)
     .join("; ");
-  return `Sessions=${snap.sessionsTotal}; weeks=${snap.weeksLogged}; thisWeekSessions=${snap.thisWeekSessions}; volChange=${snap.volumeChangePct ?? "n/a"}%; hardWeeksInARow=${snap.hardWeeks}; lifts: ${lifts || "none"}`;
+  const a = snap.athlete;
+  const athlete =
+    a && (a.name || a.age || a.heightCm || a.weightLb || a.goal)
+      ? `athlete=${JSON.stringify({ name: a.name, age: a.age, heightCm: a.heightCm, weightLb: a.weightLb, goal: a.goal ?? null })}; `
+      : "";
+  return `${athlete}Sessions=${snap.sessionsTotal}; weeks=${snap.weeksLogged}; thisWeekSessions=${snap.thisWeekSessions}; volChange=${snap.volumeChangePct ?? "n/a"}%; hardWeeksInARow=${snap.hardWeeks}; today=${snap.todayPlanLabel ?? snap.todayPlanKind ?? "n/a"}; lifts: ${lifts || "none"}`;
 }

@@ -51,7 +51,7 @@ import type {
   ColorMode,
 } from "./types";
 import { uid } from "./utils";
-import { buildWeekFromOnboarding } from "./week-plan";
+import { buildWeekFromOnboarding, cloneWeekPlan, isoWeekKey, nextIsoWeekKey } from "./week-plan";
 import type { ForgeBackup } from "./backup";
 
 const REST_DEFAULT = 90;
@@ -78,6 +78,8 @@ const defaultSettings: Settings = {
   exerciseRest: {},
   defaultIntensity: "moderate",
   weekPlan: emptyWeek,
+  sameSplitEveryWeek: true,
+  weekPlanThroughKey: null,
   theme: "neon",
   colorMode: "dark",
   onboarded: false,
@@ -177,6 +179,8 @@ type GymState = {
   setMorningGate: (v: boolean) => void;
   setDayPlan: (day: number, plan: DayPlan) => void;
   slideWeekPlan: () => void;
+  setSameSplitEveryWeek: (v: boolean) => void;
+  copyWeekPlanToNextWeek: () => { throughKey: string };
   setOnboarding: (input: {
     goal: TrainGoal;
     trainDays: number;
@@ -1183,6 +1187,32 @@ export const useGym = create<GymState>()(
           const rotated = [plan[6], ...plan.slice(0, 6)];
           return { settings: { ...s.settings, weekPlan: rotated } };
         }),
+      setSameSplitEveryWeek: (v) =>
+        set((s) => ({
+          settings: {
+            ...s.settings,
+            sameSplitEveryWeek: v,
+            // Turning sticky on commits through at least this week.
+            weekPlanThroughKey: v
+              ? (s.settings.weekPlanThroughKey && s.settings.weekPlanThroughKey >= isoWeekKey()
+                  ? s.settings.weekPlanThroughKey
+                  : isoWeekKey())
+              : s.settings.weekPlanThroughKey ?? null,
+          },
+        })),
+      copyWeekPlanToNextWeek: () => {
+        const throughKey = nextIsoWeekKey();
+        set((s) => ({
+          settings: {
+            ...s.settings,
+            weekPlan: cloneWeekPlan(s.settings.weekPlan),
+            weekPlanThroughKey: throughKey,
+            // Copying forward is the sticky intent — keep the toggle on.
+            sameSplitEveryWeek: s.settings.sameSplitEveryWeek !== false,
+          },
+        }));
+        return { throughKey };
+      },
       setOnboarding: ({
         goal,
         trainDays,
@@ -1515,6 +1545,13 @@ export const useGym = create<GymState>()(
               Array.isArray(p.settings?.weekPlan) && p.settings.weekPlan.length === 7
                 ? p.settings.weekPlan
                 : current.settings.weekPlan,
+            sameSplitEveryWeek: p.settings?.sameSplitEveryWeek !== false,
+            weekPlanThroughKey:
+              typeof p.settings?.weekPlanThroughKey === "string"
+                ? p.settings.weekPlanThroughKey
+                : p.settings?.weekPlanThroughKey === null
+                  ? null
+                  : current.settings.weekPlanThroughKey ?? null,
             hapticRest: p.settings?.hapticRest ?? current.settings.hapticRest,
             theme: migrateThemeId(p.settings?.theme) ?? current.settings.theme,
             colorMode: p.settings?.colorMode === "light" || p.settings?.colorMode === "dark"

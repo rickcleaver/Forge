@@ -190,3 +190,60 @@ export function crewTipForDay(now: number | Date = Date.now()) {
   const i = Math.abs(Math.floor(new Date(now).getTime() / 86_400_000)) % CREW_TIPS.length;
   return CREW_TIPS[i]!;
 }
+
+/** Clone day slots so edits don't alias prior weeks. */
+export function cloneWeekPlan(weekPlan: DayPlan[] | null | undefined): DayPlan[] {
+  const base = weekPlan?.length === 7 ? weekPlan : Array.from({ length: 7 }, () => ({
+    rest: false,
+    templateId: null,
+    programId: null,
+  }));
+  return base.map((d) => ({
+    rest: Boolean(d?.rest),
+    templateId: d?.templateId ?? null,
+    programId: d?.programId ?? null,
+  }));
+}
+
+/** ISO week key like 2026-W39 (Mon-based week, ISO-8601). */
+export function isoWeekKey(now: number | Date = Date.now()): string {
+  const d = new Date(now);
+  // Thursday in current week decides the year (ISO).
+  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((tmp.getTime() - yearStart.getTime()) / 86_400_000) + 1) / 7);
+  return `${tmp.getUTCFullYear()}-W${String(weekNo).padStart(2, "0")}`;
+}
+
+/** Next ISO week after `now`. */
+export function nextIsoWeekKey(now: number | Date = Date.now()): string {
+  const d = new Date(now);
+  d.setDate(d.getDate() + 7);
+  return isoWeekKey(d);
+}
+
+/** Compare ISO week keys lexicographically (YYYY-Www sorts correctly). */
+export function weekKeyAtLeast(through: string | null | undefined, target: string): boolean {
+  if (!through) return false;
+  return through >= target;
+}
+
+export function goalShortLabel(goal: TrainGoal | null | undefined): string | null {
+  if (!goal) return null;
+  switch (goal) {
+    case "muscle":
+      return "build muscle";
+    case "strength":
+      return "get stronger";
+    case "fat":
+      return "lose fat";
+    case "fitness":
+      return "get fitter";
+    case "recomp":
+      return "recomp";
+    default:
+      return null;
+  }
+}

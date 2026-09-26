@@ -238,15 +238,17 @@ function Plate({
         <path d={THUMB_L} className="pointer-events-none fill-skin" />
         <path d={THUMB_R} className="pointer-events-none fill-skin" />
         <path
-          d="M50 200 C57 195 64 204 61 213 C58 220 51 217"
+          d={THUMB_L}
           className="pointer-events-none fill-none stroke-skin-deep"
           strokeWidth="2.15"
+          strokeLinejoin="round"
           strokeLinecap="round"
         />
         <path
-          d="M150 200 C143 195 136 204 139 213 C142 220 149 217"
+          d={THUMB_R}
           className="pointer-events-none fill-none stroke-skin-deep"
           strokeWidth="2.15"
+          strokeLinejoin="round"
           strokeLinecap="round"
         />
 

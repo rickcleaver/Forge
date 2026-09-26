@@ -88,6 +88,19 @@ Keep the web `<input>` fallback so desktop and installed PWA still work without 
 4. **Build**: `npm run build && npx cap sync android`, then Android Studio → Generate Signed Bundle (AAB). JDK 17+, `compileSdk`/`targetSdk` 34.
 5. **Device test**: Android 14+ emulator or phone with Health Connect + a steps/weight source (Fitbit, Garmin, Pixel steps). Tap **Connect & sync**, grant reads, confirm Today steps / Weight update and badge flips to **Synced**.
 
+### Cap + Health Connect device checklist
+
+Use this on a real phone or Android 14+ emulator before a Play upload:
+
+1. **Build & sync** — `npm run build && npx cap sync android`, then Run from Android Studio (JDK 17+, `ca.forge.log`).
+2. **Health Connect present** — Android 14+ built-in, or install Health Connect from Play on older devices.
+3. **Seed a source** — Pixel Steps, Fitbit, Garmin, or Health Connect Controller so steps/weight/sleep exist.
+4. **Connect & sync** — In Forge → Settings → Health Connect → **Connect & sync** → grant Steps, Weight, Sleep, Heart rate / Resting heart rate.
+5. **Confirm ingest** — Home **Steps** card updates, weight appears if present, badge flips to **Synced** (never from permission alone).
+6. **Privacy activity** — From Health Connect app permissions / Play declaration path, `HealthConnectPrivacyActivity` opens https://forgelog.ca/privacy.
+7. **Web fallback** — Same build still works as PWA at https://forgelog.ca without Capacitor; native bridge is a no-op on web.
+8. **Avatar camera (optional)** — Onboarding selfie uses web `<input capture>` on PWA; Cap Camera is optional upgrade only.
+
 ### Don’t break the web build
 
 Capacitor deps are optional at runtime. `npm run build` / `npm run dev` stay web-first. Only `npx cap sync` needs a client `dist` output.

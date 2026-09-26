@@ -45,6 +45,8 @@ export function SettingsDrawer() {
   const setAutoStartRest = useGym((s) => s.setAutoStartRest);
   const setHapticRest = useGym((s) => s.setHapticRest);
   const setDayPlan = useGym((s) => s.setDayPlan);
+  const setSameSplitEveryWeek = useGym((s) => s.setSameSplitEveryWeek);
+  const copyWeekPlanToNextWeek = useGym((s) => s.copyWeekPlanToNextWeek);
   const setDisplayName = useGym((s) => s.setDisplayName);
   const setAvatar = useGym((s) => s.setAvatar);
   const clearAvatar = useGym((s) => s.clearAvatar);
@@ -359,6 +361,24 @@ export function SettingsDrawer() {
           <section className="flex flex-col gap-2">
             <p className="font-mono text-[10px] tracking-wider text-muted uppercase">Week</p>
             <p className="text-sm text-muted">Today will show what’s planned. Leave a day blank if you don’t want a nudge.</p>
+            <div className="flex items-center justify-between gap-4 rounded-lg bg-surface-2 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium">Same split every week</p>
+                <p className="text-xs text-muted">Keep Mon–Sun sticky. Or copy forward from Home.</p>
+              </div>
+              <Switch
+                checked={settings.sameSplitEveryWeek !== false}
+                onCheckedChange={setSameSplitEveryWeek}
+                aria-label="Same split every week"
+              />
+            </div>
+            <button
+              type="button"
+              className="min-h-11 rounded-lg bg-surface-2 px-4 text-sm font-semibold ring-1 ring-border"
+              onClick={() => copyWeekPlanToNextWeek()}
+            >
+              Copy plan to next week
+            </button>
             <ul className="flex flex-col gap-2">
               {WEEK_DAYS_MON_FIRST.map((d) => {
                 const plan = settings.weekPlan?.[d.i] ?? { rest: false, templateId: null, programId: null };

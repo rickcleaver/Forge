@@ -158,6 +158,10 @@ export type Settings = {
   exerciseRest: Record<string, number>;
   defaultIntensity: Intensity;
   weekPlan: DayPlan[];
+  /** When true, Mon–Sun board repeats every week (default). */
+  sameSplitEveryWeek?: boolean;
+  /** ISO week key (YYYY-Www) the board is committed through — bumped by “Copy to next week”. */
+  weekPlanThroughKey?: string | null;
   theme: ThemeId;
   colorMode?: ColorMode;
   onboarded?: boolean;

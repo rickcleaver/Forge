@@ -3,6 +3,8 @@ import { exerciseKey, isWorkingCompleted, muscleHitsThisWeek, sessionVolume, wee
 import { LIBRARY, LIBRARY_MAP } from "./exercises";
 import type { ExerciseLog, MuscleId, ReadinessLog, Session, Settings } from "./types";
 import { MUSCLES } from "./types";
+import { athleteCard } from "./player-profile";
+import { goalShortLabel } from "./week-plan";
 
 export type NextRx = {
   name: string;
@@ -324,8 +326,19 @@ export function coachWorkoutPlan(
     }
   }
   const focus = profile[0]?.label ?? "full body";
-  const why = `Forge score ${score.total}. Weakest area is ${focus.toLowerCase()}. ${
+  const card = athleteCard(settings);
+  const who = card.name;
+  const goal = goalShortLabel(card.goal);
+  const body =
+    card.weightLb != null
+      ? ` · ~${Math.round(card.weightLb)}lb`
+      : card.heightCm != null
+        ? ` · ${Math.round(card.heightCm)}cm`
+        : "";
+  const ageBit = card.age != null ? ` · ${card.age}y` : "";
+  const why = `${who ? `${who} · ` : ""}Forge score ${score.total}. Weakest area is ${focus.toLowerCase()}. ${
     lowReady ? "Readiness is soft, so two working sets." : `${sets} working sets.`
-  }`;
-  return { name: `Forge · ${focus}`, why, exerciseIds: ids.slice(0, 6), sets };
+  }${goal ? ` Aim: ${goal}.` : ""}${body}${ageBit}`;
+  const name = who ? `${who} · ${focus}` : `Forge · ${focus}`;
+  return { name, why, exerciseIds: ids.slice(0, 6), sets };
 }
